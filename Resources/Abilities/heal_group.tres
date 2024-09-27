@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CombatAbilities" load_steps=2 format=3 uid="uid://ey7kiim3ywln"]
+
+[ext_resource type="Script" path="res://Scripts/Abilities/CombatAbilities.cs" id="1_4i2oi"]
+
+[resource]
+script = ExtResource("1_4i2oi")
+AbilityName = "Heal All"
+AbilityDescription = "Restore life to entire team."
+TargetType = "Ally"
+TargetArea = "Group"
+NumericValue = 10.0
+DamageType = "Healing"
+CallAnimation = "battle_anim/heal"

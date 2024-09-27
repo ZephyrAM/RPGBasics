@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CombatAbilities" load_steps=2 format=3 uid="uid://daex8o84iwkfv"]
+
+[ext_resource type="Script" path="res://Scripts/Abilities/CombatAbilities.cs" id="1_jpx4x"]
+
+[resource]
+script = ExtResource("1_jpx4x")
+AbilityName = "Fire Wave"
+AbilityDescription = "Damages enemy team."
+TargetType = "Enemy"
+TargetArea = "Group"
+NumericValue = 10.0
+DamageType = "Magical"
+CallAnimation = "battle_anim/spell_cast"

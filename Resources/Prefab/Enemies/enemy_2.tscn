@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dmlfvkfp0w8bf"]
+
+[ext_resource type="PackedScene" uid="uid://blox2rfxsjm64" path="res://Resources/Prefab/enemy_character.tscn" id="1_lje17"]
+
+[node name="EnemyCharacter_1" instance=ExtResource("1_lje17")]
+
+[node name="BaseStats" parent="." index="6"]
+value = PackedFloat32Array(30, 10, 5, 5, 1, 0)

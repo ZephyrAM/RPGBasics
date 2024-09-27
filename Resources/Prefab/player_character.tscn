@@ -1,0 +1,153 @@
+[gd_scene load_steps=25 format=3 uid="uid://da7fwfcevplrb"]
+
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="1_cu7be"]
+[ext_resource type="Texture2D" uid="uid://bpljfe63wdftg" path="res://Assets/Graphics/Characters/Char_Move.png" id="1_e8evb"]
+[ext_resource type="AnimationLibrary" uid="uid://fta55tbh4fg5" path="res://Resources/Misc/top_down_move.res" id="1_n8n3y"]
+[ext_resource type="AnimationLibrary" uid="uid://djlnn8cs542vh" path="res://Resources/Misc/battle_anim.res" id="1_nlbc0"]
+[ext_resource type="Script" path="res://Scripts/Stats/Battler.cs" id="2_s831g"]
+[ext_resource type="Script" path="res://Scripts/Stats/Health.cs" id="3_rfmda"]
+[ext_resource type="Script" path="res://Scripts/Stats/BaseStats.cs" id="4_fic8q"]
+[ext_resource type="Script" path="res://Scripts/Abilities/SkillList.cs" id="8_q4v62"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sby8l"]
+size = Vector2(46, 88)
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_50t2m"]
+animation = &"top_down_move/idle_down"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_s15ls"]
+animation = &"top_down_move/idle_up"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_idqko"]
+animation = &"top_down_move/idle_left"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_b5bc0"]
+animation = &"top_down_move/idle_right"
+
+[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_fgkxs"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_50t2m")
+blend_point_0/pos = Vector2(0, 1)
+blend_point_1/node = SubResource("AnimationNodeAnimation_s15ls")
+blend_point_1/pos = Vector2(0, -1)
+blend_point_2/node = SubResource("AnimationNodeAnimation_idqko")
+blend_point_2/pos = Vector2(-1, 0)
+blend_point_3/node = SubResource("AnimationNodeAnimation_b5bc0")
+blend_point_3/pos = Vector2(1, 0)
+blend_mode = 1
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_y1563"]
+animation = &"top_down_move/walk_down"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_iip1f"]
+animation = &"top_down_move/walk_up"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_junn5"]
+animation = &"top_down_move/walk_left"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tl242"]
+animation = &"top_down_move/walk_right"
+
+[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_2ln7w"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_y1563")
+blend_point_0/pos = Vector2(0, 1)
+blend_point_1/node = SubResource("AnimationNodeAnimation_iip1f")
+blend_point_1/pos = Vector2(0, -1)
+blend_point_2/node = SubResource("AnimationNodeAnimation_junn5")
+blend_point_2/pos = Vector2(-1, 0)
+blend_point_3/node = SubResource("AnimationNodeAnimation_tl242")
+blend_point_3/pos = Vector2(1, 0)
+blend_mode = 1
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_8x5ob"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_2g25q"]
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_xs4vy"]
+states/Idle/node = SubResource("AnimationNodeBlendSpace2D_fgkxs")
+states/Idle/position = Vector2(430, 94)
+states/Walk/node = SubResource("AnimationNodeBlendSpace2D_2ln7w")
+states/Walk/position = Vector2(634, 94)
+transitions = ["Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_8x5ob"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_2g25q")]
+
+[sub_resource type="Animation" id="Animation_va81w"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_msahq"]
+_data = {
+"RESET": SubResource("Animation_va81w")
+}
+
+[node name="PlayerCharacter_1" type="CharacterBody2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_e8evb")
+hframes = 3
+vframes = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_sby8l")
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+tree_root = SubResource("AnimationNodeStateMachine_xs4vy")
+anim_player = NodePath("../AnimationPlayer")
+parameters/Idle/blend_position = Vector2(-0.00171232, 1)
+parameters/Walk/blend_position = Vector2(0, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_msahq"),
+"battle_anim": ExtResource("1_nlbc0"),
+"top_down_move": ExtResource("1_n8n3y")
+}
+
+[node name="Name" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Test Player"
+label_settings = ExtResource("1_cu7be")
+horizontal_alignment = 2
+
+[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerHealth", "battlerStats", "battlerSkills")]
+script = ExtResource("2_s831g")
+battlerType = "Player"
+battlerName = NodePath("../Name")
+battlerBody = NodePath("..")
+battlerSprite = NodePath("../Sprite2D")
+battlerAnim = NodePath("../AnimationPlayer")
+battlerHealth = NodePath("../Health")
+battlerStats = NodePath("../BaseStats")
+battlerSkills = NodePath("../SkillList")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("3_rfmda")
+
+[node name="BaseStats" type="Node" parent="."]
+script = ExtResource("4_fic8q")
+value = PackedFloat32Array(60, 20, 30, 10, 2, 0)
+
+[node name="SkillList" type="Node" parent="."]
+script = ExtResource("8_q4v62")

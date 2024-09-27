@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://bjoehnkxwngcu"]
+
+[ext_resource type="PackedScene" uid="uid://da7fwfcevplrb" path="res://Resources/Prefab/player_character.tscn" id="1_8ij14"]
+[ext_resource type="Resource" uid="uid://b04d6trvaud3r" path="res://Resources/Abilities/heal_single.tres" id="2_r38lc"]
+[ext_resource type="Resource" uid="uid://ey7kiim3ywln" path="res://Resources/Abilities/heal_group.tres" id="3_prwci"]
+
+[node name="Player" instance=ExtResource("1_8ij14")]
+
+[node name="AnimationTree" parent="." index="2"]
+parameters/Idle/blend_position = Vector2(0, 0)
+
+[node name="Name" parent="." index="4"]
+text = "Player 1"
+
+[node name="BaseStats" parent="." index="7"]
+value = PackedFloat32Array(60, 20, 50, 25, 2, 0)
+
+[node name="SkillList" parent="." index="8"]
+defaultSkills = Array[Resource]([ExtResource("2_r38lc"), ExtResource("3_prwci")])

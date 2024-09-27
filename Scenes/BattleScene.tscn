@@ -1,0 +1,220 @@
+[gd_scene load_steps=13 format=3 uid="uid://chutyx7868wr6"]
+
+[ext_resource type="Script" path="res://Scripts/Control/BattleController.cs" id="1_0kd48"]
+[ext_resource type="Script" path="res://Scripts/System/BattleSystem.cs" id="1_ffriu"]
+[ext_resource type="PackedScene" uid="uid://drakoxf8swfix" path="res://Resources/Misc/status_list.tscn" id="2_wsqr5"]
+[ext_resource type="PackedScene" uid="uid://csacs6oelr813" path="res://Resources/Prefab/Enemies/Groups/enemy_team_1.tscn" id="6_2mty7"]
+[ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/Nodes/battle_label.tscn" id="7_e71ky"]
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="8_fv28a"]
+[ext_resource type="PackedScene" uid="uid://c5murpqijft2o" path="res://Resources/Nodes/floating_text.tscn" id="8_x25aq"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_dvpul"]
+size = Vector2(75, 25)
+
+[sub_resource type="Animation" id="Animation_pg4hp"]
+resource_name = "bounce_cursor"
+length = 0.6
+loop_mode = 1
+step = 0.025
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, -15), Vector2(0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_uf2vk"]
+_data = {
+"cursor_bounce": SubResource("Animation_pg4hp")
+}
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_jnkec"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_eyyov"]
+
+[node name="BattleSystem" type="Node2D" node_paths=PackedStringArray("partyInput", "floatingText", "cursorTarget", "baseCamera", "battleUI", "commandPanel", "skillPanel")]
+script = ExtResource("1_ffriu")
+enemyEncounter = ExtResource("6_2mty7")
+partyInput = NodePath("PlayerParty")
+floatingText = NodePath("BattleUI/FloatingValues")
+cursorTarget = NodePath("BattleUI/CursorTarget")
+baseCamera = NodePath("Camera2D")
+battleUI = NodePath("BattleUI")
+commandPanel = NodePath("BattleUI/CommandPanel")
+skillPanel = NodePath("BattleUI/SkillPanel")
+statusList = ExtResource("2_wsqr5")
+labelSettings = ExtResource("7_e71ky")
+enemyTeamName = "EnemyTeam"
+playerPartyName = "PlayerParty"
+enemyListName = "EnemyList"
+playerListName = "PlayerList"
+
+[node name="Environment" type="Node2D" parent="."]
+
+[node name="Scenery" type="ColorRect" parent="Environment"]
+offset_left = -795.0
+offset_top = -454.0
+offset_right = 795.0
+offset_bottom = 455.0
+color = Color(0.443137, 0.686275, 1, 1)
+
+[node name="Ground" type="ColorRect" parent="Environment"]
+offset_left = -791.0
+offset_top = 10.0
+offset_right = 791.0
+offset_bottom = 452.0
+scale = Vector2(1, 0.999999)
+color = Color(0.341176, 0.341176, 0.341176, 1)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_left = -800
+limit_top = -460
+limit_right = 800
+limit_bottom = 460
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
+editor_draw_limits = true
+editor_draw_drag_margin = true
+
+[node name="PlayerParty" type="Node2D" parent="." node_paths=PackedStringArray("commandList", "skillList")]
+script = ExtResource("1_0kd48")
+commandList = NodePath("../BattleUI/CommandPanel/CommandList")
+skillList = NodePath("../BattleUI/SkillPanel/SkillList")
+playerPositions = PackedVector2Array(530, 0, 570, 60, 610, 120, 650, 180)
+
+[node name="BattleUI" type="CanvasLayer" parent="."]
+
+[node name="FloatingValues" type="Node2D" parent="BattleUI"]
+
+[node name="FloatingText1" parent="BattleUI/FloatingValues" instance=ExtResource("8_x25aq")]
+
+[node name="FloatingText2" parent="BattleUI/FloatingValues" instance=ExtResource("8_x25aq")]
+
+[node name="FloatingText3" parent="BattleUI/FloatingValues" instance=ExtResource("8_x25aq")]
+
+[node name="FloatingText4" parent="BattleUI/FloatingValues" instance=ExtResource("8_x25aq")]
+
+[node name="FloatingText5" parent="BattleUI/FloatingValues" instance=ExtResource("8_x25aq")]
+
+[node name="CursorTarget" type="Node2D" parent="BattleUI"]
+
+[node name="Sprite2D" type="Sprite2D" parent="BattleUI/CursorTarget"]
+modulate = Color(0.109804, 0.811765, 0.784314, 1)
+texture = SubResource("PlaceholderTexture2D_dvpul")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="BattleUI/CursorTarget/Sprite2D"]
+libraries = {
+"": SubResource("AnimationLibrary_uf2vk")
+}
+
+[node name="EnemyList" type="VBoxContainer" parent="BattleUI"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 50.0
+offset_top = -200.0
+offset_right = 750.0
+grow_vertical = 0
+
+[node name="PlayerList" type="VBoxContainer" parent="BattleUI"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -850.0
+offset_top = -200.0
+offset_right = -50.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="CommandPanel" type="PanelContainer" parent="BattleUI"]
+offset_left = 1155.0
+offset_top = 152.0
+offset_right = 1301.0
+offset_bottom = 376.0
+
+[node name="Background" type="TextureRect" parent="BattleUI/CommandPanel"]
+modulate = Color(0.192157, 0.470588, 1, 1)
+layout_mode = 2
+texture = SubResource("CanvasTexture_jnkec")
+
+[node name="ColorRect" type="ColorRect" parent="BattleUI/CommandPanel"]
+modulate = Color(0.615686, 0.615686, 0.615686, 0.537255)
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="CommandList" type="VBoxContainer" parent="BattleUI/CommandPanel"]
+layout_mode = 2
+
+[node name="Command_Attack" type="Label" parent="BattleUI/CommandPanel/CommandList"]
+layout_mode = 2
+text = "Attack"
+label_settings = ExtResource("8_fv28a")
+horizontal_alignment = 1
+
+[node name="Command_Defend" type="Label" parent="BattleUI/CommandPanel/CommandList"]
+layout_mode = 2
+text = "Defend"
+label_settings = ExtResource("8_fv28a")
+horizontal_alignment = 1
+
+[node name="Command_Skill" type="Label" parent="BattleUI/CommandPanel/CommandList"]
+layout_mode = 2
+text = "Skill"
+label_settings = ExtResource("8_fv28a")
+horizontal_alignment = 1
+
+[node name="SkillPanel" type="PanelContainer" parent="BattleUI"]
+offset_left = 519.0
+offset_top = 269.0
+offset_right = 1083.0
+offset_bottom = 639.0
+
+[node name="TextureRect" type="TextureRect" parent="BattleUI/SkillPanel"]
+modulate = Color(0.192157, 0.470588, 1, 1)
+layout_mode = 2
+texture = SubResource("CanvasTexture_eyyov")
+
+[node name="SelectList" type="GridContainer" parent="BattleUI/SkillPanel"]
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="BattleUI/SkillPanel/SelectList"]
+modulate = Color(0.615686, 0.615686, 0.615686, 0.537255)
+custom_minimum_size = Vector2(280, 44)
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="SkillList" type="GridContainer" parent="BattleUI/SkillPanel"]
+layout_mode = 2
+columns = 2
+
+[node name="Skill_Damage" parent="BattleUI/SkillPanel/SkillList" instance=ExtResource("7_e71ky")]
+layout_mode = 2
+text = "Damage"
+
+[node name="Skill_Heal" type="Label" parent="BattleUI/SkillPanel/SkillList"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+text = "Heal"
+label_settings = ExtResource("8_fv28a")
+horizontal_alignment = 1
+
+[node name="Skill_GroupAttack" type="Label" parent="BattleUI/SkillPanel/SkillList"]
+layout_mode = 2
+text = "Group Attack"
+label_settings = ExtResource("8_fv28a")
+horizontal_alignment = 1
+
+[node name="Skill_GroupHeal" type="Label" parent="BattleUI/SkillPanel/SkillList"]
+layout_mode = 2
+text = "Group Heal"
+label_settings = ExtResource("8_fv28a")
+horizontal_alignment = 1

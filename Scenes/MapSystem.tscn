@@ -1,0 +1,62 @@
+[gd_scene load_steps=9 format=3 uid="uid://cj0v8mojhj4a7"]
+
+[ext_resource type="Script" path="res://Scripts/System/PartyManager.cs" id="1_cm2c1"]
+[ext_resource type="Script" path="res://Scripts/System/MapSystem.cs" id="1_rtj5w"]
+[ext_resource type="Script" path="res://Scripts/System/EncounterArea.cs" id="1_x5jq7"]
+[ext_resource type="PackedScene" uid="uid://bjoehnkxwngcu" path="res://Resources/Prefab/Players/player_1.tscn" id="2_cwo0u"]
+[ext_resource type="PackedScene" uid="uid://chutyx7868wr6" path="res://Scenes/BattleScene.tscn" id="2_tdxdo"]
+[ext_resource type="PackedScene" uid="uid://bm6r0ypkntj5r" path="res://Resources/Prefab/Players/player_2.tscn" id="3_lcp0t"]
+[ext_resource type="Script" path="res://Scripts/Control/CharacterController.cs" id="4_3r411"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_b7hks"]
+size = Vector2(65, 157)
+
+[node name="MapSystem" type="Node2D" node_paths=PackedStringArray("playerParty")]
+script = ExtResource("1_rtj5w")
+battleScene = ExtResource("2_tdxdo")
+playerParty = NodePath("PartyManager")
+
+[node name="Environment" type="Node2D" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="Environment"]
+z_index = -2
+offset_left = -1779.0
+offset_top = -993.0
+offset_right = 1804.0
+offset_bottom = 998.0
+
+[node name="ColorRect2" type="ColorRect" parent="Environment"]
+z_index = -2
+offset_left = -745.0
+offset_top = -296.0
+offset_right = 739.0
+offset_bottom = 363.0
+color = Color(0.29219, 0.29219, 0.29219, 1)
+
+[node name="Area2D" type="Area2D" parent="Environment" node_paths=PackedStringArray("playerParty")]
+z_index = -2
+position = Vector2(503, -81)
+script = ExtResource("1_x5jq7")
+playerParty = NodePath("../../PartyManager")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Environment/Area2D"]
+position = Vector2(38.5, 86.5)
+shape = SubResource("RectangleShape2D_b7hks")
+
+[node name="ColorRect" type="ColorRect" parent="Environment/Area2D"]
+offset_right = 77.0
+offset_bottom = 170.0
+color = Color(4.81307e-07, 0.504564, 0.264849, 1)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_left = -1800
+limit_top = -1000
+limit_right = 1800
+limit_bottom = 1000
+editor_draw_limits = true
+editor_draw_drag_margin = true
+
+[node name="PartyManager" type="Node2D" parent="."]
+script = ExtResource("1_cm2c1")
+partyMember = Array[PackedScene]([ExtResource("2_cwo0u"), ExtResource("3_lcp0t")])
+charController = ExtResource("4_3r411")

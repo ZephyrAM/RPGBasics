@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://bm6r0ypkntj5r"]
+
+[ext_resource type="PackedScene" uid="uid://da7fwfcevplrb" path="res://Resources/Prefab/player_character.tscn" id="1_8ux1a"]
+[ext_resource type="Resource" uid="uid://b7q5guyg2ttf4" path="res://Resources/Abilities/fire_single.tres" id="2_vs5r3"]
+[ext_resource type="Resource" uid="uid://daex8o84iwkfv" path="res://Resources/Abilities/fire_group.tres" id="3_6jime"]
+
+[node name="Player" instance=ExtResource("1_8ux1a")]
+
+[node name="Name" parent="." index="4"]
+text = "Player 2"
+
+[node name="BaseStats" parent="." index="7"]
+value = PackedFloat32Array(50, 20, 60, 40, 5, 0)
+
+[node name="SkillList" parent="." index="8"]
+defaultSkills = Array[Resource]([ExtResource("2_vs5r3"), ExtResource("3_6jime")])

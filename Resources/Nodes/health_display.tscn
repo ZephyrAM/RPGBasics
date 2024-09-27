@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://g7e8x0srwjid"]
+
+[ext_resource type="Script" path="res://Scripts/System/HealthDisplay.cs" id="1_gk1hf"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_dy5x7"]
+size = Vector2(150, 25)
+
+[node name="HealthDisplay" type="CenterContainer" node_paths=PackedStringArray("healthBar")]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_gk1hf")
+healthBar = NodePath("HealthBar")
+
+[node name="HealthBar" type="TextureProgressBar" parent="."]
+self_modulate = Color(0.858824, 0.0588235, 0.164706, 1)
+layout_mode = 2
+step = 0.1
+value = 100.0
+texture_progress = SubResource("PlaceholderTexture2D_dy5x7")

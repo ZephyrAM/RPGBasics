@@ -1,0 +1,60 @@
+[gd_scene load_steps=11 format=3 uid="uid://blox2rfxsjm64"]
+
+[ext_resource type="AnimationLibrary" uid="uid://djlnn8cs542vh" path="res://Resources/Misc/battle_anim.res" id="1_obl04"]
+[ext_resource type="PackedScene" uid="uid://g7e8x0srwjid" path="res://Resources/Nodes/health_display.tscn" id="1_q22yd"]
+[ext_resource type="Script" path="res://Scripts/Stats/Battler.cs" id="1_s2dv8"]
+[ext_resource type="Script" path="res://Scripts/Stats/Health.cs" id="1_x77f6"]
+[ext_resource type="AnimationLibrary" uid="uid://c6lee7et8dall" path="res://Resources/Misc/enemy_anim.res" id="2_1yrh2"]
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="2_cwgqe"]
+[ext_resource type="Script" path="res://Scripts/Stats/BaseStats.cs" id="3_bhlhe"]
+[ext_resource type="Script" path="res://Scripts/Abilities/SkillList.cs" id="8_rop6n"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_olfkb"]
+size = Vector2(100, 100)
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_nhsy5"]
+
+[node name="EnemyCharacter_1" type="CharacterBody2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0, 0, 0, 1)
+texture = SubResource("PlaceholderTexture2D_olfkb")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_nhsy5"),
+"battle_anim": ExtResource("1_obl04"),
+"enemy_anim": ExtResource("2_1yrh2")
+}
+
+[node name="HealthDisplay" parent="." instance=ExtResource("1_q22yd")]
+offset_left = -55.0
+offset_top = 60.0
+offset_right = -15.0
+offset_bottom = 100.0
+
+[node name="Name" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Test Enemy"
+label_settings = ExtResource("2_cwgqe")
+
+[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerHealth", "battlerStats")]
+script = ExtResource("1_s2dv8")
+battlerType = "Enemy"
+battlerName = NodePath("../Name")
+battlerBody = NodePath("..")
+battlerSprite = NodePath("../Sprite2D")
+battlerAnim = NodePath("../AnimationPlayer")
+battlerHealth = NodePath("../Health")
+battlerStats = NodePath("../BaseStats")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("1_x77f6")
+
+[node name="BaseStats" type="Node" parent="."]
+script = ExtResource("3_bhlhe")
+value = PackedFloat32Array(30, 10, 5, 5, 2, 0)
+
+[node name="SkillList" type="Node" parent="."]
+script = ExtResource("8_rop6n")
