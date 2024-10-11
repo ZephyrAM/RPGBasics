@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cj0v8mojhj4a7"]
+[gd_scene load_steps=11 format=3 uid="uid://cj0v8mojhj4a7"]
 
 [ext_resource type="Script" path="res://Scripts/System/PartyManager.cs" id="1_cm2c1"]
 [ext_resource type="Script" path="res://Scripts/System/MapSystem.cs" id="1_rtj5w"]
@@ -7,6 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://chutyx7868wr6" path="res://Scenes/BattleScene.tscn" id="2_tdxdo"]
 [ext_resource type="PackedScene" uid="uid://bm6r0ypkntj5r" path="res://Resources/Prefab/Players/player_2.tscn" id="3_lcp0t"]
 [ext_resource type="Script" path="res://Scripts/Control/CharacterController.cs" id="4_3r411"]
+[ext_resource type="PackedScene" uid="uid://uqsv1w0qe8uc" path="res://Resources/Prefab/npc_character.tscn" id="8_gpwt7"]
+[ext_resource type="PackedScene" uid="uid://bqn68bcq1mhg5" path="res://Resources/Windows/text_box.tscn" id="9_arqx5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b7hks"]
 size = Vector2(65, 157)
@@ -36,6 +38,9 @@ color = Color(0.29219, 0.29219, 0.29219, 1)
 [node name="Area2D" type="Area2D" parent="Environment" node_paths=PackedStringArray("playerParty")]
 z_index = -2
 position = Vector2(503, -81)
+collision_layer = 32
+collision_mask = 2
+input_pickable = false
 script = ExtResource("1_x5jq7")
 playerParty = NodePath("../../PartyManager")
 
@@ -58,5 +63,13 @@ editor_draw_drag_margin = true
 
 [node name="PartyManager" type="Node2D" parent="."]
 script = ExtResource("1_cm2c1")
-partyMember = Array[PackedScene]([ExtResource("2_cwo0u"), ExtResource("3_lcp0t")])
+partyMembers = Array[PackedScene]([ExtResource("2_cwo0u"), ExtResource("3_lcp0t")])
 charController = ExtResource("4_3r411")
+
+[node name="CharacterBody2D" parent="." instance=ExtResource("8_gpwt7")]
+position = Vector2(223, 219)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="TextBoxContainer" parent="CanvasLayer" instance=ExtResource("9_arqx5")]

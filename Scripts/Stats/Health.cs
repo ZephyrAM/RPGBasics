@@ -1,21 +1,29 @@
+using System;
 using Godot;
 
 namespace ZAM.Stats
 {
     public partial class Health : Node
     {
-        [Export] float baseHP = 100;
+        [Export] private float maxHP = 100;
 
         float currHP;
 
         public override void _Ready()
         {
-            currHP = baseHP;
+            currHP = maxHP;
         }
 
         public void ChangeHP(float value)
         {
-            currHP += value;
+            float newHP = currHP + value;
+            currHP = MathF.Min(newHP, maxHP);
+        }
+
+        public void SetHP(float value)
+        {
+            float newHP = value;
+            currHP = MathF.Min(newHP, maxHP);
         }
 
         public float GetHP()
@@ -25,7 +33,7 @@ namespace ZAM.Stats
 
         public float GetMaxHP()
         {
-            return baseHP;
+            return maxHP;
         }
     }
 }

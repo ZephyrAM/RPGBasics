@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3 uid="uid://cpoocr0akx3te"]
+
+[ext_resource type="Script" path="res://Scripts/Interactions/Interactable.cs" id="1_b7v3e"]
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="2_r0dh8"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_xrird"]
+size = Vector2(40, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sqm4p"]
+size = Vector2(38, 28)
+
+[node name="CharacterBody2D" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("1_b7v3e")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.103745, 0.457161, 0.485653, 1)
+texture = SubResource("PlaceholderTexture2D_xrird")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_sqm4p")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="Name" type="Label" parent="."]
+visible = false
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Test Object"
+label_settings = ExtResource("2_r0dh8")
+horizontal_alignment = 2

@@ -51,6 +51,11 @@ namespace ZAM.System
             SetupHealthBar();
         }
 
+        public void ForceHealthBarUpdate()
+        {
+            healthBar.Value = battlerHealth.GetHP();
+        }
+
         public void UpdateHealthBar()
         {
             float currHP = battlerHealth.GetHP();

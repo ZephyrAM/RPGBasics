@@ -1,6 +1,8 @@
 using Godot;
 using System;
+
 using ZAM.Control;
+using ZAM.Stats;
 
 namespace ZAM.System
 {
@@ -8,22 +10,34 @@ namespace ZAM.System
     {
         [Export] PackedScene battleScene;
         [Export] PartyManager playerParty;
-        // [Export] Fader screenFader;
 
         BattleSystem battleNode;
+
+        //=============================================================================
+        // SECTION: Base Methods
+        //=============================================================================
 
         public override void _Ready()
         {
             IfNull();
-            // battleNode.onBuildPlayerTeam += BuildParty;
-            // screenFader.onTransitionFinished +=
+            // SubSignals();
+            SaveLoader.Instance.gameSession.CharData = SaveLoader.Instance.GatherBattlers(); // Should only happen once, when game loads.
         }
+
+        //=============================================================================
+        // SECTION: OnReady Methods
+        //=============================================================================
 
         private void IfNull()
         {
-            battleScene ??= ResourceLoader.Load<PackedScene>("res://Scenes/BattleScene.tscn");
+            battleScene ??= ResourceLoader.Load<PackedScene>(ConstTerm.BATTLE_SCENE);
             playerParty ??= GetNode<PartyManager>(ConstTerm.PARTYMANAGER);
         }
+
+        // private void SubSignals()
+        // {
+        //     // playerParty.GetPlayer().onSaveGame += OnSaveGame;
+        // }
 
         // public override void _EnterTree()
         // {
@@ -35,15 +49,22 @@ namespace ZAM.System
         //     battleNode.onBuildPlayerTeam -= BuildParty;
         // }
 
+        //=============================================================================
+        // SECTION: Access Methods
+        //=============================================================================
+
         public async void LoadBattle()
         {
+            playerParty.ChangePlayerActive(false);
+            Fader.Instance.Transition();
+            await ToSignal(Fader.Instance, ConstTerm.TRANSITION_FINISHED);
+
             battleNode = (BattleSystem)battleScene.Instantiate();
             battleNode.StoreMapScene(this);
-            Fader.Instance.Transition();
-            await ToSignal(Fader.Instance, "onTransitionFinished");
-            GetTree().Root.AddChild(battleNode);
 
+            GetTree().Root.AddChild(battleNode);
             GetTree().Root.RemoveChild(this);
+
             // QueueFree();
         }
 
@@ -52,9 +73,9 @@ namespace ZAM.System
             return playerParty;
         }
 
-        // public void BuildParty()
+        // private void OnSaveGame()
         // {
-        //     battleNode.BuildPlayerTeam(playerParty);
+
         // }
     }
 }

@@ -26,6 +26,7 @@ namespace ZAM.Control
         private int numColumn = 1;
 
         private bool battleOver = false;
+        private bool isActive = false;
 
         // Delegate Events \\
         [Signal]
@@ -43,6 +44,11 @@ namespace ZAM.Control
         [Signal]
         public delegate void onBattleFinishEventHandler();
 
+        // [Signal]
+        // public delegate void onSaveGameEventHandler();
+        // [Signal]
+        // public delegate void onLoadGameEventHandler();
+
         //=============================================================================
         // SECTION: Base Methods
         //=============================================================================
@@ -56,11 +62,23 @@ namespace ZAM.Control
         {
             if (battleOver && @event != null) {
                 if (@event is InputEventMouseMotion) { return; }
-                GD.Print(@event);
                 EmitSignal(SignalName.onBattleFinish);
             }
             if (playerTurn == true) {
                 PhaseCheck(@event);
+                // Data test commands \\
+                if (Input.IsActionJustPressed("Save"))
+                {
+                    GD.Print("Saving game!");
+                    SaveLoader.Instance.SaveGame();          
+                    // EmitSignal(SignalName.onSaveGame);
+                }
+                else if (Input.IsActionJustPressed("Load"))
+                {
+                    GD.Print("Loading game!");
+                    SaveLoader.Instance.LoadGame();
+                    // EmitSignal(SignalName.onLoadGame);
+                }
             }
         }
 
@@ -183,7 +201,6 @@ namespace ZAM.Control
         private void SkillUsePhase(InputEvent @event)// turnPhase == ConstTerm.SKILL_USE;
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
-                // Attack(); // EDIT: Temporary
                 SkillOption(currentCommand);
                 currentCommand = 0;
             }
@@ -261,6 +278,8 @@ namespace ZAM.Control
 
         private void CommandOption(int option)
         {
+            TargetSelect(0, ConstTerm.HORIZ); // Reset targetting to correct team by...  reasons. EDIT
+            
             if (option == 0) { turnPhase = ConstTerm.ATTACK; }
             else if (option == 1) { turnPhase = ConstTerm.DEFEND; }
             else if (option == 2) { turnPhase = ConstTerm.SKILL_SELECT;}
@@ -270,7 +289,6 @@ namespace ZAM.Control
 
         private async void Attack()
         {
-            // CombatAbilities defend = (CombatAbilities)ResourceLoader.Load("res://Resources/Abilities/defend.tres");
             EmitSignal(SignalName.onAbilityStop, -1);
             EmitSignal(SignalName.onTargetChange);
 
@@ -286,7 +304,6 @@ namespace ZAM.Control
 
         private void Defend()
         {
-            // CombatAbilities defend = (CombatAbilities)ResourceLoader.Load("res://Resources/Abilities/defend.tres");
             EmitSignal(SignalName.onAbilityUse, -1);
 
             turnPhase = ConstTerm.WAIT;

@@ -2,11 +2,11 @@ public enum CharacterID
 {
     UNDEFINED = 0, 
 
-    PLAYERS = 997,
+    PLAYERS = 999,
     Player1 = 1,
     Player2 = 2,
 
     BOSSES = 998,
 
-    ENEMIES = 999
+    ENEMIES = 997,
 }

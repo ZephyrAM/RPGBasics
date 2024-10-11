@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,13 +82,15 @@ namespace ZAM.System
             offset = new Vector2(0, targetOffset + cursorOffset);
 
             cursorTarget.GetNode<Sprite2D>(cursorSpriteName).GetNode<AnimationPlayer>(cursorAnimatorName).Play(ConstTerm.CURSOR_BOUNCE);
-            defendAbility = (CombatAbilities)ResourceLoader.Load("res://Resources/Abilities/defend.tres");
+            defendAbility = (CombatAbilities)ResourceLoader.Load(ConstTerm.ABILITY_SOURCE + ConstTerm.DEFEND_ABILITY);
 
             SubSignals();
 
-            battler = new();
+            battler = [];
             CheckBattlers();
             // SetCursorPosition();
+            SaveLoader.Instance.FillData(SaveLoader.Instance.gameSession);
+            InitialHealthBars();
         }
 
         // public override void _ExitTree()
@@ -97,7 +100,7 @@ namespace ZAM.System
 
         public override void _PhysicsProcess(double delta)
         {
-            TurnOrder();
+            UIVisibility();
         }
 
         public void StoreMapScene(MapSystem map)
@@ -106,15 +109,15 @@ namespace ZAM.System
             playerParty = mapScene.GetPartyManager();
         }
 
-        public void ReturnMapScene()
+        public async void ReturnMapScene()
         {
-            GetTree().Root.AddChild(mapScene);
-            // int partySize = mapScene.GetPartyManager().GetPartySize();
+            Fader.Instance.Transition();
+            await ToSignal(Fader.Instance, ConstTerm.TRANSITION_FINISHED);
 
-            // for (int n = 0; n < partySize; n++)
-            // {
+            // mapScene.Reparent(GetTree().Root);
+            GetTree().Root.AddChild(mapScene); // Causes error - already has parent? Still functions properly, without indication of error.
+            playerParty.ChangePlayerActive(true);
 
-            // }
             QueueFree();
         }
 
@@ -148,17 +151,20 @@ namespace ZAM.System
             partyInput.onAbilityUse += OnAbilityUse;
             partyInput.onAbilityStop += OnAbilityStop;
 
+            // partyInput.onSaveGame += OnSaveGame;
+            // partyInput.onLoadGame += OnLoadGame;
+
             // partyInput.onBattleFinish += OnBattleFinish;
         }
 
-        // private void UnSubSignals()
-        // {
-        //     partyInput.onTurnCycle -= OnTurnCycle;
-        //     partyInput.onTurnEnd -= OnTurnEnd;
-        //     partyInput.onTargetChange -= OnTargetChange;
-        //     partyInput.onAbilityUse -= OnAbilityUse;
-        //     partyInput.onAbilityStop -= OnAbilityStop;
-        // }
+        private void UnSubSignals()
+        {
+            partyInput.onTurnCycle -= OnTurnCycle;
+            partyInput.onTurnEnd -= OnTurnEnd;
+            partyInput.onTargetChange -= OnTargetChange;
+            partyInput.onAbilityUse -= OnAbilityUse;
+            partyInput.onAbilityStop -= OnAbilityStop;
+        }
 
         public void BuildPlayerTeam()
         {
@@ -199,24 +205,19 @@ namespace ZAM.System
             partyInput.SetPlayerTeamSize(playerTeam.Count);
         }
 
-        // private CharacterBody2D[] GetPlayerTeam(PartyManager party)
-        // {
-        //     CharacterBody2D[] members = new CharacterBody2D[party.GetPartySize()];
-
-        //     for (int i = 0; i < party.GetPartySize(); i++)
-        //     {
-        //         members[i] = party.GetPartyMember(i);
-        //         // members.Add(party.GetChild<CharacterBody2D>(i));
-        //     }
-
-        //     return members;
-        // }
+        private void InitialHealthBars()
+        {
+            for (int n = 0; n < playerList.GetChildCount(); n++)
+            {
+                playerList.GetChild(n).GetNode<HealthDisplay>(healthBarName).ForceHealthBarUpdate();
+            }
+        }
 
         private void BuildEnemyTeam()
         {
             enemyList = battleUI.GetNode<VBoxContainer>(enemyListName);
 
-            enemyTeam = new List<Battler>();
+            enemyTeam = [];
             var encounterTeam = ResourceLoader.Load<PackedScene>(enemyEncounter.ResourcePath).Instantiate();
             AddChild(encounterTeam);
             BuildTeam(enemyList, enemyTeam, enemyTeamName);
@@ -254,7 +255,7 @@ namespace ZAM.System
         // SECTION: Turn Handling
         //=============================================================================
 
-        public void TurnOrder()
+        public void UIVisibility()
         {
             cursorTarget.Visible = partyInput.GetTurnPhase() == ConstTerm.ATTACK || partyInput.GetTurnPhase() == ConstTerm.SKILL_USE;
             commandPanel.Visible = partyInput.GetTurnPhase() == ConstTerm.COMMAND;
@@ -297,7 +298,7 @@ namespace ZAM.System
             { targetTeam = enemyTeam; }
             else { targetTeam = playerTeam; }
 
-            if (target > targetTeam.Count || target < 0) { target = 0; }
+            if (target >= targetTeam.Count || target < 0) { target = 0; }
 
             targetOffset = targetTeam[target].GetHeight() / 2;
             offset = new Vector2(0, targetOffset + cursorOffset);
@@ -378,6 +379,8 @@ namespace ZAM.System
 
         private async void BattleWin()
         {
+            SaveLoader.Instance.gameSession.CharData = SaveLoader.Instance.GatherBattlers();
+
             partyInput.SetBattleOver(true);
             await ToSignal(partyInput, ConstTerm.BATTLE_FINISHED);
             ReturnMapScene();
@@ -431,8 +434,6 @@ namespace ZAM.System
         {
             if (activeAbility != null && activeAbility.TargetArea == ConstTerm.GROUP) {
 
-                List<Battler> defenders = enemyTeam;
-
                 for (int n = 0; n < enemyTeam.Count; n++)
                 {
                     Battler defender = enemyTeam[n];
@@ -448,9 +449,6 @@ namespace ZAM.System
                         enemyList.GetChild(n).QueueFree();
                         partyInput.SetEnemyTeamSize(enemyTeam.Count);
                         n--;
-
-                        bool test = BattleEndCheck();
-                        if (test) { break; }
                     }
                 }
             }
@@ -641,6 +639,23 @@ namespace ZAM.System
                 }
             }
         }
+
+        // private void OnSaveGame()
+        // {
+        //     // Array<Resource> newSave = new();
+        //     for (int n = 0; n < playerParty.GetPartySize(); n++)
+        //     {
+        //         playerTeam[n].SaveData();
+        //     }
+        // }
+
+        // private void OnLoadGame()
+        // {
+        //     for (int n = 0; n < playerParty.GetPartySize(); n++)
+        //     {
+        //         playerTeam[n].LoadData();
+        //     }
+        // }
 
         // private void OnBattleFinish()
         // {

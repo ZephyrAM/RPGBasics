@@ -1,0 +1,25 @@
+[gd_resource type="Resource" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/SaveLoad/BattlerData.cs" id="1_owhns"]
+[ext_resource type="Script" path="res://Scripts/SaveLoad/SavedGame.cs" id="2_4t8mk"]
+
+[sub_resource type="Resource" id="Resource_cr3c6"]
+script = ExtResource("1_owhns")
+CharID = 1
+CurrentHP = 50.0
+MaxHP = 100.0
+StatValues = PackedFloat32Array(60, 20, 50, 25, 2, 0)
+
+[sub_resource type="Resource" id="Resource_h1ci4"]
+script = ExtResource("1_owhns")
+CharID = 2
+CurrentHP = 90.0
+MaxHP = 100.0
+StatValues = PackedFloat32Array(50, 20, 60, 40, 5, 0)
+
+[resource]
+script = ExtResource("2_4t8mk")
+CharData = {
+1: SubResource("Resource_cr3c6"),
+2: SubResource("Resource_h1ci4")
+}

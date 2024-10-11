@@ -103,6 +103,7 @@ playerPositions = PackedVector2Array(530, 0, 570, 60, 610, 120, 650, 180)
 [node name="FloatingText5" parent="BattleUI/FloatingValues" instance=ExtResource("8_x25aq")]
 
 [node name="CursorTarget" type="Node2D" parent="BattleUI"]
+visible = false
 
 [node name="Sprite2D" type="Sprite2D" parent="BattleUI/CursorTarget"]
 modulate = Color(0.109804, 0.811765, 0.784314, 1)
@@ -135,6 +136,7 @@ grow_horizontal = 0
 grow_vertical = 0
 
 [node name="CommandPanel" type="PanelContainer" parent="BattleUI"]
+visible = false
 offset_left = 1155.0
 offset_top = 152.0
 offset_right = 1301.0
@@ -173,6 +175,7 @@ label_settings = ExtResource("8_fv28a")
 horizontal_alignment = 1
 
 [node name="SkillPanel" type="PanelContainer" parent="BattleUI"]
+visible = false
 offset_left = 519.0
 offset_top = 269.0
 offset_right = 1083.0

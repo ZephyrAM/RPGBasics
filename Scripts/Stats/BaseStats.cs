@@ -57,6 +57,11 @@ namespace ZAM.Stats
             return totalValue;
         }
 
+        public float[] GetAllStats()
+        {
+            return value;
+        }
+
         private float GetAdditiveModifier(Stat stat)
         {
             if (!shouldUseAddModifiers) { return 0; }

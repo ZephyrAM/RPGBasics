@@ -1,7 +1,7 @@
 using Godot;
 using System;
-using ZAM.Abilities;
 
+using ZAM.Abilities;
 using ZAM.Stats;
 
 namespace ZAM.System

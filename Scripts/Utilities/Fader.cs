@@ -16,7 +16,6 @@ public partial class Fader : CanvasLayer
         Instance = this;
         fadeRect.Visible = false;
         animPlayer.Connect(AnimationPlayer.SignalName.AnimationFinished, new Callable(this, MethodName.OnAnimationFinished));
-        // animPlayer.AnimationFinished += OnAnimationFinished;
     }
 
     public override void _EnterTree()
@@ -38,13 +37,11 @@ public partial class Fader : CanvasLayer
 
     public void OnAnimationFinished(string animName)
     {
-        GD.Print("AnimFinshed!");
         if (animName == ConstTerm.FADE_OUT) {
             EmitSignal(SignalName.onTransitionFinished);
             animPlayer.Play(ConstTerm.FADE_IN);
         } else {
             fadeRect.Visible = false;
-            GD.Print("Fade in complete");
         }
     }
 }

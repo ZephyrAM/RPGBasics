@@ -3,34 +3,44 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using System;
 
+using ZAM.Control;
+
 namespace ZAM.System
 {
     public partial class PartyManager : Node
     {
         // Assigned Variables \\
-        [Export] PackedScene[] partyMember = null;
-        [Export] PackedScene[] reserveMember = null;
-        [Export] Script charController = null;
+        [Export] private PackedScene[] partyMembers = null;
+        [Export] private PackedScene[] reserveMembers = null;
+        [Export] private Script charController = null;
 
         // Setup Variables \\
-        Node leaderMember = null;
+        private Node leaderMember = null;
         // List<CharacterBody2D> activeParty;
 
         private double timePlayed;
-        private int gilTotal = 0;
+        private int currencyTotal = 0;
 
-        // Basic Methods \\
+        //=============================================================================
+        // SECTION: Base Methods
+        //=============================================================================
+
         public override void _Ready()
         {
+            AddToGroup(ConstTerm.SAVEDATA);
+
             // If party doesn't exist, skip creation. Force create after manually assigning member to party.
-            if (partyMember.Length < 1) { return; }
+            if (partyMembers.Length < 1) { return; }
             // CreateParty();
 
             // Assure the leader never gets double loaded.
             if (!IsInstanceValid(leaderMember)) { LoadLeader(); }
         }
 
-        // Utility Methods \\
+        //=============================================================================
+        // SECTION: Utility Methods
+        //=============================================================================
+
         private static Node SafeScriptAssign(Node target, Script scriptAssign) // May shift to shared Utilities script
         {
             // This whole section... \\
@@ -57,41 +67,65 @@ namespace ZAM.System
         // private void CreateParty()
         // {
         //     activeParty ??= new();
-        //     for (int n = 0; n < partyMember.Length; n++)
+        //     for (int n = 0; n < partyMembers.Length; n++)
         //     {
-        //         CharacterBody2D tempMember = partyMember[n].Instantiate() as CharacterBody2D;
+        //         CharacterBody2D tempMember = partyMembers[n].Instantiate() as CharacterBody2D;
         //         activeParty.Add(tempMember);
         //     }
         // }
 
         private void LoadLeader()
         {
-            Node tempLead = partyMember[0].Instantiate();
-            // GD.Print(tempLead.GetMeta("CharName"));
+            Node tempLead = partyMembers[0].Instantiate();
             AddChild(tempLead);
 
-            Node tempChar = GetChild(0);
-            leaderMember = SafeScriptAssign(tempChar, charController);
+            leaderMember = SafeScriptAssign(tempLead, charController);
             leaderMember.GetNode<Label>(ConstTerm.NAMELABEL).Visible = false;
+            LoadParty();
+        }
+
+        private void LoadParty()
+        {
+            for (int p = 1; p < partyMembers.Length; p++)
+            {
+                CharacterBody2D tempMember = (CharacterBody2D)partyMembers[p].Instantiate();
+                tempMember.Visible = false;
+                tempMember.ProcessMode = ProcessModeEnum.Disabled;
+                AddChild(tempMember);
+            }
+        }
+
+        public void ChangePlayerActive(bool change)
+        {
+            GetPlayer().ChangeActive(change);
+        }
+
+        //=============================================================================
+        // SECTION: Get Methods
+        //=============================================================================
+
+        public CharacterController GetPlayer()
+        {
+            return (CharacterController)leaderMember;
         }
 
         public CharacterBody2D GetPartyMember(int index)
         {
             // return activeParty[index];
-            return partyMember[index].Instantiate() as CharacterBody2D;
+            return partyMembers[index].Instantiate() as CharacterBody2D;
         }
 
         public PackedScene[] GetPlayerParty()
         {
-            return partyMember;
+            return partyMembers;
         }
 
         public int GetPartySize()
         {
             int partySize = 0;
-            for (int n = 0; n < partyMember.Length; n++)
+            for (int n = 0; n < partyMembers.Length; n++)
             {
-                if (partyMember[n] != null)
+                if (partyMembers[n] != null)
                 { partySize++; }
             }
             return partySize;
@@ -100,15 +134,18 @@ namespace ZAM.System
         public int GetReservePartySize()
         {
             int partySize = 0;
-            for (int n = 0; n < reserveMember.Length; n++)
+            for (int n = 0; n < reserveMembers.Length; n++)
             {
-                if (reserveMember[n] != null)
+                if (reserveMembers[n] != null)
                 { partySize++; }
             }
             return partySize;
         }
 
-        // Menu Info \\
+        //=============================================================================
+        // SECTION: Menu Info
+        //=============================================================================
+
         public int[] GetTimePlayed()
         {
             timePlayed = Time.GetUnixTimeFromSystem();
@@ -124,9 +161,9 @@ namespace ZAM.System
             return formatTime;
         }
 
-        public int GetTotalGil()
+        public int GetTotalCurrency()
         {
-            return gilTotal;
+            return currencyTotal;
         }
 
         public int GetStepsTaken()
@@ -135,58 +172,105 @@ namespace ZAM.System
             return 0;
         }
 
-        // Save System \\
-        public JToken CaptureAsJToken()
-        {
-            JObject state = new();
-            IDictionary<string, JToken> stateDict = state;
+        //=============================================================================
+        // SECTION: Save System
+        //=============================================================================
 
-            for (int p = 0; p < GetPartySize(); p++)
-            {
-                string assetPath = partyMember[p].ResourcePath;
-                stateDict["partyMember" + p.ToString()] = assetPath;
-            }
-            for (int r = 0; r < GetReservePartySize(); r++)
-            {
-                string assetPath = reserveMember[r].ResourcePath;
-                stateDict["reserveMember" + r.ToString()] = assetPath;
-            }
-            stateDict["gilTotal"] = gilTotal;
-            stateDict["partySize"] = GetPartySize();
-            stateDict["reserveSize"] = GetReservePartySize();
+        // public void SaveData()
+        // {
+        //     SaveSystem newSave = new()
+        //     {
+        //         partyMembers = partyMembers,
+        //         reserveMembers = reserveMembers,
+        //         currencyTotal = GetTotalCurrency(),
+        //         partySize = GetPartySize(),
+        //         reserveSize = GetReservePartySize()
+        //     };
 
-            return state;
-        }
+        //     ResourceSaver.Save(newSave, "user://saveTest.tres");
+        // }
 
-        public void RestoreFromJToken(JToken state)
-        {
-            if (state is JObject jObject)
-            {
-                IDictionary<string, JToken> stateDict = jObject;
-                stateDict.TryGetValue("partySize", out JToken pSize);
-                stateDict.TryGetValue("reserveSize", out JToken rSize);
-                stateDict.TryGetValue("gilTotal", out JToken gTotal);
+        // public partial class SaveSystem : Resource
+        // {
+        //     public PackedScene[] partyMembers;
+        //     public PackedScene[] reserveMembers;
 
-                gilTotal = gTotal.ToObject<int>();
-                int partySize = pSize.ToObject<int>();
-                int reserveSize = rSize.ToObject<int>();
+        //     public int currencyTotal;
+        //     public int partySize;
+        //     public int reserveSize;
+        // }
 
-                for (int p = 0; p < partySize; p++)
-                {
-                    if (stateDict.TryGetValue("partyMember" + p.ToString(), out JToken pNext))
-                    {
-                        partyMember[p] = ResourceLoader.Load<PackedScene>(pNext.ToObject<string>());
-                    }
-                }
+        // public Dictionary<string, Variant> SaveData()
+        // {
+        //     Dictionary<string, Variant> saveData = new();
 
-                for (int r = 0; r < reserveSize; r++)
-                {
-                    if (stateDict.TryGetValue("reserveMember" + r.ToString(), out JToken rNext))
-                    {
-                        reserveMember[r] = ResourceLoader.Load<PackedScene>(rNext.ToObject<string>());
-                    }
-                }
-            }
-        }
+        //     for (int p = 0; p < GetPartySize(); p++)
+        //     {
+        //         string assetPath = partyMembers[p].ResourcePath;
+        //         saveData["partyMembers" + p.ToString()] = assetPath;
+        //     }
+        //     for (int r = 0; r < GetReservePartySize(); r++)
+        //     {
+        //         string assetPath = reserveMembers[r].ResourcePath;
+        //         saveData["reserveMembers" + r.ToString()] = assetPath;
+        //     }
+        //     saveData["currencyTotal"] = currencyTotal;
+        //     saveData["partySize"] = GetPartySize();
+        //     saveData["reserveSize"] = GetReservePartySize();
+            
+        //     return saveData;
+        // }
+        // public JToken CaptureAsJToken()
+        // {
+        //     JObject state = new();
+        //     IDictionary<string, JToken> stateDict = state;
+
+        //     for (int p = 0; p < GetPartySize(); p++)
+        //     {
+        //         string assetPath = partyMembers[p].ResourcePath;
+        //         stateDict["partyMembers" + p.ToString()] = assetPath;
+        //     }
+        //     for (int r = 0; r < GetReservePartySize(); r++)
+        //     {
+        //         string assetPath = reserveMembers[r].ResourcePath;
+        //         stateDict["reserveMembers" + r.ToString()] = assetPath;
+        //     }
+        //     stateDict["gilTotal"] = gilTotal;
+        //     stateDict["partySize"] = GetPartySize();
+        //     stateDict["reserveSize"] = GetReservePartySize();
+
+        //     return state;
+        // }
+
+        // public void RestoreFromJToken(JToken state)
+        // {
+        //     if (state is JObject jObject)
+        //     {
+        //         IDictionary<string, JToken> stateDict = jObject;
+        //         stateDict.TryGetValue("partySize", out JToken pSize);
+        //         stateDict.TryGetValue("reserveSize", out JToken rSize);
+        //         stateDict.TryGetValue("gilTotal", out JToken gTotal);
+
+        //         gilTotal = gTotal.ToObject<int>();
+        //         int partySize = pSize.ToObject<int>();
+        //         int reserveSize = rSize.ToObject<int>();
+
+        //         for (int p = 0; p < partySize; p++)
+        //         {
+        //             if (stateDict.TryGetValue("partyMembers" + p.ToString(), out JToken pNext))
+        //             {
+        //                 partyMembers[p] = ResourceLoader.Load<PackedScene>(pNext.ToObject<string>());
+        //             }
+        //         }
+
+        //         for (int r = 0; r < reserveSize; r++)
+        //         {
+        //             if (stateDict.TryGetValue("reserveMember" + r.ToString(), out JToken rNext))
+        //             {
+        //                 reserveMember[r] = ResourceLoader.Load<PackedScene>(rNext.ToObject<string>());
+        //             }
+        //         }
+        //     }
+        // }
     }
 }
