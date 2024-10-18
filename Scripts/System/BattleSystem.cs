@@ -567,7 +567,7 @@ namespace ZAM.System
                 else if (partyInput.GetTurnPhase() == ConstTerm.COMMAND)
                 {
                     activeAbility = null;
-                    ColorRect selectBar = commandPanel.GetNode<ColorRect>("ColorRect");
+                    ColorRect selectBar = commandPanel.GetNode<ColorRect>(ConstTerm.COLOR_RECT);
                     int index = partyInput.GetCommand();
 
                     selectBar.Position = new Vector2(0, selectBar.Size.Y * index); // EDIT - Temporary!
@@ -575,7 +575,7 @@ namespace ZAM.System
                 else if (partyInput.GetTurnPhase() == ConstTerm.SKILL_SELECT)
                 {
                     activeAbility = null;
-                    ColorRect selectBar = skillPanel.GetNode<GridContainer>("SelectList").GetNode<ColorRect>("ColorRect");
+                    ColorRect selectBar = skillPanel.GetNode<GridContainer>(ConstTerm.SELECT_LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
 
                     float index = partyInput.GetCommand();
                     float column = index % partyInput.GetNumColumn();

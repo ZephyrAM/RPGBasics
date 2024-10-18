@@ -6,7 +6,6 @@ namespace ZAM.Control
     {
         [ExportGroup("Variables")]
         [Export] private string animationPlayerName;
-        [Export] private string skillListName;
         [Export] private VBoxContainer commandList;
         [Export] private GridContainer skillList;
         [Export] private Vector2[] playerPositions;
@@ -67,18 +66,18 @@ namespace ZAM.Control
             if (playerTurn == true) {
                 PhaseCheck(@event);
                 // Data test commands \\
-                if (Input.IsActionJustPressed("Save"))
-                {
-                    GD.Print("Saving game!");
-                    SaveLoader.Instance.SaveGame();          
-                    // EmitSignal(SignalName.onSaveGame);
-                }
-                else if (Input.IsActionJustPressed("Load"))
-                {
-                    GD.Print("Loading game!");
-                    SaveLoader.Instance.LoadGame();
-                    // EmitSignal(SignalName.onLoadGame);
-                }
+                // if (Input.IsActionJustPressed("Save"))
+                // {
+                //     GD.Print("Saving game!");
+                //     SaveLoader.Instance.SaveGame();          
+                //     // EmitSignal(SignalName.onSaveGame);
+                // }
+                // else if (Input.IsActionJustPressed("Load"))
+                // {
+                //     GD.Print("Loading game!");
+                //     SaveLoader.Instance.LoadGame();
+                //     // EmitSignal(SignalName.onLoadGame);
+                // }
             }
         }
 
@@ -128,12 +127,10 @@ namespace ZAM.Control
                 currentCommand = 0;
             }
             else if (@event.IsActionPressed(ConstTerm.UP)) {
-                int value = -1;
-                CommandSelect(value, commandList, ConstTerm.VERT);
+                CommandSelect(-1, commandList, ConstTerm.VERT);
             }
             else if (@event.IsActionPressed(ConstTerm.DOWN)) {
-                int value = 1;
-                CommandSelect(value, commandList, ConstTerm.VERT);
+                CommandSelect(1, commandList, ConstTerm.VERT);
             }
         }
 
@@ -147,20 +144,16 @@ namespace ZAM.Control
                 CancelSelect(ConstTerm.COMMAND);
             }
             else if (@event.IsActionPressed(ConstTerm.UP)) {
-                int value = -1;
-                TargetSelect(value, ConstTerm.VERT);
+                TargetSelect(-1, ConstTerm.VERT);
             }
             else if (@event.IsActionPressed(ConstTerm.DOWN)) {
-                int value = 1;
-                TargetSelect(value, ConstTerm.VERT);
+                TargetSelect(1, ConstTerm.VERT);
             }
             else if (@event.IsActionPressed(ConstTerm.LEFT)) {
-                int value = -1;
-                TargetSelect(value, ConstTerm.HORIZ);
+                TargetSelect(-1, ConstTerm.HORIZ);
             }
             else if (@event.IsActionPressed(ConstTerm.RIGHT)) {
-                int value = 1;
-                TargetSelect(value, ConstTerm.HORIZ);
+                TargetSelect(1, ConstTerm.HORIZ);
             }
         }
 
@@ -181,20 +174,16 @@ namespace ZAM.Control
                 CancelSelect(ConstTerm.COMMAND);
             }
             else if (@event.IsActionPressed(ConstTerm.UP)) {
-                int value = -1;
-                CommandSelect(value, skillList, ConstTerm.VERT);
+                CommandSelect(-1, skillList, ConstTerm.VERT);
             }
             else if (@event.IsActionPressed(ConstTerm.DOWN)) {
-                int value = 1;
-                CommandSelect(value, skillList, ConstTerm.VERT);
+                CommandSelect(1, skillList, ConstTerm.VERT);
             }
             else if (@event.IsActionPressed(ConstTerm.LEFT)) {
-                int value = -1;
-                CommandSelect(value, skillList, ConstTerm.HORIZ);
+                CommandSelect(-1, skillList, ConstTerm.HORIZ);
             }
             else if (@event.IsActionPressed(ConstTerm.RIGHT)) {
-                int value = 1;
-                CommandSelect(value, skillList, ConstTerm.HORIZ);
+                CommandSelect(1, skillList, ConstTerm.HORIZ);
             }
         }
 
@@ -208,22 +197,16 @@ namespace ZAM.Control
                 CancelSelect(ConstTerm.SKILL_SELECT);
             }
             else if (@event.IsActionPressed(ConstTerm.UP)) {
-                int value = -1;
-                TargetSelect(value, ConstTerm.VERT);
+                TargetSelect(-1, ConstTerm.VERT);
             }
             else if (@event.IsActionPressed(ConstTerm.DOWN)) {
-                int value = 1;
-                TargetSelect(value, ConstTerm.VERT);
+                TargetSelect(1, ConstTerm.VERT);
             }
-            else if (@event.IsActionPressed(ConstTerm.LEFT))
-            {
-                int value = -1;
-                TargetSelect(value, ConstTerm.HORIZ);
+            else if (@event.IsActionPressed(ConstTerm.LEFT)) {
+                TargetSelect(-1, ConstTerm.HORIZ);
             }
-            else if (@event.IsActionPressed(ConstTerm.RIGHT))
-            {
-                int value = 1;
-                TargetSelect(value, ConstTerm.HORIZ);
+            else if (@event.IsActionPressed(ConstTerm.RIGHT)) {
+                TargetSelect(1, ConstTerm.HORIZ);
             }
         }
 

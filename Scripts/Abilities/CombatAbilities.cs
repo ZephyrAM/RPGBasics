@@ -1,7 +1,5 @@
 using Godot;
 
-using ZAM.Stats;
-
 namespace ZAM.Abilities
 {
     [GlobalClass]

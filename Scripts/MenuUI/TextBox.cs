@@ -9,14 +9,17 @@ namespace ZAM.MenuUI
         [ExportGroup("Values")]
         [Export] private float textRate = 4;
 
-        [ExportGroup("Nodes")]
-        // [Export] private MarginContainer textBoxContainer = null;
+        [ExportGroup("Text")]
         [Export] private Label startLabel = null;
         [Export] private RichTextLabel textLabel = null;
         [Export] private Label endLabel = null;
 
+        [ExportGroup("Child Nodes")]
+        [Export] private MarginContainer marginBox = null;
+        [Export] private VBoxContainer vertBox = null;
+
         private Tween textTween = null;
-        private List<string> textQueue = [];
+        private List<string> textQueue = [];        
 
         private enum State {
             READY,
@@ -36,17 +39,14 @@ namespace ZAM.MenuUI
             HideTextBox();
         }
 
-        public override void _Process(double delta)
-        {
-            
-        }
-
         private void IfNull()
         {
-            // textBoxContainer ??= GetNode<MarginContainer>(ConstTerm.TEXTBOX_CONTAINER);
-            startLabel ??= GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER).GetNode<Label>(ConstTerm.TEXT_START);
-            endLabel ??= GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER).GetNode<Label>(ConstTerm.TEXT_END);
-            textLabel ??= GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER).GetNode<RichTextLabel>(ConstTerm.LABEL);
+            marginBox   ??= GetNode<MarginContainer>(ConstTerm.TEXTBOX_CONTAINER);
+            vertBox     ??= marginBox.GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
+
+            startLabel  ??= vertBox.GetNode<Label>(ConstTerm.TEXT_START);
+            endLabel    ??= vertBox.GetNode<Label>(ConstTerm.TEXT_END);
+            textLabel   ??= vertBox.GetNode<RichTextLabel>(ConstTerm.LABEL);
         }
 
         //=============================================================================
@@ -99,7 +99,6 @@ namespace ZAM.MenuUI
                     GD.Print("Active");
                     break;
                 case State.FINISHED:
-                    // GD.Print(textLabel.MaxLinesVisible);
                     endLabel.Text = "_";
                     break;
             }
@@ -115,12 +114,22 @@ namespace ZAM.MenuUI
             return textComplete && Visible;
         }
 
+        public bool IsTextWriting()
+        {
+            return textLabel.VisibleRatio > 0 && textLabel.VisibleRatio < 1;
+        }
+
+        public void ResetTextRatio()
+        {
+            textLabel.VisibleRatio = 0;
+        }
+
         public void FasterText(bool active)
         {
+            if (IsTextComplete()) { return; }
+            
             if (active) { textTween.SetSpeedScale(textRate * 5); }
             else { textTween.SetSpeedScale(textRate); }
         }
-
-        
     }
 }

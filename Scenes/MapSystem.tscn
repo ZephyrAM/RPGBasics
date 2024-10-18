@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://cj0v8mojhj4a7"]
+[gd_scene load_steps=12 format=3 uid="uid://cj0v8mojhj4a7"]
 
 [ext_resource type="Script" path="res://Scripts/System/PartyManager.cs" id="1_cm2c1"]
 [ext_resource type="Script" path="res://Scripts/System/MapSystem.cs" id="1_rtj5w"]
@@ -8,7 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://bm6r0ypkntj5r" path="res://Resources/Prefab/Players/player_2.tscn" id="3_lcp0t"]
 [ext_resource type="Script" path="res://Scripts/Control/CharacterController.cs" id="4_3r411"]
 [ext_resource type="PackedScene" uid="uid://uqsv1w0qe8uc" path="res://Resources/Prefab/npc_character.tscn" id="8_gpwt7"]
-[ext_resource type="PackedScene" uid="uid://bqn68bcq1mhg5" path="res://Resources/Windows/text_box.tscn" id="9_arqx5"]
+[ext_resource type="PackedScene" uid="uid://bqn68bcq1mhg5" path="res://Resources/UI/text_box.tscn" id="9_arqx5"]
+[ext_resource type="PackedScene" uid="uid://clk0yeroml1j2" path="res://Resources/UI/choice_box.tscn" id="10_a558o"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b7hks"]
 size = Vector2(65, 157)
@@ -53,6 +54,21 @@ offset_right = 77.0
 offset_bottom = 170.0
 color = Color(4.81307e-07, 0.504564, 0.264849, 1)
 
+[node name="Events" type="Node2D" parent="."]
+
+[node name="CharacterBody2D" parent="Events" instance=ExtResource("8_gpwt7")]
+position = Vector2(223, 219)
+actionType = [0, 0, 1, 0]
+choicesGiven = PackedInt32Array(2)
+choiceText = {
+"choice2A": "Yes",
+"choice2B": "No",
+"text0": "Hello there!",
+"text1": "Haven't seen you around before. You new to the area?",
+"text2A": "Well then, welcome, friend!",
+"text2B": "No, really? Huh, must be getting forgetful."
+}
+
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = -1800
 limit_top = -1000
@@ -66,10 +82,9 @@ script = ExtResource("1_cm2c1")
 partyMembers = Array[PackedScene]([ExtResource("2_cwo0u"), ExtResource("3_lcp0t")])
 charController = ExtResource("4_3r411")
 
-[node name="CharacterBody2D" parent="." instance=ExtResource("8_gpwt7")]
-position = Vector2(223, 219)
-
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 layer = 10
 
 [node name="TextBoxContainer" parent="CanvasLayer" instance=ExtResource("9_arqx5")]
+
+[node name="ChoiceBoxContainer" parent="CanvasLayer" instance=ExtResource("10_a558o")]

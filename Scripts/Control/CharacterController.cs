@@ -1,7 +1,8 @@
 using Godot;
 using System;
 
-using ZAM.MenuUI;
+// using ZAM.MenuUI;
+// using ZAM.Interactions;
 
 namespace ZAM.Control
 {
@@ -20,12 +21,21 @@ namespace ZAM.Control
 
 		private Camera2D camera2D;
 		private CanvasLayer uiLayer = null;
-		private TextBox textBox = null;
-		// private Vector2 lookDirection;
+		private MarginContainer textBox = null;
+		private MarginContainer choiceBox = null;
+		private MarginContainer marginBox = null;
+		private VBoxContainer vertBox = null;
+
+		private int choiceCommand = 0;
+		private Vector2 lookDirection = new Vector2(1, 0);
 
 		private Vector2 moveInput;
 		private Vector2 direction;
 		private float moveSpeed;
+
+		private string inputPhase;
+		private bool interactToggle = false;
+		private bool speedText = false;
 		private bool runToggle = false;
 		private bool menuToggle = false;
 		private bool battleToggle = false;
@@ -36,12 +46,19 @@ namespace ZAM.Control
 		private int frameCounter = 0;
 		private bool isActive = true;
 		private Vector2 charSize;
+		// private Interactable interactTarget;
 
 		// Delegate Events \\
 		[Signal]
 		public delegate void onStepAreaEventHandler();
 		[Signal]
-		public delegate void onInteractTargetEventHandler(GodotObject target);
+		public delegate void onInteractCheckEventHandler(RayCast2D ray);
+		[Signal]
+		public delegate void onSelectChangeEventHandler();
+		[Signal]
+		public delegate void onTextProgressEventHandler();
+		[Signal]
+		public delegate void onChoiceSelectEventHandler();
 		[Signal]
 		public delegate void onSaveGameEventHandler();
 
@@ -67,6 +84,7 @@ namespace ZAM.Control
 
 			
 			IfNull();
+			inputPhase = ConstTerm.MOVE;
 
 			moveSpeed = baseSpeed;
 			charSize = new Vector2(charSprite.Texture.GetWidth() / charSprite.Hframes, charSprite.Texture.GetHeight() / charSprite.Vframes);
@@ -75,14 +93,18 @@ namespace ZAM.Control
 		public override void _PhysicsProcess(double delta)
 		{
 			if (!isActive) { return; }
-			AxisCheck();
-			InputCheck();
+			PhaseCheck();
+			// AxisCheck();
+			// InputCheck();
 		}
 
 		private void IfNull()
 		{
 			uiLayer ??= GetNode<CanvasLayer>("../../" + ConstTerm.CANVAS_LAYER);
-			textBox ??= uiLayer.GetNode<TextBox>(ConstTerm.TEXTBOX_CONTAINER);
+			textBox ??= uiLayer.GetNode<MarginContainer>(ConstTerm.TEXTBOX_CONTAINER);
+			choiceBox ??= uiLayer.GetNode<MarginContainer>(ConstTerm.CHOICEBOX_CONTAINTER);
+			marginBox ??= choiceBox.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER);
+			vertBox ??= marginBox.GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
 
 			interactRay ??= GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
 			charSprite ??= GetNode<Sprite2D>(ConstTerm.SPRITE2D);
@@ -111,19 +133,23 @@ namespace ZAM.Control
 		// SECTION: Control Methods
 		//=============================================================================
 
-		public void InputCheck()
+		public void PhaseCheck()
 		{
-			if (textBox.Visible) { textBox.FasterText(Input.IsActionPressed(ConstTerm.ACCEPT)); }
+			if (!interactToggle) { if (Input.IsActionJustPressed(ConstTerm.ACCEPT)) { UpdateRayCast(); } }
 
-			if (Input.IsActionJustPressed(ConstTerm.ACCEPT))
+			switch (inputPhase)
 			{
-				if (textBox.IsTextComplete()) { textBox.HideTextBox(); }
-				else { InteractCheck(); }
-			}
-			else if (Input.IsActionJustPressed("Save"))
-			{
-				GD.Print("Saving game!");
-				EmitSignal(SignalName.onSaveGame);
+				case ConstTerm.MOVE:
+					AxisCheck();
+					break;
+				case ConstTerm.CHOICE:
+					ChoiceCheck();
+					break;
+				case ConstTerm.TEXT:
+					TextCheck();
+					break;
+				default:
+					break;
 			}
 		}
 
@@ -144,8 +170,8 @@ namespace ZAM.Control
 			}
 			else
 			{
-				UpdateRayCast();
-				// QueueRedraw();
+				SetLookDirection(direction);
+
 				charAnim.Set(ConstTerm.PARAM + ConstTerm.IDLE + ConstTerm.BLEND, direction);
 				charAnim.Set(ConstTerm.PARAM + ConstTerm.WALK + ConstTerm.BLEND, direction);
 				animPlay.Travel(ConstTerm.WALK);
@@ -154,29 +180,31 @@ namespace ZAM.Control
 
 			Velocity = targetVelocity;
 			MoveAndSlide();
-			// CollisionCheck(GetSlideCollisionCount());
 		}
 
-		private void UpdateRayCast()
+		public void ChoiceCheck()
 		{
-			if (direction.Y != 0)
+			if (Input.IsActionJustPressed(ConstTerm.ACCEPT))
 			{
-				interactRay.TargetPosition = moveInput * (charSize.Y / 1.5f);
+				EmitSignal(SignalName.onChoiceSelect);
 			}
-			else if (direction.X != 0)
+			else if (Input.IsActionJustPressed(ConstTerm.UP))
 			{
-				interactRay.TargetPosition = moveInput * (charSize.X / 2);
+				CommandSelect(-1, choiceBox);
+			}
+			else if (Input.IsActionJustPressed(ConstTerm.DOWN))
+			{
+				CommandSelect(1, choiceBox);
 			}
 		}
 
-		// private void CollisionCheck(int count)
-		// {
-		// 	for (int i = 0; i < count; i++)
-		// 	{
-		// 		KinematicCollision2D collision = GetSlideCollision(i);
-		// 		GD.Print("Collided with " + ((Node)collision.GetCollider()).Name);
-		// 	}
-		// }
+		public void TextCheck()
+		{
+			if (Input.IsActionJustPressed(ConstTerm.ACCEPT))
+			{
+				EmitSignal(SignalName.onTextProgress);
+			}
+		}
 
 		private void RunCheck()
 		{
@@ -186,16 +214,51 @@ namespace ZAM.Control
 			else { moveSpeed = baseSpeed; }
 		}
 
-		private void InteractCheck()
+		public bool TextSpeedCheck()
 		{
-			if (interactRay.IsColliding() && !textBox.Visible)
+			return Input.IsActionPressed(ConstTerm.ACCEPT);
+		}
+
+		//=============================================================================
+		// SECTION: Collision Detection
+		//=============================================================================
+
+		private void UpdateRayCast()
+		{
+			Vector2 multi = lookDirection;
+
+			if (lookDirection.Y != 0)
 			{
-				GodotObject target = interactRay.GetCollider();
-				if (target.HasMethod(ConstTerm.TARGETINTERACT)) {
-					target.Call(ConstTerm.TARGETINTERACT);
-				}
-				// EmitSignal(SignalName.onInteractTarget, interactRay.GetCollider());
+				multi *= charSize.Y / 1.2f;
 			}
+			else if (lookDirection.X != 0)
+			{
+				multi *= charSize.X / 1.5f;
+			}
+
+			interactRay.TargetPosition = multi;
+			QueueRedraw();
+			EmitSignal(SignalName.onInteractCheck, interactRay);
+		}
+
+
+		//=============================================================================
+		// SECTION: Selection Handling
+		//=============================================================================
+
+		private void CommandSelect(int change, Container targetList)
+		{
+			// if (direction == ConstTerm.VERT) { change *= numColumn; }
+			choiceCommand = ChangeTarget(change, choiceCommand, GetCommandCount(targetList));//choiceBox.CountChoices());
+			EmitSignal(SignalName.onSelectChange);
+		}
+
+		private int ChangeTarget(int change, int target, int listSize)
+		{
+			// if (direction == ConstTerm.HORIZ) { change += change;}
+			if (target + change > listSize - 1) { return 0; }
+			else if (target + change < 0) { return listSize - 1; }
+			else { return target += change; }
 		}
 
 
@@ -203,10 +266,10 @@ namespace ZAM.Control
 		// SECTION: Misc Methods
 		//=============================================================================
 
-		// private void SetLookDirection()
-		// {
-		// 	lookDirection = direction;
-		// }
+		private void SetLookDirection(Vector2 currentDir)
+		{
+			lookDirection = currentDir;
+		}
 
 		private void EnemyCheck()
 		{
@@ -224,9 +287,44 @@ namespace ZAM.Control
 			isActive = change;
 		}
 
+		private int GetCommandCount(Container targetList)
+		{
+			return targetList.GetChildCount();
+		}
+
 		// private void DrawRayCast()
 		// {
 		// 	DrawLine(ToLocal(new Vector2(Position.X, Position.Y)), ToLocal(new Vector2(Position.X + (direction.X * (charSize.X / 2)), Position.Y + (direction.Y * (charSize.Y / 1.5f)))), Colors.Blue, 1f);
 		// }
+
+
+		//=============================================================================
+		// SECTION: External Access
+		//=============================================================================
+
+		public int GetChoice()
+		{
+			return choiceCommand;
+		}
+
+		public string GetInputPhase()
+		{
+			return inputPhase;
+		}
+
+		public void SetIdleAnim()
+		{
+			animPlay.Travel(ConstTerm.IDLE);
+		}
+
+		public void SetInputPhase(string phase)
+		{
+			inputPhase = phase;
+		}
+
+		public void SetInteractToggle(bool active)
+		{
+			interactToggle = active;
+		}
 	}
 }

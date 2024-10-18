@@ -7,7 +7,7 @@ namespace ZAM.Abilities
     public partial class SkillList : Node
     {
         [Export] Resource[] defaultSkills;
-        List<CombatAbilities> characterSkills = new();
+        List<CombatAbilities> characterSkills = [];
 
         public override void _Ready()
         {

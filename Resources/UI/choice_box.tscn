@@ -1,0 +1,60 @@
+[gd_scene load_steps=4 format=3 uid="uid://clk0yeroml1j2"]
+
+[ext_resource type="Script" path="res://Scripts/MenuUI/ChoiceBox.cs" id="1_u66xb"]
+[ext_resource type="PackedScene" uid="uid://ylwniho8mxrf" path="res://Resources/UI/choice_label.tscn" id="2_ecarr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_75hmv"]
+bg_color = Color(0.0253638, 0.0253638, 0.0253638, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.925353, 0.925353, 0.925353, 1)
+
+[node name="ChoiceBoxContainer" type="MarginContainer" node_paths=PackedStringArray("marginBox", "vertBox", "selectBox", "selectList", "selectBar")]
+offset_left = 565.0
+offset_top = 274.0
+offset_right = 979.0
+offset_bottom = 417.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+script = ExtResource("1_u66xb")
+choiceLabel = ExtResource("2_ecarr")
+marginBox = NodePath("MarginContainer")
+vertBox = NodePath("MarginContainer/VBoxContainer")
+selectBox = NodePath("SelectContainer")
+selectList = NodePath("SelectContainer/SelectList")
+selectBar = NodePath("SelectContainer/SelectList/ColorRect")
+
+[node name="Background" type="Panel" parent="."]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_75hmv")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="SelectContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 10
+
+[node name="SelectList" type="GridContainer" parent="SelectContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="ColorRect" type="ColorRect" parent="SelectContainer/SelectList"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.724643, 0.724643, 0.724643, 0.0941176)

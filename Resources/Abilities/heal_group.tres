@@ -6,7 +6,7 @@
 script = ExtResource("1_4i2oi")
 AbilityName = "Heal All"
 AbilityDescription = "Restore life to entire team."
-TargetType = "Ally"
+TargetType = "Allly"
 TargetArea = "Group"
 NumericValue = 10.0
 DamageType = "Healing"

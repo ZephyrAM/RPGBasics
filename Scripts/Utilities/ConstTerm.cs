@@ -1,4 +1,4 @@
-static class ConstTerm
+public class ConstTerm
 {
     //=============================================================================
     // SECTION: Animations
@@ -82,6 +82,7 @@ static class ConstTerm
     public const string ALLY = "Ally";
     public const string ENEMY = "Enemy";
     public const string SELF = "Self";
+    
     public const string SINGLE = "Single";
     public const string GROUP = "Group";
 
@@ -95,6 +96,16 @@ static class ConstTerm
     public const string DEFEND = "Defend";
     public const string SKILL_SELECT = "SkillSelect";
     public const string SKILL_USE = "SkillUse";
+
+
+    //=============================================================================
+    // SECTION: Input Phases
+    //=============================================================================
+    public const string MOVE = "Move";
+    public const string INTERACT = "Interact";
+    public const string TEXT = "Text";
+    public const string CHOICE = "Choice";
+    public const string MENU = "Menu"; // Likely get broken down further
 
 
     //=============================================================================
@@ -115,6 +126,7 @@ static class ConstTerm
     //=============================================================================
     public const string ON_SAVEGAME = "OnSaveGame";
     public const string TARGETINTERACT = "TargetInteraction";
+    public const string UPDATEINTERACT = "UpdateInteraction";
 
 
     //=============================================================================
@@ -130,7 +142,11 @@ static class ConstTerm
     public const string MARGIN_CONTAINER = "MarginContainer";
     public const string HBOX_CONTAINER = "HBoxContainer";
     public const string VBOX_CONTAINER = "VBoxContainer";
+
     public const string TEXTBOX_CONTAINER = "TextBoxContainer";
+    public const string CHOICEBOX_CONTAINTER = "ChoiceBoxContainer";
+    public const string SELECT_CONTAINER = "SelectContainer";
+    public const string SELECT_LIST = "SelectList";
     public const string TEXT_START = "Start";
     public const string TEXT_END = "End";
     public const string LABEL = "Label";
