@@ -1,17 +1,27 @@
 using Godot;
-using System;
+
 using System.Collections.Generic;
+using ZAM.System;
 
 namespace ZAM.Abilities
 {
     public partial class SkillList : Node
     {
-        [Export] Resource[] defaultSkills;
-        List<CombatAbilities> characterSkills = [];
+        // [Export] Resource[] defaultSkills;
+        [Export] private string[] defaultSkills;
+
+        private List<Ability> characterSkills = [];
+        private Dictionary<string, Ability> abilityDictionary = [];
 
         public override void _Ready()
         {
+            IfNull();
             CreateSkillList();
+        }
+
+        public void IfNull()
+        {
+            abilityDictionary = DatabaseManager.Instance.GetAbilityDatabase();
         }
 
         public void CreateSkillList()
@@ -19,12 +29,23 @@ namespace ZAM.Abilities
             if (characterSkills.Count != 0) { return; }
             if (defaultSkills == null || defaultSkills.Length <= 0) { return; }
 
-            foreach (Resource skill in defaultSkills) {
-                characterSkills.Add((CombatAbilities)ResourceLoader.Load(skill.ResourcePath));
+            for (int s = 0; s < defaultSkills.Length; s++)
+            {
+                Ability nextSkill = abilityDictionary[defaultSkills[s]];
+                characterSkills.Add(nextSkill);
             }
+
+            // foreach (Resource skill in defaultSkills) {
+            //     characterSkills.Add((CombatAbilities)ResourceLoader.Load(skill.ResourcePath));
+            // }
         }
 
-        public List<CombatAbilities> GetSkills()
+        public void AddSkillToList(Ability skill)
+        {
+            characterSkills.Add(skill);
+        }
+
+        public List<Ability> GetSkills()
         {
             return characterSkills;
         }

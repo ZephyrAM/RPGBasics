@@ -1,9 +1,10 @@
+using System;
 using Godot;
 
 namespace ZAM.Abilities
 {
     [GlobalClass]
-    public partial class EffectState : Resource
+    public partial class EffectState : Node
     {
         [Export] public string StateName { get; set; }
         [Export] public string StateDescription { get; set; }

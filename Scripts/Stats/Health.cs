@@ -35,5 +35,10 @@ namespace ZAM.Stats
         {
             return maxHP;
         }
+
+        public void SetMaxHP(float value)
+        {
+            maxHP = value;
+        }
     }
 }

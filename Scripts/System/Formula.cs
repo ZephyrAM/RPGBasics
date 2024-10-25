@@ -8,7 +8,7 @@ namespace ZAM.System
 {
     public static partial class Formula
     {
-        public static float PhysDamage(Battler attacker, Battler defender, CombatAbilities ability)
+        public static float PhysDamage(Battler attacker, Battler defender, Ability ability)
         {
             float damageValue = 0;
             if (ability != null) { damageValue = ability.NumericValue;}
@@ -20,12 +20,12 @@ namespace ZAM.System
             return totalDamage;
         }
 
-        public static float SpellDamage(Battler attacker, Battler defender, CombatAbilities ability)
+        public static float SpellDamage(Battler attacker, Battler defender, Ability ability)
         {
             float offense = attacker.GetStats().GetStatValue(Stat.Magic) + ability.NumericValue;
             float defense = defender.GetStats().GetStatValue(Stat.Spirit);
             float totalDamage = Math.Min(0, defense - offense);
-            GD.Print(" -- Attack = " + offense + " Defense = " + defense);
+            GD.Print(" -- MagicAtk = " + offense + " MagicDef = " + defense);
             return totalDamage;
         }
     }

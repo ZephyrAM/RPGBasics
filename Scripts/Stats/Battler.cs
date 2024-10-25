@@ -18,6 +18,7 @@ namespace ZAM.Stats
         [Export] private AnimationPlayer battlerAnim;
         [Export] private Health battlerHealth;
         [Export] private BaseStats battlerStats;
+        [Export] private Experience battlerExp;
         [Export] private SkillList battlerSkills;
 
         [ExportGroup("Variables")]
@@ -48,6 +49,10 @@ namespace ZAM.Stats
             IfNull();
             states = [];
             basePosition = new Vector2(GetSprite2D().Position.X, GetSprite2D().Position.Y);
+
+            SubSignals();
+
+            // battlerHealth.SetMaxHP(battlerStats.GetStatValue(Stat.Stamina) * 10); // EDIT: Find better place to load.
         }
 
         //=============================================================================
@@ -66,12 +71,18 @@ namespace ZAM.Stats
             battlerName ??= GetNode<Label>("../" + labelName);
             battlerHealth ??= GetNode<Health>("../" + ConstTerm.HEALTH);
             battlerStats ??= GetNode<BaseStats>("../" + ConstTerm.BASESTATS);
+            battlerExp ??= GetNode<Experience>("../" + ConstTerm.EXPERIENCE);
             battlerSkills ??= GetNode<SkillList>("../" + ConstTerm.SKILL_LIST);
         }
 
         private void SubSignals()
         {
-
+            battlerExp.onLevelUp += OnLevelUp;
+        }
+        
+        private void UnSubSignals()
+        {
+            battlerExp.onLevelUp -= OnLevelUp;
         }
 
 
@@ -96,6 +107,11 @@ namespace ZAM.Stats
         public CharacterID GetCharID()
         {
             return battlerID;
+        }
+
+        public string BattlerName()
+        {
+            return battlerName.Text;
         }
 
         public Label GetNameLabel()
@@ -125,6 +141,9 @@ namespace ZAM.Stats
 
         public BaseStats GetStats()
         { return battlerStats; }
+
+        public Experience GetExperience()
+        { return battlerExp; }
 
         public SkillList GetSkillList()
         {
@@ -166,6 +185,15 @@ namespace ZAM.Stats
         }
 
         //=============================================================================
+        // SECTION: Signal Methods
+        //=============================================================================
+
+        public void OnLevelUp()
+        {
+            battlerStats.LevelUpStats();
+        }
+
+        //=============================================================================
         // SECTION: Save System
         //=============================================================================
 
@@ -179,8 +207,9 @@ namespace ZAM.Stats
             {
                 CharID = GetCharID(),
                 CurrentHP = GetHealth().GetHP(),
-                MaxHP = GetHealth().GetMaxHP(),
-                StatValues = GetStats().GetAllStats()
+                StatValues = GetStats().SaveAllStats(),
+                CurrentExp = GetExperience().GetTotalExp(),
+                CurrentLevel = GetExperience().GetCurrentLevel()
             };
             saveData[GetCharID()] = newData;
         }
@@ -189,7 +218,12 @@ namespace ZAM.Stats
         {
             if (saveData is BattlerData)
             {
+                if (GetCharID() != saveData.CharID) { GD.PushError("Battler loaded does not match!"); } // EDIT: Need better check
+
                 GetHealth().SetHP(saveData.CurrentHP);
+                GetStats().LoadAllStats(saveData.StatValues);
+                GetExperience().SetExpTotal(saveData.CurrentExp);
+                GetExperience().SetCurrentLevel(saveData.CurrentLevel);
             }
         }
     }

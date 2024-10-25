@@ -8,15 +8,19 @@ namespace ZAM.Stats
 {
     public partial class BaseStats : Node
     {
+        [Export] private Battler battler = null;
+        
         [ExportGroup("Stat Values")]
-        [Export] float [] value;
+        [Export] private Modifier [] stats;
+        [Export] private Modifier [] levelUpValue;
+        [Export] private Modifier [] upVariance;
 
         [ExportGroup("Options")]
-        [Export] bool shouldUseAddModifiers = true;
-        [Export] bool shouldUseBonusModifiers = true;
+        [Export] private bool shouldUseAddModifiers = true;
+        [Export] private bool shouldUseBonusModifiers = true;
 
-        List<Stat> stat = null;
-        Battler battler;
+        private List<Stat> stat = null;
+        private Dictionary<Stat, float> statSheet = null;
 
         //=============================================================================
         // SECTION: Base Methods
@@ -33,9 +37,6 @@ namespace ZAM.Stats
         private void IfNull()
         {
             battler ??= GetNode<Battler>("../Battler");
-            // foreach (int s in stat.Select(v => (int)v)) {
-            //     if (value[s] == 0) { value[s] = 2; }
-            // }
         }
 
         //=============================================================================
@@ -43,24 +44,73 @@ namespace ZAM.Stats
         //=============================================================================
         private void SetupStats()
         {
-            stat ??= new List<Stat>();
-            foreach (Stat i in Enum.GetValues(typeof(Stat)))
+            stat ??= [];
+            for (int s = 0; s < stats.Length; s++)
             {
-                stat.Add(i);
+                stat.Add(stats[s].Stat);
+            }
+            SetupStatSheet();
+        }
+
+        private void SetupStatSheet()
+        {
+            statSheet ??= [];
+            for (int s = 0; s < stat.Count; s++)
+            {
+                statSheet[stat[s]] = stats[s].Value;
+            }
+        }
+
+        public void LevelUpStats()
+        {
+            for (int s = 0; s < levelUpValue.Length; s++)
+            {
+                if (levelUpValue[s] == null) { continue;} // Stat doesn't provide an increase on leveling
+
+                float incVal = levelUpValue[s].Value;
+                if (upVariance[s] != null) {
+                    Random variance = new();
+                    float lowVal = levelUpValue[s].Value - upVariance[s].Value;
+                    float highVal = levelUpValue[s].Value + upVariance[s].Value;
+                    incVal = variance.Next((int)lowVal, (int)highVal + 1);
+                }
+                GD.Print(levelUpValue[s].Stat + " + " + incVal);
+                statSheet[levelUpValue[s].Stat] += incVal;
             }
         }
 
         public float GetStatValue(Stat stat)
         {
-            float totalValue = value[(int)stat] * (1 + GetPercetageModifier(stat)) + GetAdditiveModifier(stat);
+            float totalValue = statSheet[stat] * (1 + GetPercetageModifier(stat)) + GetAdditiveModifier(stat);
             // if (stat == Stat.Stamina) { GD.Print(stat + " " + totalValue); }
             return totalValue;
         }
 
-        public float[] GetAllStats()
+        //=============================================================================
+        // SECTION: Save System
+        //=============================================================================
+
+        public float[] SaveAllStats()
         {
-            return value;
+            float[] saveStats = new float[statSheet.Count];
+            for (int n = 0; n < statSheet.Count; n++)
+            {
+                saveStats[n] = statSheet[stat[n]];
+            }
+            return saveStats;
         }
+
+        public void LoadAllStats(float[] loadStats)
+        {
+            for (int n = 0; n < statSheet.Count; n++)
+            {
+                statSheet[stat[n]] = loadStats[n];
+            }
+        }
+
+        //=============================================================================
+        // SECTION: Stat Adjustments
+        //=============================================================================
 
         private float GetAdditiveModifier(Stat stat)
         {

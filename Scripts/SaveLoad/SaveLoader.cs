@@ -20,6 +20,12 @@ public partial class SaveLoader : Node
         Instance.gameSession = new();
     }
 
+    public string GetSavePath()
+    {
+        string folderPath = ConstTerm.GAME_FOLDER + ConstTerm.SAVE_PATH + ConstTerm.SAVE_FOLDER;
+        return folderPath;
+    }
+
     //=============================================================================
     // SECTION: Save Methods
     //=============================================================================

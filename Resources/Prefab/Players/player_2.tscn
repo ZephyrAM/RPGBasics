@@ -1,8 +1,52 @@
-[gd_scene load_steps=4 format=3 uid="uid://bm6r0ypkntj5r"]
+[gd_scene load_steps=12 format=3 uid="uid://bm6r0ypkntj5r"]
 
 [ext_resource type="PackedScene" uid="uid://da7fwfcevplrb" path="res://Resources/Prefab/player_character.tscn" id="1_8ux1a"]
-[ext_resource type="Resource" uid="uid://b7q5guyg2ttf4" path="res://Resources/Abilities/fire_single.tres" id="2_vs5r3"]
-[ext_resource type="Resource" uid="uid://daex8o84iwkfv" path="res://Resources/Abilities/fire_group.tres" id="3_6jime"]
+[ext_resource type="Script" path="res://Scripts/Abilities/Modifier.cs" id="2_r1de6"]
+
+[sub_resource type="Resource" id="Resource_3g8m3"]
+script = ExtResource("2_r1de6")
+Stat = 0
+Value = 30.0
+
+[sub_resource type="Resource" id="Resource_af3fc"]
+script = ExtResource("2_r1de6")
+Stat = 1
+Value = 10.0
+
+[sub_resource type="Resource" id="Resource_e4ndq"]
+script = ExtResource("2_r1de6")
+Stat = 2
+Value = 50.0
+
+[sub_resource type="Resource" id="Resource_ci123"]
+script = ExtResource("2_r1de6")
+Stat = 3
+Value = 35.0
+
+[sub_resource type="Resource" id="Resource_xxo0j"]
+script = ExtResource("2_r1de6")
+Stat = 4
+Value = 12.0
+
+[sub_resource type="Resource" id="Resource_bdwhd"]
+script = ExtResource("2_r1de6")
+Stat = 2
+Value = 8.0
+
+[sub_resource type="Resource" id="Resource_quf2n"]
+script = ExtResource("2_r1de6")
+Stat = 4
+Value = 1.0
+
+[sub_resource type="Resource" id="Resource_jhb8r"]
+script = ExtResource("2_r1de6")
+Stat = 2
+Value = 2.0
+
+[sub_resource type="Resource" id="Resource_dd6ad"]
+script = ExtResource("2_r1de6")
+Stat = 4
+Value = 1.0
 
 [node name="CharacterBody2D" instance=ExtResource("1_8ux1a")]
 
@@ -13,7 +57,9 @@ text = "Player 2"
 battlerID = 2
 
 [node name="BaseStats" parent="." index="8"]
-value = PackedFloat32Array(50, 20, 60, 40, 5, 0)
+stats = Array[Object]([SubResource("Resource_3g8m3"), SubResource("Resource_af3fc"), SubResource("Resource_e4ndq"), SubResource("Resource_ci123"), SubResource("Resource_xxo0j")])
+levelUpValue = Array[Object]([SubResource("Resource_bdwhd"), SubResource("Resource_quf2n")])
+upVariance = Array[Object]([SubResource("Resource_jhb8r"), SubResource("Resource_dd6ad")])
 
-[node name="SkillList" parent="." index="9"]
-defaultSkills = Array[Resource]([ExtResource("2_vs5r3"), ExtResource("3_6jime")])
+[node name="SkillList" parent="." index="10"]
+defaultSkills = PackedStringArray("Heal", "Heal All")

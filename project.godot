@@ -11,14 +11,15 @@ config_version=5
 [application]
 
 config/name="TurnBasedBattle_Basic"
-run/main_scene="res://Scenes/MapSystem.tscn"
+run/main_scene="res://Scenes/StartScreen.tscn"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
-Fader="*res://Resources/Nodes/fader.tscn"
-SaveLoader="*res://Resources/Nodes/save_loader.tscn"
+Fader="*res://Resources/Globals/fader.tscn"
+SaveLoader="*res://Resources/Globals/save_loader.tscn"
+DatabaseManager="*res://Resources/Globals/database.tscn"
 
 [display]
 

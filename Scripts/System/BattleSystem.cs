@@ -1,5 +1,4 @@
 using Godot;
-using Godot.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,20 +14,21 @@ namespace ZAM.System
     {
         [ExportGroup("Battler Teams")]
         // [Export] PackedScene playerBattlers;
-        [Export] private PackedScene enemyEncounter;
+        [Export] private PackedScene enemyEncounter = null;
 
         [ExportGroup("Nodes")]
-        [Export] private BattleController partyInput;
-        [Export] private Node2D floatingText;
-        [Export] private Node2D cursorTarget;
-        [Export] private Camera2D baseCamera;
-        [Export] private CanvasLayer battleUI;
-        [Export] private PanelContainer commandPanel;
-        [Export] private PanelContainer skillPanel;
+        [Export] private BattleController partyInput = null;
+        [Export] private Node2D floatingText = null;
+        [Export] private Node2D cursorTarget = null;
+        [Export] private Camera2D baseCamera = null;
+        [Export] private CanvasLayer battleUI = null;
+        [Export] private PanelContainer commandPanel = null;
+        [Export] private PanelContainer skillPanel = null;
+        [Export] private PanelContainer itemPanel = null;
 
         [ExportGroup("UI Resources")]
-        [Export] private PackedScene statusList;
-        [Export] private PackedScene labelSettings;
+        [Export] private PackedScene statusList = null;
+        [Export] private PackedScene labelSettings = null;
 
         [ExportGroup("Variables")]
         [Export] private string battleUIName;
@@ -45,8 +45,9 @@ namespace ZAM.System
 
         private MapSystem mapScene;
         private PartyManager playerParty;
-        private CombatAbilities defendAbility;
-        private CombatAbilities activeAbility;
+        // private Dictionary<string, Ability> abilityDatabase;
+        private Ability defendAbility;
+        private Ability activeAbility;
 
         private List<Battler> battler = null;
         private List<Battler> enemyTeam = null;
@@ -82,7 +83,7 @@ namespace ZAM.System
             offset = new Vector2(0, targetOffset + cursorOffset);
 
             cursorTarget.GetNode<Sprite2D>(cursorSpriteName).GetNode<AnimationPlayer>(cursorAnimatorName).Play(ConstTerm.CURSOR_BOUNCE);
-            defendAbility = (CombatAbilities)ResourceLoader.Load(ConstTerm.ABILITY_SOURCE + ConstTerm.DEFEND_ABILITY);
+            defendAbility = DatabaseManager.Instance.GetDefend();
 
             SubSignals();
 
@@ -140,6 +141,8 @@ namespace ZAM.System
             cursorSpriteName ??= ConstTerm.SPRITE2D;
 
             battleUI ??= GetNode<CanvasLayer>(battleUIName);
+
+            // abilityDatabase = AbilityDatabase.Instance.GetAbilityDatabase();
         }
 
         private void SubSignals()
@@ -260,6 +263,7 @@ namespace ZAM.System
             cursorTarget.Visible = partyInput.GetTurnPhase() == ConstTerm.ATTACK || partyInput.GetTurnPhase() == ConstTerm.SKILL_USE;
             commandPanel.Visible = partyInput.GetTurnPhase() == ConstTerm.COMMAND;
             skillPanel.Visible   = partyInput.GetTurnPhase() == ConstTerm.SKILL_SELECT;
+            itemPanel.Visible = partyInput.GetTurnPhase() == ConstTerm.ITEM_SELECT;
         }
 
         public async void CheckBattlers()
@@ -321,11 +325,30 @@ namespace ZAM.System
         // SECTION: Battle Methods
         //=============================================================================
 
-        public void KillTarget(Battler target, List<Battler> team)
+        public void KillTarget(Battler target, List<Battler> team, List<Battler> attackTeam)
         {
+            AwardKillExp(attackTeam, target);
+
             team.Remove(target);
             battler.Remove(target);
             target.GetParent().QueueFree();
+        }
+
+        public void AwardKillExp(List<Battler> team, Battler defender)
+        {
+            float getExp = defender.GetExperience().GetExpOnKill();
+            getExp /= team.Count;
+            for (int i = 0; i < team.Count; i++)
+            {
+                team[i].GetExperience().AddExp(getExp);
+                GD.Print(team[i].BattlerName() + " gains " + getExp + " experience.");
+                if (team[i].GetExperience().CheckLevelUp())
+                {
+                    FloatingNumbers(team[i], "Level Up!", ConstTerm.WHITE);
+                    GD.Print("New level is " + team[i].GetExperience().GetCurrentLevel());
+                }
+                GD.Print("Experience - " + team[i].GetExperience().GetTotalExp() + "/" + team[i].GetExperience().GetExpToLevel(team[i].GetExperience().GetCurrentLevel()));
+            }
         }
 
         private void DamageHandling(Battler attacker, Battler defender)
@@ -417,7 +440,7 @@ namespace ZAM.System
             foreach(Node child in skillPanel.GetNode(ConstTerm.SKILL_LIST).GetChildren())
             { child.QueueFree(); }
 
-            foreach (CombatAbilities skill in player.GetSkillList().GetSkills())
+            foreach (Ability skill in player.GetSkillList().GetSkills())
             {
                 Label newSkill = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
                 newSkill.Text = skill.AbilityName;
@@ -425,6 +448,11 @@ namespace ZAM.System
                 skillPanel.GetNode(ConstTerm.SKILL_LIST).AddChild(newSkill);
             }
         }
+
+        // private void SetupItemList()
+        // {
+        //     playerParty
+        // }
 
         //=============================================================================
         // SECTION: Animation Call Methods
@@ -444,7 +472,7 @@ namespace ZAM.System
                     if (defender.GetHealth().GetHP() <= 0)
                     {
                         defender.onHitPlayer -= OnHitPlayer;
-                        KillTarget(defender, enemyTeam);
+                        KillTarget(defender, enemyTeam, playerTeam);
 
                         enemyList.GetChild(n).QueueFree();
                         partyInput.SetEnemyTeamSize(enemyTeam.Count);
@@ -461,7 +489,7 @@ namespace ZAM.System
                 if (defender.GetHealth().GetHP() <= 0)
                 {
                     defender.onHitPlayer -= OnHitPlayer;
-                    KillTarget(defender, enemyTeam);
+                    KillTarget(defender, enemyTeam, playerTeam);
 
                     enemyList.GetChild(partyInput.GetTarget()).QueueFree();
                     partyInput.SetEnemyTeamSize(enemyTeam.Count);
@@ -483,7 +511,7 @@ namespace ZAM.System
             if (defender.GetHealth().GetHP() <= 0)
             {
                 defender.onHitEnemy -= OnHitEnemy;
-                KillTarget(defender, playerTeam);
+                KillTarget(defender, playerTeam, enemyTeam);
 
                 playerList.GetChild(target).QueueFree();
                 partyInput.SetPlayerTeamSize(playerTeam.Count);
@@ -492,7 +520,7 @@ namespace ZAM.System
             }
         }
 
-        public void OnAbilityHitPlayer(Battler user)
+        public void OnAbilityHitPlayer(Battler user) // EDIT: Add heal formula!
         {
             if (activeAbility.TargetArea == ConstTerm.GROUP) {
                 foreach (Battler player in playerTeam)
@@ -522,6 +550,7 @@ namespace ZAM.System
             if (BattleEndCheck()) { return; }
             if (battler.Count > 0)
             {
+                if (battler[0] == null) { goto SkipToEnd; }
                 GD.Print(battler[0].GetNameLabel().Text + " Turn Start!");
                 partyInput.SetTurnPhase(ConstTerm.WAIT);
                 activeAbility = null;
@@ -537,6 +566,7 @@ namespace ZAM.System
                     PlayerTurn();
                 }
             }
+            SkipToEnd:
             CheckBattlers();
 
             await Task.Delay(120);
@@ -594,6 +624,7 @@ namespace ZAM.System
             {
                 if (activeAbility.TargetType == ConstTerm.ALLY) { partyInput.SetTargetTeam(ConstTerm.BATTLERPLAYER); }
                 else { partyInput.SetTargetTeam(ConstTerm.BATTLERENEMY); }
+                partyInput.SetActionTarget(0);
             }
 
             SetCursorPosition();
@@ -619,12 +650,14 @@ namespace ZAM.System
             battler[0].GetAnimPlayer().Queue(activeAbility.CallAnimation);
             await ToSignal(battler[0].GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
 
+            partyInput.ResetTarget();
+
             OnTurnEnd();
         }
 
         private void OnAbilityStop(int index)
         {
-            CombatAbilities newAbility;
+            Ability newAbility;
             if (index == -1) { newAbility = defendAbility; }
             else
             {

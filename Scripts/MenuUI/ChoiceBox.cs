@@ -26,6 +26,11 @@ namespace ZAM.MenuUI
             HideChoiceBox();
         }
 
+        public override void _Process(double delta)
+        {
+            if (Visible) { selectBar.GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER).Play(ConstTerm.CURSOR_BLINK); }
+        }
+
         public void IfNull()
         {
             marginBox ??= GetNode<MarginContainer>(ConstTerm.TEXTBOX_CONTAINER);

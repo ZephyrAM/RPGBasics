@@ -8,6 +8,7 @@ namespace ZAM.Control
         [Export] private string animationPlayerName;
         [Export] private VBoxContainer commandList;
         [Export] private GridContainer skillList;
+        [Export] private GridContainer itemList;
         [Export] private Vector2[] playerPositions;
 
         private AnimationPlayer playerAnim;
@@ -187,7 +188,7 @@ namespace ZAM.Control
             }
         }
 
-        private void SkillUsePhase(InputEvent @event)// turnPhase == ConstTerm.SKILL_USE;
+        private void SkillUsePhase(InputEvent @event) // turnPhase == ConstTerm.SKILL_USE;
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
                 SkillOption(currentCommand);
@@ -207,6 +208,36 @@ namespace ZAM.Control
             }
             else if (@event.IsActionPressed(ConstTerm.RIGHT)) {
                 TargetSelect(1, ConstTerm.HORIZ);
+            }
+        }
+
+        private void ItemSelectPhase(InputEvent @event) // turnPhase == ConstTerm.ITEM_SELECT
+        {
+            if (@event.IsActionPressed(ConstTerm.ACCEPT))
+            {
+                turnPhase = ConstTerm.ITEM_USE;
+                // EmitSignal(SignalName.onAbilitySelect, currentCommand);
+                currentCommand = 0;
+            }
+            else if (@event.IsActionPressed(ConstTerm.CANCEL))
+            {
+                CancelSelect(ConstTerm.COMMAND);
+            }
+            else if (@event.IsActionPressed(ConstTerm.UP))
+            {
+                CommandSelect(-1, itemList, ConstTerm.VERT);
+            }
+            else if (@event.IsActionPressed(ConstTerm.DOWN))
+            {
+                CommandSelect(1, itemList, ConstTerm.VERT);
+            }
+            else if (@event.IsActionPressed(ConstTerm.LEFT))
+            {
+                CommandSelect(-1, itemList, ConstTerm.HORIZ);
+            }
+            else if (@event.IsActionPressed(ConstTerm.RIGHT))
+            {
+                CommandSelect(1, itemList, ConstTerm.HORIZ);
             }
         }
 
@@ -261,11 +292,12 @@ namespace ZAM.Control
 
         private void CommandOption(int option)
         {
-            TargetSelect(0, ConstTerm.HORIZ); // Reset targetting to correct team by...  reasons. EDIT
+            ResetTarget(); // Reset targetting to correct team by...  reasons. EDIT
             
             if (option == 0) { turnPhase = ConstTerm.ATTACK; }
             else if (option == 1) { turnPhase = ConstTerm.DEFEND; }
-            else if (option == 2) { turnPhase = ConstTerm.SKILL_SELECT;}
+            else if (option == 2) { turnPhase = ConstTerm.SKILL_SELECT; }
+            else if (option == 3) { turnPhase = ConstTerm.ITEM_SELECT; }
 
             SetNumColumn();
         }
@@ -282,7 +314,7 @@ namespace ZAM.Control
             await ToSignal(playerAnim, ConstTerm.ANIM_FINISHED);
 
             EmitSignal(SignalName.onTurnEnd);
-            TargetSelect(0, ConstTerm.HORIZ);
+            ResetTarget();
         }
 
         private void Defend()
@@ -336,6 +368,17 @@ namespace ZAM.Control
             return actionTarget;
         }
 
+        public void SetActionTarget(int target) // Set target to 0 for each turn selection. Adjust if using 'saved selection' settings.
+        {
+            actionTarget = target;
+            ResetTarget();
+        }
+
+        public void ResetTarget()
+        {
+            TargetSelect(0, ConstTerm.HORIZ);
+        }
+
         public int GetCommand()
         {
             return currentCommand;
@@ -360,6 +403,7 @@ namespace ZAM.Control
         public void SetTargetTeam(string team)
         {
             targetTeam = team;
+            ResetTarget();
         }
 
         public void SetEnemyTeamSize(int size)
@@ -375,6 +419,7 @@ namespace ZAM.Control
         public void SetNumColumn()
         {
             if (turnPhase == ConstTerm.SKILL_SELECT) { numColumn = skillList.Columns; }
+            else if (turnPhase == ConstTerm.ITEM_SELECT) { numColumn = itemList.Columns; }
             else { numColumn = 1; }
         }
 

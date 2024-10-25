@@ -1,16 +1,17 @@
-[gd_scene load_steps=25 format=3 uid="uid://da7fwfcevplrb"]
+[gd_scene load_steps=26 format=3 uid="uid://da7fwfcevplrb"]
 
 [ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="1_cu7be"]
 [ext_resource type="Texture2D" uid="uid://bpljfe63wdftg" path="res://Assets/Graphics/Characters/Char_Move.png" id="1_e8evb"]
-[ext_resource type="AnimationLibrary" uid="uid://fta55tbh4fg5" path="res://Resources/Misc/top_down_move.res" id="1_n8n3y"]
-[ext_resource type="AnimationLibrary" uid="uid://djlnn8cs542vh" path="res://Resources/Misc/battle_anim.res" id="1_nlbc0"]
+[ext_resource type="AnimationLibrary" uid="uid://fta55tbh4fg5" path="res://Resources/Animations/top_down_move.res" id="1_n8n3y"]
+[ext_resource type="AnimationLibrary" uid="uid://djlnn8cs542vh" path="res://Resources/Animations/battle_anim.res" id="1_nlbc0"]
 [ext_resource type="Script" path="res://Scripts/Stats/Battler.cs" id="2_s831g"]
 [ext_resource type="Script" path="res://Scripts/Stats/Health.cs" id="3_rfmda"]
 [ext_resource type="Script" path="res://Scripts/Stats/BaseStats.cs" id="4_fic8q"]
 [ext_resource type="Script" path="res://Scripts/Abilities/SkillList.cs" id="8_q4v62"]
+[ext_resource type="Script" path="res://Scripts/Stats/Experience.cs" id="9_01k6b"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sby8l"]
-size = Vector2(46, 88)
+size = Vector2(46, 58)
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_50t2m"]
 animation = &"top_down_move/idle_down"
@@ -102,6 +103,7 @@ _data = {
 }
 
 [node name="CharacterBody2D" type="CharacterBody2D"]
+z_index = 1
 collision_layer = 2
 collision_mask = 31
 
@@ -111,6 +113,7 @@ hframes = 3
 vframes = 3
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 15)
 shape = SubResource("RectangleShape2D_sby8l")
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
@@ -137,7 +140,7 @@ text = "Test Player"
 label_settings = ExtResource("1_cu7be")
 horizontal_alignment = 2
 
-[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerHealth", "battlerStats", "battlerSkills") groups=["SaveData"]]
+[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills") groups=["SaveData"]]
 script = ExtResource("2_s831g")
 battlerType = "Player"
 battlerName = NodePath("../Name")
@@ -146,14 +149,18 @@ battlerSprite = NodePath("../Sprite2D")
 battlerAnim = NodePath("../AnimationPlayer")
 battlerHealth = NodePath("../Health")
 battlerStats = NodePath("../BaseStats")
+battlerExp = NodePath("../Experience")
 battlerSkills = NodePath("../SkillList")
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("3_rfmda")
 
-[node name="BaseStats" type="Node" parent="."]
+[node name="BaseStats" type="Node" parent="." node_paths=PackedStringArray("battler")]
 script = ExtResource("4_fic8q")
-value = PackedFloat32Array(60, 20, 30, 10, 2, 0)
+battler = NodePath("../Battler")
+
+[node name="Experience" type="Node" parent="."]
+script = ExtResource("9_01k6b")
 
 [node name="SkillList" type="Node" parent="."]
 script = ExtResource("8_q4v62")

@@ -8,6 +8,7 @@ public enum Stat
     Agility = 4,
 
     // Values
-    ExperienceToLevel = 20,
-    ExperienceWorth = 21,
+    // ExperienceTotal = 20,
+    // ExperienceToLevel = 21,
+    // ExperienceWorth = 22,
 }

@@ -1,8 +1,34 @@
-[gd_scene load_steps=2 format=3 uid="uid://lxjvwnkjxnv1"]
+[gd_scene load_steps=8 format=3 uid="uid://lxjvwnkjxnv1"]
 
 [ext_resource type="PackedScene" uid="uid://blox2rfxsjm64" path="res://Resources/Prefab/enemy_character.tscn" id="1_1b1qe"]
+[ext_resource type="Script" path="res://Scripts/Abilities/Modifier.cs" id="2_4d17i"]
+
+[sub_resource type="Resource" id="Resource_w0n5a"]
+script = ExtResource("2_4d17i")
+Stat = 0
+Value = 20.0
+
+[sub_resource type="Resource" id="Resource_88qtc"]
+script = ExtResource("2_4d17i")
+Stat = 1
+Value = 10.0
+
+[sub_resource type="Resource" id="Resource_bbl2y"]
+script = ExtResource("2_4d17i")
+Stat = 2
+Value = 2.0
+
+[sub_resource type="Resource" id="Resource_a5gsj"]
+script = ExtResource("2_4d17i")
+Stat = 3
+Value = 5.0
+
+[sub_resource type="Resource" id="Resource_lu2rd"]
+script = ExtResource("2_4d17i")
+Stat = 4
+Value = 6.0
 
 [node name="EnemyCharacter_1" instance=ExtResource("1_1b1qe")]
 
-[node name="BaseStats" parent="." index="6"]
-value = PackedFloat32Array(30, 10, 15, 15, 4, 0)
+[node name="BaseStats" parent="." index="7"]
+stats = Array[Object]([SubResource("Resource_w0n5a"), SubResource("Resource_88qtc"), SubResource("Resource_bbl2y"), SubResource("Resource_a5gsj"), SubResource("Resource_lu2rd")])

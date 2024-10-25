@@ -11,7 +11,8 @@ public class ConstTerm
     public const string TAKE_DAMAGE = "battle_anim/take_damage";
     public const string ANIM_ENEMY_ATTACK = "enemy_anim/attack";
 
-    public const string CURSOR_BOUNCE = "cursor_bounce";
+    public const string CURSOR_BOUNCE = "ui_cursor/cursor_bounce";
+    public const string CURSOR_BLINK = "ui_cursor/cursor_blink";
     public const string FADE_UP = "fade_up";
 
     public const string FADE_OUT = "fade_out";
@@ -55,9 +56,8 @@ public class ConstTerm
 
 
     //=============================================================================
-    // SECTION: Abilities
+    // SECTION: Abilitiy Paths
     //=============================================================================
-    public const string DEFEND_ABILITY = "defend.tres";
 
 
     //=============================================================================
@@ -73,7 +73,7 @@ public class ConstTerm
     public const string BLEND = "/blend_position";
     public const string PLAYBACK = "playback";
     public const string BATTLE_SCENE = "res://Scenes/BattleScene.tscn";
-    public const string ABILITY_SOURCE = "res://Resources/Abilities/";
+    public const string NEWGAME_SCENE = "res://Scenes/MapSysem.tscn"; // EDIT: Change to default scene!!
 
 
     //=============================================================================
@@ -96,6 +96,8 @@ public class ConstTerm
     public const string DEFEND = "Defend";
     public const string SKILL_SELECT = "SkillSelect";
     public const string SKILL_USE = "SkillUse";
+    public const string ITEM_SELECT = "ItemSelect";
+    public const string ITEM_USE = "ItemUse";
 
 
     //=============================================================================
@@ -134,11 +136,13 @@ public class ConstTerm
     //=============================================================================
     public const string BATTLERPLAYER = "Player";
     public const string BATTLERENEMY = "Enemy";
+    public const string NPC = "NPC";
 
 
     //=============================================================================
     // SECTION: Node Names
     //=============================================================================
+    public const string PANEL_CONTAINER = "PanelContainer";
     public const string MARGIN_CONTAINER = "MarginContainer";
     public const string HBOX_CONTAINER = "HBoxContainer";
     public const string VBOX_CONTAINER = "VBoxContainer";
@@ -175,12 +179,26 @@ public class ConstTerm
     public const string BATTLER = "Battler";
     public const string HEALTH = "Health";
     public const string BASESTATS = "BaseStats";
+    public const string EXPERIENCE = "Experience";
     public const string SKILL_LIST = "SkillList";
+
     public const string HEALTH_DISPLAY = "HealthDisplay";
+
+    public const string ABILITIES = "Abilities";
+    public const string ABILITYDATABASE = "AbilityDatabase";
+    public const string STATES = "States";
+    public const string STATEDATABASE = "StateDatabase";
+    public const string ITEMS = "Items";
+    public const string ITEMDATABASE = "ItemDatabase";
 
 
     //=============================================================================
     // SECTION: Node Properties
     //=============================================================================
     public const string PERCENT_VISIBLE = "visible_ratio";
+
+
+    //=============================================================================
+    // SECTION: Ability Names
+    //=============================================================================
 }

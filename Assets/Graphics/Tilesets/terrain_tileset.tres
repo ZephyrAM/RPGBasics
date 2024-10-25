@@ -1,20 +1,10 @@
-[gd_scene load_steps=16 format=4 uid="uid://cj0v8mojhj4a7"]
+[gd_resource type="TileSet" load_steps=3 format=3 uid="uid://8w563qvd783e"]
 
-[ext_resource type="Script" path="res://Scripts/System/PartyManager.cs" id="1_cm2c1"]
-[ext_resource type="Script" path="res://Scripts/System/MapSystem.cs" id="1_rtj5w"]
-[ext_resource type="Script" path="res://Scripts/System/EncounterArea.cs" id="1_x5jq7"]
-[ext_resource type="PackedScene" uid="uid://bjoehnkxwngcu" path="res://Resources/Prefab/Players/player_1.tscn" id="2_cwo0u"]
-[ext_resource type="PackedScene" uid="uid://chutyx7868wr6" path="res://Scenes/BattleScene.tscn" id="2_tdxdo"]
-[ext_resource type="TileSet" uid="uid://8w563qvd783e" path="res://Assets/Graphics/Tilesets/terrain_tileset.tres" id="3_86gnt"]
-[ext_resource type="PackedScene" uid="uid://bm6r0ypkntj5r" path="res://Resources/Prefab/Players/player_2.tscn" id="3_lcp0t"]
-[ext_resource type="Script" path="res://Scripts/Control/CharacterController.cs" id="4_3r411"]
-[ext_resource type="Texture2D" uid="uid://d00plp23y0m1k" path="res://Assets/Graphics/Tilesets/terrain.png" id="4_uk0fn"]
-[ext_resource type="PackedScene" uid="uid://uqsv1w0qe8uc" path="res://Resources/Prefab/npc_character.tscn" id="8_gpwt7"]
-[ext_resource type="PackedScene" uid="uid://bqn68bcq1mhg5" path="res://Resources/UI/text_box.tscn" id="9_arqx5"]
-[ext_resource type="PackedScene" uid="uid://clk0yeroml1j2" path="res://Resources/UI/choice_box.tscn" id="10_a558o"]
+[ext_resource type="Texture2D" uid="uid://d00plp23y0m1k" path="res://Assets/Graphics/Tilesets/terrain.png" id="1_72gdu"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lpife"]
-texture = ExtResource("4_uk0fn")
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_q3ed1"]
+resource_name = "Terrain (ID:0)"
+texture = ExtResource("1_72gdu")
 texture_region_size = Vector2i(64, 64)
 2:1/0 = 0
 3:1/0 = 0
@@ -368,11 +358,8 @@ texture_region_size = Vector2i(64, 64)
 36:13/0 = 0
 37:13/0 = 0
 1:14/0 = 0
-1:14/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, -32, 32, -32, 32, -24, -16, -24, -16, 32, -32, 32)
 2:14/0 = 0
-2:14/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, -32, 32, -32, 32, -24, -32, -24)
 3:14/0 = 0
-3:14/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, -32, 32, -32, 32, 32, 16, 32, 16, -24, -32, -24)
 4:14/0 = 0
 5:14/0 = 0
 6:14/0 = 0
@@ -399,7 +386,6 @@ texture_region_size = Vector2i(64, 64)
 36:14/0 = 0
 37:14/0 = 0
 1:15/0 = 0
-1:15/0/physics_layer_0/polygon_0/points = PackedVector2Array(16, 32, 16, -32, 32, -32, 32, 32)
 2:15/0 = 0
 3:15/0 = 0
 4:15/0 = 0
@@ -416,7 +402,6 @@ texture_region_size = Vector2i(64, 64)
 17:15/0 = 0
 18:15/0 = 0
 1:16/0 = 0
-1:16/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, -32, -32, 32, -16, 32, -16, -32, -32, -32)
 2:16/0 = 0
 3:16/0 = 0
 4:16/0 = 0
@@ -449,11 +434,8 @@ texture_region_size = Vector2i(64, 64)
 36:16/0 = 0
 37:16/0 = 0
 1:17/0 = 0
-1:17/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, -32, -16, -32, -16, 8, 32, 8, 32, 32, -32, 32)
 2:17/0 = 0
-2:17/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, 8, 32, 8, 32, 32, -32, 32)
 3:17/0 = 0
-3:17/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, 8, 16, 8, 16, -32, 32, -32, 32, 32, -32, 32)
 4:17/0 = 0
 5:17/0 = 0
 6:17/0 = 0
@@ -899,91 +881,6 @@ texture_region_size = Vector2i(64, 64)
 7:36/0 = 0
 8:36/0 = 0
 
-[sub_resource type="TileSet" id="TileSet_dyau6"]
+[resource]
 tile_size = Vector2i(64, 64)
-physics_layer_0/collision_layer = 1
-sources/1 = SubResource("TileSetAtlasSource_lpife")
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_b7hks"]
-size = Vector2(278, 151)
-
-[node name="MapSystem" type="Node2D" node_paths=PackedStringArray("playerParty")]
-script = ExtResource("1_rtj5w")
-battleScene = ExtResource("2_tdxdo")
-playerParty = NodePath("PartyManager")
-
-[node name="Environment" type="Node2D" parent="."]
-
-[node name="Parallax2D" type="Parallax2D" parent="Environment"]
-scale = Vector2(2, 2)
-scroll_scale = Vector2(0, 0)
-
-[node name="ColorRect" type="ColorRect" parent="Environment/Parallax2D"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = 800.0
-offset_bottom = 300.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.306116, 0.586933, 0.935857, 1)
-
-[node name="Ground" type="TileMapLayer" parent="Environment"]
-tile_map_data = PackedByteArray("AAD4//3/AAACAA8AAAD4//7/AAACAA8AAAD4////AAACAA8AAAD4/wAAAAACAA8AAAD4/wEAAAACAA8AAAD4/wIAAAACAA8AAAD4/wMAAAACAA8AAAD4/wQAAAABABAAAAD4/wUAAAABABEAAAD5//3/AAACABAAAAD5//7/AAACABAAAAD5////AAACABAAAAD5/wAAAAACABAAAAD5/wEAAAACABAAAAD5/wIAAAACABAAAAD5/wMAAAACABAAAAD5/wQAAAACABAAAAD5/wUAAAACABEAAAD6//3/AAACABAAAAD6//7/AAACABAAAAD6////AAACABAAAAD6/wAAAAACABAAAAD6/wEAAAACABAAAAD6/wIAAAACABAAAAD6/wMAAAACABAAAAD6/wQAAAACABAAAAD6/wUAAAACABEAAAD7//3/AAACABAAAAD7//7/AAACABAAAAD7////AAACABAAAAD7/wAAAAACABAAAAD7/wEAAAACABAAAAD7/wIAAAACABAAAAD7/wMAAAACABAAAAD7/wQAAAACABAAAAD7/wUAAAACABEAAAD8//3/AAACABAAAAD8//7/AAAEAAMAAAD8////AAAEAAMAAAD8/wAAAAAEAAMAAAD8/wEAAAACABAAAAD8/wIAAAACABAAAAD8/wMAAAACABAAAAD8/wQAAAACABAAAAD8/wUAAAACABEAAAD9//3/AAACABAAAAD9//7/AAAEAAMAAAD9////AAAEAAMAAAD9/wAAAAAEAAMAAAD9/wEAAAACABAAAAD9/wIAAAACABAAAAD9/wMAAAACABAAAAD9/wQAAAACABAAAAD9/wUAAAACABEAAAD+//3/AAACABAAAAD+//7/AAAEAAMAAAD+////AAAEAAMAAAD+/wAAAAAEAAMAAAD+/wEAAAACABAAAAD+/wIAAAACABAAAAD+/wMAAAACABAAAAD+/wQAAAACABAAAAD+/wUAAAACABEAAAD///3/AAACABAAAAD///7/AAAEAAMAAAD/////AAAEAAMAAAD//wAAAAAEAAMAAAD//wEAAAACABAAAAD//wIAAAACABAAAAD//wMAAAACABAAAAD//wQAAAACABAAAAD//wUAAAACABEAAAAAAP3/AAACABAAAAAAAP7/AAAEAAMAAAAAAP//AAAEAAMAAAAAAAAAAAAEAAMAAAAAAAEAAAACABAAAAAAAAIAAAACABAAAAAAAAMAAAACABAAAAAAAAQAAAACABAAAAAAAAUAAAACABEAAAABAP3/AAACABAAAAABAP7/AAACABAAAAABAP//AAACABAAAAABAAAAAAACABAAAAABAAEAAAACABAAAAABAAIAAAACABAAAAABAAMAAAACABAAAAABAAQAAAACABAAAAABAAUAAAACABEAAAACAP3/AAACABAAAAACAP7/AAACABAAAAACAP//AAACABAAAAACAAAAAAACABAAAAACAAEAAAACABAAAAACAAIAAAACABAAAAACAAMAAAACABAAAAACAAQAAAACABAAAAADAP3/AAACABAAAAADAP7/AAACABAAAAADAP//AAACABAAAAADAAAAAAACABAAAAADAAEAAAACABAAAAADAAIAAAACABAAAAADAAMAAAACABAAAAADAAQAAAACABAAAAAEAP3/AAACABAAAAAEAP7/AAACABAAAAAEAP//AAACABAAAAAEAAAAAAACABAAAAAEAAEAAAACABAAAAAEAAIAAAACABAAAAAEAAMAAAACABAAAAAEAAQAAAACABAAAAAFAP3/AAACABAAAAAFAP7/AAACABAAAAAFAP//AAACABAAAAAFAAAAAAACABAAAAAFAAEAAAACABAAAAAFAAIAAAACABAAAAAFAAMAAAACABAAAAAFAAQAAAACABAAAAAGAP3/AAABAA8AAAAGAP7/AAABAA8AAAAGAP//AAABAA8AAAAGAAAAAAABAA8AAAAGAAEAAAABAA8AAAAGAAIAAAABAA8AAAAGAAMAAAABAA8AAAAGAAQAAAABAA8AAAAGAAUAAAADABEAAAAFAAUAAAACABEAAAAEAAUAAAACABEAAAADAAUAAAACABEAAAACAAUAAAACABEAAAD4//z/AAABAA4AAAD5//z/AAACAA4AAAD6//z/AAACAA4AAAD7//z/AAACAA4AAAD8//z/AAACAA4AAAD9//z/AAACAA4AAAD+//z/AAACAA4AAAD///z/AAACAA4AAAAAAPz/AAACAA4AAAABAPz/AAACAA4AAAACAPz/AAACAA4AAAADAPz/AAACAA4AAAAEAPz/AAACAA4AAAAFAPz/AAACAA4AAAAGAPz/AAADAA4AAAD4/wYAAAABABIAAAD4/wcAAAABABIAAAD4/wgAAAABABIAAAD4/wkAAAABABIAAAD4/woAAAABABMAAAD5/wYAAAACABIAAAD5/wcAAAACABIAAAD5/wgAAAACABIAAAD5/wkAAAACABIAAAD6/wYAAAACABIAAAD6/wcAAAACABIAAAD6/wgAAAACABIAAAD6/wkAAAACABIAAAD7/wYAAAACABIAAAD7/wcAAAACABIAAAD7/wgAAAACABIAAAD7/wkAAAACABIAAAD8/wYAAAACABIAAAD8/wcAAAACABIAAAD8/wgAAAACABIAAAD8/wkAAAACABIAAAD9/wYAAAACABIAAAD9/wcAAAACABIAAAD9/wgAAAACABIAAAD9/wkAAAACABIAAAD+/wYAAAACABIAAAD+/wcAAAACABIAAAD+/wgAAAACABIAAAD+/wkAAAACABIAAAD//wYAAAACABIAAAD//wcAAAACABIAAAD//wgAAAACABIAAAD//wkAAAACABIAAAAAAAYAAAACABIAAAAAAAcAAAACABIAAAAAAAgAAAACABIAAAAAAAkAAAACABIAAAABAAYAAAACABIAAAABAAcAAAACABIAAAABAAgAAAACABIAAAABAAkAAAACABIAAAACAAYAAAACABIAAAACAAcAAAACABIAAAACAAgAAAACABIAAAACAAkAAAACABIAAAADAAYAAAACABIAAAADAAcAAAACABIAAAADAAgAAAACABIAAAADAAkAAAACABIAAAAEAAYAAAACABIAAAAEAAcAAAACABIAAAAEAAgAAAACABIAAAAEAAkAAAACABIAAAAFAAYAAAACABIAAAAFAAcAAAACABIAAAAFAAgAAAACABIAAAAFAAkAAAACABIAAAAGAAYAAAADABIAAAAGAAcAAAADABIAAAAGAAgAAAADABIAAAAGAAkAAAADABIAAAAGAAoAAAADABMAAAD5/woAAAACABMAAAD6/woAAAACABMAAAD7/woAAAACABMAAAD8/woAAAACABMAAAD9/woAAAACABMAAAD+/woAAAACABMAAAD//woAAAACABMAAAAAAAoAAAACABMAAAABAAoAAAACABMAAAACAAoAAAACABMAAAADAAoAAAACABMAAAAEAAoAAAACABMAAAAFAAoAAAACABMAAAA=")
-tile_set = ExtResource("3_86gnt")
-
-[node name="Blocking" type="TileMapLayer" parent="Environment"]
-tile_map_data = PackedByteArray("AAD4/wUAAQABABEAAAD4/wQAAQABABAAAAD4/wMAAQABABAAAAD4/wIAAQABABAAAAD4/wEAAQABABAAAAD4/wAAAQABABAAAAD4////AQABABAAAAD4//7/AQABABAAAAD4//3/AQABABAAAAD4//z/AQABAA4AAAD5//z/AQACAA4AAAD6//z/AQACAA4AAAD7//z/AQACAA4AAAD8//z/AQACAA4AAAD9//z/AQACAA4AAAD+//z/AQACAA4AAAD///z/AQACAA4AAAAAAPz/AQACAA4AAAABAPz/AQACAA4AAAACAPz/AQACAA4AAAADAPz/AQACAA4AAAAEAPz/AQACAA4AAAAFAPz/AQACAA4AAAAGAPz/AQADAA4AAAAGAP3/AQABAA8AAAAGAP7/AQABAA8AAAAGAP//AQABAA8AAAAGAAAAAQABAA8AAAAGAAEAAQABAA8AAAAGAAIAAQABAA8AAAAGAAMAAQABAA8AAAAGAAQAAQABAA8AAAAGAAUAAQADABEAAAAFAAUAAQACABEAAAAEAAUAAQACABEAAAADAAUAAQACABEAAAACAAUAAQACABEAAAABAAUAAQACABEAAAAAAAUAAQACABEAAAD//wUAAQACABEAAAD+/wUAAQACABEAAAD9/wUAAQACABEAAAD8/wUAAQACABEAAAD7/wUAAQACABEAAAD6/wUAAQACABEAAAD5/wUAAQACABEAAAA=")
-tile_set = SubResource("TileSet_dyau6")
-
-[node name="Area2D" type="Area2D" parent="Environment" node_paths=PackedStringArray("playerParty")]
-z_index = -2
-position = Vector2(-252, -124)
-collision_layer = 32
-collision_mask = 2
-input_pickable = false
-script = ExtResource("1_x5jq7")
-playerParty = NodePath("../../PartyManager")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Environment/Area2D"]
-position = Vector2(150, 93.5)
-shape = SubResource("RectangleShape2D_b7hks")
-
-[node name="Events" type="Node2D" parent="."]
-
-[node name="CharacterBody2D" parent="Events" instance=ExtResource("8_gpwt7")]
-position = Vector2(223, 219)
-actionType = [0, 0, 1, 0]
-choicesGiven = PackedInt32Array(2)
-choiceText = {
-"choice2A": "Yes",
-"choice2B": "No",
-"text0": "Hello there!",
-"text1": "Haven't seen you around before. You new to the area?",
-"text2A": "Well then, welcome, friend!",
-"text2B": "No, really? Huh, must be getting forgetful."
-}
-
-[node name="Camera2D" type="Camera2D" parent="."]
-limit_left = -1800
-limit_top = -1000
-limit_right = 1800
-limit_bottom = 1000
-drag_horizontal_enabled = true
-drag_vertical_enabled = true
-editor_draw_limits = true
-editor_draw_drag_margin = true
-
-[node name="PartyManager" type="Node2D" parent="."]
-script = ExtResource("1_cm2c1")
-partyMembers = Array[PackedScene]([ExtResource("2_cwo0u"), ExtResource("3_lcp0t")])
-charController = ExtResource("4_3r411")
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-layer = 10
-
-[node name="TextBoxContainer" parent="CanvasLayer" instance=ExtResource("9_arqx5")]
-visible = false
-
-[node name="ChoiceBoxContainer" parent="CanvasLayer" instance=ExtResource("10_a558o")]
-visible = false
+sources/0 = SubResource("TileSetAtlasSource_q3ed1")

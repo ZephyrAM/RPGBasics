@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://drakoxf8swfix"]
+
+[ext_resource type="PackedScene" uid="uid://g7e8x0srwjid" path="res://Resources/Nodes/health_display.tscn" id="1_luxjg"]
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="2_77tjk"]
+
+[node name="StatusList" type="HBoxContainer"]
+alignment = 2
+
+[node name="HealthDisplay" parent="." instance=ExtResource("1_luxjg")]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VSeparator" type="VSeparator" parent="."]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Test Name"
+label_settings = ExtResource("2_77tjk")
+horizontal_alignment = 1

@@ -11,7 +11,6 @@ namespace ZAM.Interactions
 
         [ExportGroup("Interactions")]
         [Export] private Array<InteractType> actionType = [];
-        [Export] private string[] textMessages = [];
         [Export] private int[] choicesGiven = [];
         [Export] private Dictionary<string, string> choiceText = [];
         [Export] private Dictionary<string, Resource> itemList = [];
