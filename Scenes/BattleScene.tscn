@@ -1,9 +1,8 @@
-[gd_scene load_steps=13 format=3 uid="uid://chutyx7868wr6"]
+[gd_scene load_steps=11 format=3 uid="uid://chutyx7868wr6"]
 
 [ext_resource type="Script" path="res://Scripts/Control/BattleController.cs" id="1_0kd48"]
 [ext_resource type="Script" path="res://Scripts/System/BattleSystem.cs" id="1_ffriu"]
 [ext_resource type="PackedScene" uid="uid://drakoxf8swfix" path="res://Resources/UI/status_list.tscn" id="2_wsqr5"]
-[ext_resource type="PackedScene" uid="uid://csacs6oelr813" path="res://Resources/Prefab/Enemies/Groups/enemy_team_1.tscn" id="6_2mty7"]
 [ext_resource type="AnimationLibrary" uid="uid://d11gnfe4mn6yp" path="res://Resources/Animations/ui_cursor.res" id="7_3grhm"]
 [ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/Nodes/battle_label.tscn" id="7_e71ky"]
 [ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="8_fv28a"]
@@ -14,13 +13,16 @@ size = Vector2(75, 25)
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_uf2vk"]
 
-[sub_resource type="CanvasTexture" id="CanvasTexture_jnkec"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_suf2u"]
+bg_color = Color(2.83009e-05, 0.297782, 0.776751, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.864675, 0.864675, 0.864675, 1)
 
-[sub_resource type="CanvasTexture" id="CanvasTexture_eyyov"]
-
-[node name="BattleSystem" type="Node2D" node_paths=PackedStringArray("partyInput", "floatingText", "cursorTarget", "baseCamera", "battleUI", "commandPanel", "skillPanel")]
+[node name="BattleSystem" type="Node2D" node_paths=PackedStringArray("partyInput", "floatingText", "cursorTarget", "baseCamera", "battleUI", "commandPanel", "skillPanel", "itemPanel")]
 script = ExtResource("1_ffriu")
-enemyEncounter = ExtResource("6_2mty7")
 partyInput = NodePath("PlayerParty")
 floatingText = NodePath("BattleUI/FloatingValues")
 cursorTarget = NodePath("BattleUI/CursorTarget")
@@ -28,6 +30,7 @@ baseCamera = NodePath("Camera2D")
 battleUI = NodePath("BattleUI")
 commandPanel = NodePath("BattleUI/CommandPanel")
 skillPanel = NodePath("BattleUI/SkillPanel")
+itemPanel = NodePath("BattleUI/ItemPanel")
 statusList = ExtResource("2_wsqr5")
 labelSettings = ExtResource("7_e71ky")
 enemyTeamName = "EnemyTeam"
@@ -62,13 +65,15 @@ position_smoothing_speed = 10.0
 editor_draw_limits = true
 editor_draw_drag_margin = true
 
-[node name="PlayerParty" type="Node2D" parent="." node_paths=PackedStringArray("commandList", "skillList")]
+[node name="PlayerParty" type="Node2D" parent="." node_paths=PackedStringArray("commandList", "skillList", "itemList")]
 script = ExtResource("1_0kd48")
 commandList = NodePath("../BattleUI/CommandPanel/CommandList")
 skillList = NodePath("../BattleUI/SkillPanel/SkillList")
+itemList = NodePath("../BattleUI/ItemPanel/ItemList")
 playerPositions = PackedVector2Array(530, 0, 570, 60, 610, 120, 650, 180)
 
 [node name="BattleUI" type="CanvasLayer" parent="."]
+layer = 10
 
 [node name="FloatingValues" type="Node2D" parent="BattleUI"]
 
@@ -117,25 +122,34 @@ grow_horizontal = 0
 grow_vertical = 0
 
 [node name="CommandPanel" type="PanelContainer" parent="BattleUI"]
-visible = false
 offset_left = 1155.0
 offset_top = 152.0
 offset_right = 1301.0
 offset_bottom = 376.0
 
-[node name="Background" type="TextureRect" parent="BattleUI/CommandPanel"]
-modulate = Color(0.192157, 0.470588, 1, 1)
+[node name="TextureRect" type="Panel" parent="BattleUI/CommandPanel"]
 layout_mode = 2
-texture = SubResource("CanvasTexture_jnkec")
+theme_override_styles/panel = SubResource("StyleBoxFlat_suf2u")
 
-[node name="ColorRect" type="ColorRect" parent="BattleUI/CommandPanel"]
-modulate = Color(0.615686, 0.615686, 0.615686, 0.537255)
-custom_minimum_size = Vector2(0, 44)
+[node name="MarginContainer" type="MarginContainer" parent="BattleUI/CommandPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="SelectList" type="GridContainer" parent="BattleUI/CommandPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="BattleUI/CommandPanel/MarginContainer/SelectList"]
+self_modulate = Color(0.627451, 0.627451, 0.627451, 0.54902)
+custom_minimum_size = Vector2(138, 44)
 layout_mode = 2
 size_flags_vertical = 0
 
 [node name="CommandList" type="VBoxContainer" parent="BattleUI/CommandPanel"]
 layout_mode = 2
+theme_override_constants/separation = 2
 
 [node name="Command_Attack" type="Label" parent="BattleUI/CommandPanel/CommandList"]
 layout_mode = 2
@@ -162,23 +176,28 @@ label_settings = ExtResource("8_fv28a")
 horizontal_alignment = 1
 
 [node name="SkillPanel" type="PanelContainer" parent="BattleUI"]
-visible = false
 offset_left = 519.0
 offset_top = 269.0
 offset_right = 1083.0
 offset_bottom = 639.0
 
-[node name="TextureRect" type="TextureRect" parent="BattleUI/SkillPanel"]
-modulate = Color(0.192157, 0.470588, 1, 1)
+[node name="TextureRect" type="Panel" parent="BattleUI/SkillPanel"]
 layout_mode = 2
-texture = SubResource("CanvasTexture_eyyov")
+theme_override_styles/panel = SubResource("StyleBoxFlat_suf2u")
 
-[node name="SelectList" type="GridContainer" parent="BattleUI/SkillPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="BattleUI/SkillPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="SelectList" type="GridContainer" parent="BattleUI/SkillPanel/MarginContainer"]
 layout_mode = 2
 
-[node name="ColorRect" type="ColorRect" parent="BattleUI/SkillPanel/SelectList"]
+[node name="ColorRect" type="ColorRect" parent="BattleUI/SkillPanel/MarginContainer/SelectList"]
 modulate = Color(0.615686, 0.615686, 0.615686, 0.537255)
-custom_minimum_size = Vector2(280, 44)
+custom_minimum_size = Vector2(278, 42)
 layout_mode = 2
 size_flags_vertical = 0
 
@@ -193,17 +212,23 @@ offset_top = 269.0
 offset_right = 1083.0
 offset_bottom = 639.0
 
-[node name="TextureRect" type="TextureRect" parent="BattleUI/ItemPanel"]
-modulate = Color(0.192157, 0.470588, 1, 1)
+[node name="TextureRect" type="Panel" parent="BattleUI/ItemPanel"]
 layout_mode = 2
-texture = SubResource("CanvasTexture_eyyov")
+theme_override_styles/panel = SubResource("StyleBoxFlat_suf2u")
 
-[node name="SelectList" type="GridContainer" parent="BattleUI/ItemPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="BattleUI/ItemPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="SelectList" type="GridContainer" parent="BattleUI/ItemPanel/MarginContainer"]
 layout_mode = 2
 
-[node name="ColorRect" type="ColorRect" parent="BattleUI/ItemPanel/SelectList"]
+[node name="ColorRect" type="ColorRect" parent="BattleUI/ItemPanel/MarginContainer/SelectList"]
 modulate = Color(0.615686, 0.615686, 0.615686, 0.537255)
-custom_minimum_size = Vector2(280, 44)
+custom_minimum_size = Vector2(278, 40)
 layout_mode = 2
 size_flags_vertical = 0
 

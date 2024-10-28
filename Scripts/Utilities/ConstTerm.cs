@@ -56,11 +56,6 @@ public class ConstTerm
 
 
     //=============================================================================
-    // SECTION: Abilitiy Paths
-    //=============================================================================
-
-
-    //=============================================================================
     // SECTION: Paths
     //=============================================================================
     public const string GAME_FOLDER = "./";
@@ -115,6 +110,7 @@ public class ConstTerm
     //=============================================================================
     public const string WHITE = "ffffff";
     public const string GREEN = "2cca6d";
+    public const string GREY  = "a1a1a1";
 
 
     //=============================================================================
@@ -138,22 +134,28 @@ public class ConstTerm
     public const string BATTLERENEMY = "Enemy";
     public const string NPC = "NPC";
 
+    public const string ITEM = "Item";
+    public const string SELECT = "Select";
+    public const string CONTINUE = "Continue";
+
+    public const string LIST = "List";
+    public const string PANEL = "Panel";
+    public const string CONTAINER = "Container";
+
+    public const string TEXTBOX = "TextBox";
+    public const string CHOICEBOX = "ChoiceBox";
+
 
     //=============================================================================
     // SECTION: Node Names
     //=============================================================================
-    public const string PANEL_CONTAINER = "PanelContainer";
+    public const string LABEL = "Label";
     public const string MARGIN_CONTAINER = "MarginContainer";
     public const string HBOX_CONTAINER = "HBoxContainer";
     public const string VBOX_CONTAINER = "VBoxContainer";
 
-    public const string TEXTBOX_CONTAINER = "TextBoxContainer";
-    public const string CHOICEBOX_CONTAINTER = "ChoiceBoxContainer";
-    public const string SELECT_CONTAINER = "SelectContainer";
-    public const string SELECT_LIST = "SelectList";
     public const string TEXT_START = "Start";
     public const string TEXT_END = "End";
-    public const string LABEL = "Label";
 
     public const string CHARBODY2D = "CharacterBody2D";
     public const string SPRITE2D = "Sprite2D";
@@ -196,9 +198,4 @@ public class ConstTerm
     // SECTION: Node Properties
     //=============================================================================
     public const string PERCENT_VISIBLE = "visible_ratio";
-
-
-    //=============================================================================
-    // SECTION: Ability Names
-    //=============================================================================
 }

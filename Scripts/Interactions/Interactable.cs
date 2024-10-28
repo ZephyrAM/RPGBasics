@@ -37,6 +37,8 @@ namespace ZAM.Interactions
         // Delegate Events \\
         [Signal]
         public delegate void onPhaseSwitchEventHandler(string newPhase);
+        [Signal]
+        public delegate void onItemReceiveEventHandler(string newItem);
 
         //=============================================================================
         // SECTION: OnReady Methods
@@ -58,8 +60,8 @@ namespace ZAM.Interactions
             objectName ??= GetNode<Label>(ConstTerm.NAMELABEL);
 
             uiLayer ??= GetNode<CanvasLayer>("../../" + ConstTerm.CANVAS_LAYER);
-            textBox ??= uiLayer.GetNode<TextBox>(ConstTerm.TEXTBOX_CONTAINER);
-            choiceBox ??= uiLayer.GetNode<ChoiceBox>(ConstTerm.CHOICEBOX_CONTAINTER);
+            textBox ??= uiLayer.GetNode<TextBox>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
+            choiceBox ??= uiLayer.GetNode<ChoiceBox>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
             // playerParty ??= GetNode<PartyManager>("../" + ConstTerm.PARTYMANAGER);
             // partyInput ??= playerParty.GetChild<CharacterController>(0);
         }
@@ -105,6 +107,7 @@ namespace ZAM.Interactions
                     AddChoiceText();
                     break;
                 case InteractType.ITEM:
+                    AddItemGive();
                     break;
             }
             stepNumber += adjust;
@@ -139,6 +142,14 @@ namespace ZAM.Interactions
             choiceActive = true;
 
             EmitSignal(SignalName.onPhaseSwitch, ConstTerm.CHOICE);
+        }
+
+        public void AddItemGive()
+        {
+            textBox.AddText("", "Receieved " + choiceText["item" + stepNumber] + "!");
+            EmitSignal(SignalName.onItemReceive, choiceText["item" + stepNumber]);
+
+            EmitSignal(SignalName.onPhaseSwitch, ConstTerm.TEXT);
         }
 
 

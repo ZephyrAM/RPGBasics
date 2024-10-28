@@ -3,6 +3,7 @@ using System;
 
 using ZAM.Control;
 using ZAM.Interactions;
+using ZAM.Inventory;
 using ZAM.MenuUI;
 
 namespace ZAM.System
@@ -49,8 +50,8 @@ namespace ZAM.System
             playerInput ??= playerParty.GetPlayer();
 
             uiLayer ??= GetNode<CanvasLayer>(ConstTerm.CANVAS_LAYER);
-            textBox ??= uiLayer.GetNode<TextBox>(ConstTerm.TEXTBOX_CONTAINER);
-            choiceBox ??= uiLayer.GetNode<ChoiceBox>(ConstTerm.CHOICEBOX_CONTAINTER);
+            textBox ??= uiLayer.GetNode<TextBox>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
+            choiceBox ??= uiLayer.GetNode<ChoiceBox>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
 
             // interactRay ??= playerInput.GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
         }
@@ -133,11 +134,13 @@ namespace ZAM.System
             playerInput.SetInteractToggle(true);
             interactTarget = (Interactable)interactRay.GetCollider();
             interactTarget.onPhaseSwitch += OnPhaseSwitch;
+            interactTarget.onItemReceive += OnItemReceive;
         }
 
         private void RemoveInteractTarget()
         {
             interactTarget.onPhaseSwitch -= OnPhaseSwitch;
+            interactTarget.onItemReceive -= OnItemReceive;
             interactTarget = null;
             playerInput.SetInteractToggle(false);
             playerInput.SetInputPhase(ConstTerm.MOVE);
@@ -148,14 +151,16 @@ namespace ZAM.System
         // SECTION: Access Methods
         //=============================================================================
 
-        public async void LoadBattle()
+        public async void LoadBattle(PackedScene randomGroup)
         {
             playerParty.ChangePlayerActive(false);
             Fader.Instance.Transition();
             await ToSignal(Fader.Instance, ConstTerm.TRANSITION_FINISHED);
 
             battleNode = (BattleSystem)battleScene.Instantiate();
+            battleNode.SetEnemyGroup(randomGroup);
             battleNode.StoreMapScene(this);
+            battleNode.SetBattleControlActive(true);
 
             GetTree().Root.AddChild(battleNode);
             GetTree().Root.RemoveChild(this);
@@ -206,6 +211,11 @@ namespace ZAM.System
         private void OnChoiceSelect()
         {
             SelectChoice();
+        }
+
+        private void OnItemReceive(string newItem)
+        {
+            ItemBag.Instance.AddToItemBag(newItem);
         }
     }
 }

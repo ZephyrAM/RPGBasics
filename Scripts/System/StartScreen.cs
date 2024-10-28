@@ -15,6 +15,7 @@ namespace ZAM.System
 
         private int optionCommand = 0;
         private bool savesExist = false;
+        private bool controlActive = true;
 
         public override void _Ready()
         {
@@ -26,12 +27,13 @@ namespace ZAM.System
         private void IfNull()
         {
             newGame ??= ResourceLoader.Load<PackedScene>(ConstTerm.NEWGAME_SCENE);
-            optionList ??= GetNode<CanvasLayer>(ConstTerm.CANVAS_LAYER).GetNode<PanelContainer>(ConstTerm.PANEL_CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
-            selectBar ??= GetNode<CanvasLayer>(ConstTerm.CANVAS_LAYER).GetNode<PanelContainer>(ConstTerm.PANEL_CONTAINER).GetNode<PanelContainer>(ConstTerm.SELECT_CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT_LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
+            optionList ??= GetNode<CanvasLayer>(ConstTerm.CANVAS_LAYER).GetNode<PanelContainer>(ConstTerm.PANEL + ConstTerm.CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
+            selectBar ??= GetNode<CanvasLayer>(ConstTerm.CANVAS_LAYER).GetNode<PanelContainer>(ConstTerm.PANEL + ConstTerm.CONTAINER).GetNode<PanelContainer>(ConstTerm.SELECT + ConstTerm.CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
         }
 
         public override void _Input(InputEvent @event)
         {
+            if (!controlActive) { return; }
             if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
                 SelectOption();
             }
@@ -71,6 +73,8 @@ namespace ZAM.System
         {
             if (optionCommand == 0)
             {
+                controlActive = false;
+
                 Fader.Instance.Transition();
                 await ToSignal(Fader.Instance, ConstTerm.TRANSITION_FINISHED);
 
@@ -88,7 +92,7 @@ namespace ZAM.System
             if (dir.GetFiles().Length > 0) { savesExist = true; }
             else
             {
-                optionList.GetNode<Button>("Continue").Disabled = true;
+                optionList.GetNode<Button>(ConstTerm.CONTINUE).Disabled = true;
             }
         }
     }

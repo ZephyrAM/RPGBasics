@@ -49,5 +49,15 @@ namespace ZAM.Abilities
         {
             return characterSkills;
         }
+        
+        public void SetSkills(List<Ability> list)
+        {
+            characterSkills = list;
+            // characterSkills = new();
+            // for (int s = 0; s < list.Count; s++)
+            // {
+            //     characterSkills.Add((Ability)list[s]);
+            // }
+        }
     }
 }

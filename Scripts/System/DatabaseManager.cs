@@ -62,7 +62,7 @@ namespace ZAM.System
             return stateDatabase;
         }
 
-        public Dictionary<string, Item> GetDatabase()
+        public Dictionary<string, Item> GetItemDatabase()
         {
             return itemDatabase;
         }

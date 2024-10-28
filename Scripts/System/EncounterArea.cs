@@ -1,4 +1,6 @@
 using Godot;
+using Godot.Collections;
+using System;
 
 using ZAM.Control;
 
@@ -7,7 +9,8 @@ namespace ZAM.System
     public partial class EncounterArea : Area2D
     {
         [Export] PartyManager playerParty;
-        [Export] int encounterFrequency = 2;
+        [Export] Array<PackedScene> enemyGroups = [];
+        [Export] int encounterFrequency = 30; // Percent each second to proc a battle.
 
         MapSystem mapSystem;
 
@@ -59,6 +62,22 @@ namespace ZAM.System
             playerInput.onStepArea -= OnStepArea;
         }
 
+        private PackedScene GetEnemyGroup()
+        {
+            Random random = new();
+            int groupNum = random.Next(0, enemyGroups.Count);
+            
+            return enemyGroups[groupNum];
+        }
+
+        private bool CheckBattleEncounter()
+        {
+            Random random = new();
+            int chance = random.Next(0, 100);
+
+            return chance < encounterFrequency;
+        }
+
         //=============================================================================
         // SECTION: Delegate Methods
         //=============================================================================
@@ -72,12 +91,13 @@ namespace ZAM.System
         {
             if (encounterArea.OverlapsBody(playerInput)) 
             { 
-                battleCounter++;
-                if (battleCounter == encounterFrequency)
+                // battleCounter++;
+                // if (battleCounter == encounterFrequency)
+                if (CheckBattleEncounter())
                 {
                     GD.Print("-- Encounter!");
                     battleCounter = 0;
-                    mapSystem.LoadBattle();
+                    mapSystem.LoadBattle(GetEnemyGroup());
                 }
             }
         }

@@ -70,7 +70,7 @@ CallAnimation = "battle_anim/heal"
 [node name="Healing Item" type="Node" parent="ItemDatabase"]
 script = ExtResource("3_f30r0")
 ItemName = "Potion"
-ItemDescription = "Heals one ally.."
+ItemDescription = "Heals one ally."
 TargetType = "Ally"
 TargetArea = "Single"
 NumericValue = 25.0

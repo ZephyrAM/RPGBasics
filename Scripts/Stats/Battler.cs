@@ -209,7 +209,8 @@ namespace ZAM.Stats
                 CurrentHP = GetHealth().GetHP(),
                 StatValues = GetStats().SaveAllStats(),
                 CurrentExp = GetExperience().GetTotalExp(),
-                CurrentLevel = GetExperience().GetCurrentLevel()
+                CurrentLevel = GetExperience().GetCurrentLevel(),
+                SkillList = GetSkillList().GetSkills()
             };
             saveData[GetCharID()] = newData;
         }
@@ -224,6 +225,7 @@ namespace ZAM.Stats
                 GetStats().LoadAllStats(saveData.StatValues);
                 GetExperience().SetExpTotal(saveData.CurrentExp);
                 GetExperience().SetCurrentLevel(saveData.CurrentLevel);
+                GetSkillList().SetSkills(saveData.SkillList);
             }
         }
     }

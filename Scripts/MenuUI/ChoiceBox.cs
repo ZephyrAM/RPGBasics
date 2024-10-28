@@ -33,11 +33,11 @@ namespace ZAM.MenuUI
 
         public void IfNull()
         {
-            marginBox ??= GetNode<MarginContainer>(ConstTerm.TEXTBOX_CONTAINER);
+            marginBox ??= GetNode<MarginContainer>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
             vertBox ??= marginBox.GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
 
-            selectBox ??= GetNode<MarginContainer>(ConstTerm.SELECT_CONTAINER);
-            selectList ??= selectBox.GetNode<GridContainer>(ConstTerm.SELECT_LIST);
+            selectBox ??= GetNode<MarginContainer>(ConstTerm.SELECT + ConstTerm.CONTAINER);
+            selectList ??= selectBox.GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST);
             selectBar ??= selectList.GetNode<ColorRect>(ConstTerm.COLOR_RECT);
         }
 

@@ -4,6 +4,8 @@
 
 [node name="Label" type="Label"]
 custom_minimum_size = Vector2(280, 42)
+offset_right = 280.0
+offset_bottom = 42.0
 text = "Text"
 label_settings = ExtResource("1_eku3u")
 horizontal_alignment = 1

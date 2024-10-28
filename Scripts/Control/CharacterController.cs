@@ -44,7 +44,7 @@ namespace ZAM.Control
 		// private Vector2 cameraLowLimit, cameraHighLimit;
 
 		private int frameCounter = 0;
-		private bool isActive = true;
+		private bool isControlActive = true;
 		private Vector2 charSize;
 		// private Interactable interactTarget;
 
@@ -92,7 +92,7 @@ namespace ZAM.Control
 
 		public override void _PhysicsProcess(double delta)
 		{
-			if (!isActive) { return; }
+			if (!isControlActive) { return; }
 			PhaseCheck();
 			// AxisCheck();
 			// InputCheck();
@@ -101,8 +101,8 @@ namespace ZAM.Control
 		private void IfNull()
 		{
 			uiLayer ??= GetNode<CanvasLayer>("../../" + ConstTerm.CANVAS_LAYER);
-			textBox ??= uiLayer.GetNode<MarginContainer>(ConstTerm.TEXTBOX_CONTAINER);
-			choiceBox ??= uiLayer.GetNode<MarginContainer>(ConstTerm.CHOICEBOX_CONTAINTER);
+			textBox ??= uiLayer.GetNode<MarginContainer>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
+			choiceBox ??= uiLayer.GetNode<MarginContainer>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
 			marginBox ??= choiceBox.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER);
 			vertBox ??= marginBox.GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
 
@@ -284,7 +284,7 @@ namespace ZAM.Control
 		public void ChangeActive(bool change)
 		{
 			if (!change) { animPlay.Travel(ConstTerm.IDLE); }
-			isActive = change;
+			isControlActive = change;
 		}
 
 		private int GetCommandCount(Container targetList)

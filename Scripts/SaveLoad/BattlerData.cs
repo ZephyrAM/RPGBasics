@@ -1,11 +1,15 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
-public partial class BattlerData : Resource
+using ZAM.Abilities;
+
+public partial class BattlerData: Resource
 {
-    [Export] public CharacterID CharID { get; set; }
-    [Export] public float CurrentHP { get; set;}
-    [Export] public float[] StatValues { get; set;}
-    [Export] public float CurrentExp { get; set;}
-    [Export] public int CurrentLevel { get; set;}
+    public CharacterID CharID { get; set; }
+    public float CurrentHP { get; set; }
+    public float[] StatValues { get; set; }
+    public float CurrentExp { get; set; }
+    public int CurrentLevel { get; set; }
+    public List<Ability> SkillList { get; set; }
 }
