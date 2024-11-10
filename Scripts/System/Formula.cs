@@ -16,7 +16,7 @@ namespace ZAM.System
             float offense = attacker.GetStats().GetStatValue(Stat.Strength) + damageValue;
             float defense = defender.GetStats().GetStatValue(Stat.Stamina);
             float totalDamage = Math.Min(0, defense - offense);
-            GD.Print(" -- Attack = " + offense + " Defense = " + defense);
+            // GD.Print(" -- Attack = " + offense + " Defense = " + defense);
             return totalDamage;
         }
 
@@ -25,7 +25,7 @@ namespace ZAM.System
             float offense = attacker.GetStats().GetStatValue(Stat.Magic) + ability.NumericValue;
             float defense = defender.GetStats().GetStatValue(Stat.Spirit);
             float totalDamage = Math.Min(0, defense - offense);
-            GD.Print(" -- MagicAtk = " + offense + " MagicDef = " + defense);
+            // GD.Print(" -- MagicAtk = " + offense + " MagicDef = " + defense);
             return totalDamage;
         }
     }

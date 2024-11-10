@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ZAM.MenuUI
 {
-    public partial class TextBox : MarginContainer
+    public partial class TextBox : PanelContainer
     {
         [ExportGroup("Values")]
         [Export] private float textRate = 4;
@@ -19,7 +19,7 @@ namespace ZAM.MenuUI
         [Export] private VBoxContainer vertBox = null;
 
         private Tween textTween = null;
-        private List<string> textQueue = [];        
+        // private List<string> textQueue = [];        
 
         private enum State {
             READY,
@@ -67,16 +67,22 @@ namespace ZAM.MenuUI
             Show();
         }
 
-        public void QueueText(string text)
+        public void QueueText(string name, string text)
         {
-            textQueue.Add(text);
+            // textLabel.Text = text;
+            // GD.Print(textLabel.Text);
+            // GD.Print("Text visible / total lines: " + textLabel.GetVisibleLineCount() + " " + textLabel.GetLineCount());
+            AddText(name, text);
         }
 
         public async void AddText(string name, string nextText)
         {
-            // HideTextBox();
+            textLabel.VisibleRatio = 0;
+            startLabel.Visible = name != "";
+
             startLabel.Text = name;
             textLabel.Text = nextText;
+            
             ShowTextBox();
 
             ChangeState(State.ACTIVE);

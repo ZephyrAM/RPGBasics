@@ -5,7 +5,13 @@ namespace ZAM.Stats
 {
     public partial class Experience : Node
     {
-        [Export] private float[] expToLevel = [100];
+        [ExportGroup("Player")]
+        [Export] private float expToLevel = 100;
+        [Export] private float expToLevelMultiplier = 5;
+        [Export] private float expMultiReduction = 0.2f;
+        [Export] private float expReduceStartLevel = 2;
+
+        [ExportGroup("Enemy")]
         [Export] private float expOnKill;
 
         private float expTotal = 0;
@@ -18,15 +24,12 @@ namespace ZAM.Stats
         public void AddExp(float exp)
         {
             expTotal += exp;
+            CheckLevelUp();
         }
 
-        public float ExpNeededToLevel()
-        {
-            return expToLevel[0] * charLevel - expTotal;
-        }
         public bool CheckLevelUp()
         {
-            if (expTotal >= GetExpToLevel(charLevel))
+            if (expTotal >= GetExpNextLevel())
             {
                 DoLevelUp();
                 EmitSignal(SignalName.onLevelUp);
@@ -38,6 +41,13 @@ namespace ZAM.Stats
         public void DoLevelUp()
         {
             charLevel++;
+            expToLevel *= expToLevelMultiplier;
+
+            if (charLevel >= expReduceStartLevel) { expToLevelMultiplier -= expMultiReduction; }
+            if (expToLevelMultiplier < 1) { 
+                expToLevelMultiplier = 1;
+                expMultiReduction = 0;
+            }
         }
 
         public float GetExpOnKill()
@@ -45,10 +55,18 @@ namespace ZAM.Stats
             return expOnKill;
         }
 
-        public float GetExpToLevel(int index)
+        public float GetExpToLevel()
         {
-            // return expToLevel[index];
-            return expToLevel[0] * index;
+            float toLevel;
+            if (expTotal <= expToLevel) { toLevel = expToLevel - expTotal; }
+            else { toLevel = expTotal - expToLevel;}
+            
+            return toLevel;
+        }
+
+        public float GetExpNextLevel()
+        {
+            return expToLevel;
         }
 
         public float GetTotalExp()
@@ -66,7 +84,7 @@ namespace ZAM.Stats
             expTotal = exp;
         }
         
-        public void SetCurrentLevel(int level)
+        public void SetCurrentLevel(int level) // Use DoLevelUp() when possible
         {
             charLevel = level;
         }

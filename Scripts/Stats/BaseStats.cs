@@ -74,7 +74,7 @@ namespace ZAM.Stats
                     float highVal = levelUpValue[s].Value + upVariance[s].Value;
                     incVal = variance.Next((int)lowVal, (int)highVal + 1);
                 }
-                GD.Print(levelUpValue[s].Stat + " + " + incVal);
+                // GD.Print(levelUpValue[s].Stat + " + " + incVal);
                 statSheet[levelUpValue[s].Stat] += incVal;
             }
         }

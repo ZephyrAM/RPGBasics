@@ -1,11 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://chutyx7868wr6"]
+[gd_scene load_steps=13 format=3 uid="uid://chutyx7868wr6"]
 
 [ext_resource type="Script" path="res://Scripts/Control/BattleController.cs" id="1_0kd48"]
 [ext_resource type="Script" path="res://Scripts/System/BattleSystem.cs" id="1_ffriu"]
-[ext_resource type="PackedScene" uid="uid://drakoxf8swfix" path="res://Resources/UI/status_list.tscn" id="2_wsqr5"]
+[ext_resource type="PackedScene" uid="uid://drakoxf8swfix" path="res://Resources/UI/Battle/status_list.tscn" id="2_wsqr5"]
 [ext_resource type="AnimationLibrary" uid="uid://d11gnfe4mn6yp" path="res://Resources/Animations/ui_cursor.res" id="7_3grhm"]
 [ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/Nodes/battle_label.tscn" id="7_e71ky"]
-[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="8_fv28a"]
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="8_fv28a"]
 [ext_resource type="PackedScene" uid="uid://c5murpqijft2o" path="res://Resources/Nodes/floating_text.tscn" id="8_x25aq"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_dvpul"]
@@ -13,13 +13,26 @@ size = Vector2(75, 25)
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_uf2vk"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_suf2u"]
-bg_color = Color(2.83009e-05, 0.297782, 0.776751, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o6fem"]
+bg_color = Color(0.0667097, 0.243731, 1, 1)
 border_width_left = 4
 border_width_top = 4
 border_width_right = 4
 border_width_bottom = 4
-border_color = Color(0.864675, 0.864675, 0.864675, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f14ji"]
+bg_color = Color(0.0666667, 0.243137, 1, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ipmlu"]
+bg_color = Color(0.0666667, 0.243137, 1, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
 
 [node name="BattleSystem" type="Node2D" node_paths=PackedStringArray("partyInput", "floatingText", "cursorTarget", "baseCamera", "battleUI", "commandPanel", "skillPanel", "itemPanel")]
 script = ExtResource("1_ffriu")
@@ -126,10 +139,7 @@ offset_left = 1155.0
 offset_top = 152.0
 offset_right = 1301.0
 offset_bottom = 376.0
-
-[node name="TextureRect" type="Panel" parent="BattleUI/CommandPanel"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_suf2u")
+theme_override_styles/panel = SubResource("StyleBoxFlat_o6fem")
 
 [node name="MarginContainer" type="MarginContainer" parent="BattleUI/CommandPanel"]
 layout_mode = 2
@@ -180,10 +190,7 @@ offset_left = 519.0
 offset_top = 269.0
 offset_right = 1083.0
 offset_bottom = 639.0
-
-[node name="TextureRect" type="Panel" parent="BattleUI/SkillPanel"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_suf2u")
+theme_override_styles/panel = SubResource("StyleBoxFlat_f14ji")
 
 [node name="MarginContainer" type="MarginContainer" parent="BattleUI/SkillPanel"]
 layout_mode = 2
@@ -211,10 +218,7 @@ offset_left = 519.0
 offset_top = 269.0
 offset_right = 1083.0
 offset_bottom = 639.0
-
-[node name="TextureRect" type="Panel" parent="BattleUI/ItemPanel"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_suf2u")
+theme_override_styles/panel = SubResource("StyleBoxFlat_ipmlu")
 
 [node name="MarginContainer" type="MarginContainer" parent="BattleUI/ItemPanel"]
 layout_mode = 2

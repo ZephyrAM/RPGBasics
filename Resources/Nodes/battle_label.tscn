@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://6ohqlnsimgok"]
 
-[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="1_eku3u"]
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="1_eku3u"]
 
 [node name="Label" type="Label"]
 custom_minimum_size = Vector2(280, 42)

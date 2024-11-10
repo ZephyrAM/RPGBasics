@@ -28,14 +28,13 @@ public class ConstTerm
     //=============================================================================
     public const string ACCEPT = "Accept";
     public const string CANCEL = "Cancel";
+    public const string MENU = "Menu";
+    public const string ESC = "Esc";
     
     public const string UP = "Up";
     public const string DOWN = "Down";
     public const string LEFT = "Left";
     public const string RIGHT = "Right";
-
-    public const string HORIZ = "Horizontal";
-    public const string VERT = "Vertical";
 
 
     //=============================================================================
@@ -95,14 +94,28 @@ public class ConstTerm
     public const string ITEM_USE = "ItemUse";
 
 
+
+    //=============================================================================
+    // SECTION: Menu Phases
+    //=============================================================================
+    public const string MEMBER = "Member";
+    public const string ITEM = "Item";
+    public const string SKILL = "Skill";
+    public const string SAVE = "Save";
+
+
     //=============================================================================
     // SECTION: Input Phases
     //=============================================================================
     public const string MOVE = "Move";
+    public const string AXIS_MOVE = "AxisMove";
+    public const string CLICK_MOVE = "ClickMove";
     public const string INTERACT = "Interact";
+    public const string CHASE = "Chase";
+    public const string RETURN = "Return";
+
     public const string TEXT = "Text";
     public const string CHOICE = "Choice";
-    public const string MENU = "Menu"; // Likely get broken down further
 
 
     //=============================================================================
@@ -117,12 +130,14 @@ public class ConstTerm
     // SECTION: Groups
     //=============================================================================
     public const string SAVEDATA = "SaveData";
+    public const string BATTLERDATA = "BattlerData";
 
 
     //=============================================================================
     // SECTION: Method Calls
     //=============================================================================
     public const string ON_SAVEGAME = "OnSaveGame";
+    public const string ON_LOADGAME = "OnLoadGame";
     public const string TARGETINTERACT = "TargetInteraction";
     public const string UPDATEINTERACT = "UpdateInteraction";
 
@@ -134,7 +149,6 @@ public class ConstTerm
     public const string BATTLERENEMY = "Enemy";
     public const string NPC = "NPC";
 
-    public const string ITEM = "Item";
     public const string SELECT = "Select";
     public const string CONTINUE = "Continue";
 
@@ -144,6 +158,10 @@ public class ConstTerm
 
     public const string TEXTBOX = "TextBox";
     public const string CHOICEBOX = "ChoiceBox";
+    public const string COLLECTBOX = "CollectBox";
+
+    public const string HORIZ = "Horizontal";
+    public const string VERT = "Vertical";
 
 
     //=============================================================================
@@ -160,11 +178,15 @@ public class ConstTerm
     public const string CHARBODY2D = "CharacterBody2D";
     public const string SPRITE2D = "Sprite2D";
     public const string COLLIDER2D = "CollisionShape2D";
+    public const string COLLIDERPOLY2D = "CollisionPolygon2D";
+    public const string NAVAGENT2D = "NavigationAgent2D";
     public const string ANIM_PLAYER = "AnimationPlayer";
     public const string ANIM_TREE = "AnimationTree";
 
     public const string CANVAS_LAYER = "CanvasLayer";
+    public const string AREA2D = "Area2D";
     public const string RAYCAST2D = "RayCast2D";
+    public const string SHAPECAST2D = "ShapeCast2D";
     public const string CAMERA2D = "Camera2D";
     public const string COLOR_RECT = "ColorRect";
 
@@ -172,12 +194,17 @@ public class ConstTerm
     public const string HEALTH_BAR = "HealthBar";
     public const string BATTLE_UI = "BattleUI";
 
+    public const string EVENTS = "Events";
+    public const string INTERACT_TEXT = "InteractionText";
+
 
     //=============================================================================
     // SECTION: Script Nodes
     //=============================================================================
     public const string MAPSYSTEM = "MapSystem";
     public const string PARTYMANAGER = "PartyManager";
+    public const string MENU_CONTROLLER = "MenuController";
+
     public const string BATTLER = "Battler";
     public const string HEALTH = "Health";
     public const string BASESTATS = "BaseStats";
@@ -192,6 +219,8 @@ public class ConstTerm
     public const string STATEDATABASE = "StateDatabase";
     public const string ITEMS = "Items";
     public const string ITEMDATABASE = "ItemDatabase";
+
+    public const string NPCMOVE = "NPCMove";
 
 
     //=============================================================================

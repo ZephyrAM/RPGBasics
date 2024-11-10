@@ -1,7 +1,10 @@
 using Godot;
 using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 using ZAM.Control;
+using ZAM.Stats;
 
 namespace ZAM.System
 {
@@ -14,7 +17,7 @@ namespace ZAM.System
 
         // Setup Variables \\
         private Node leaderMember = null;
-        // List<CharacterBody2D> activeParty;
+        private List<Battler> activeParty = null;
 
         private double timePlayed;
         private int currencyTotal = 0;
@@ -25,8 +28,6 @@ namespace ZAM.System
 
         public override void _Ready()
         {
-            AddToGroup(ConstTerm.SAVEDATA);
-
             // If party doesn't exist, skip creation. Force create after manually assigning member to party.
             if (partyMembers.Length < 1) { return; }
             // CreateParty();
@@ -74,8 +75,11 @@ namespace ZAM.System
 
         private void LoadLeader()
         {
+            activeParty = [];
+
             Node tempLead = partyMembers[0].Instantiate();
             AddChild(tempLead);
+            activeParty.Add(GetChild(0).GetNode<Battler>(ConstTerm.BATTLER));
 
             leaderMember = SafeScriptAssign(tempLead, charController);
             leaderMember.GetNode<Label>(ConstTerm.NAMELABEL).Visible = false;
@@ -90,6 +94,8 @@ namespace ZAM.System
                 tempMember.Visible = false;
                 tempMember.ProcessMode = ProcessModeEnum.Disabled;
                 AddChild(tempMember);
+
+                activeParty.Add(GetChild(p).GetNode<Battler>(ConstTerm.BATTLER));
             }
         }
 
@@ -107,37 +113,38 @@ namespace ZAM.System
             return (CharacterController)leaderMember;
         }
 
-        public CharacterBody2D GetPartyMember(int index)
+        public CharacterBody2D GetBattleMember(int index)
         {
-            // return activeParty[index];
             return partyMembers[index].Instantiate() as CharacterBody2D;
         }
 
-        public PackedScene[] GetPlayerParty()
+        public List<Battler> GetPlayerParty()
         {
-            return partyMembers;
+            return activeParty;
         }
 
         public int GetPartySize()
         {
-            int partySize = 0;
-            for (int n = 0; n < partyMembers.Length; n++)
-            {
-                if (partyMembers[n] != null)
-                { partySize++; }
-            }
-            return partySize;
+            return partyMembers.Length;
+            // int partySize = 0;
+            // for (int n = 0; n < partyMembers.Length; n++)
+            // {
+            //     if (partyMembers[n] != null)
+            //     { partySize++; }
+            // }
+            // return partySize;
         }
 
         public int GetReservePartySize()
         {
-            int partySize = 0;
-            for (int n = 0; n < reserveMembers.Length; n++)
-            {
-                if (reserveMembers[n] != null)
-                { partySize++; }
-            }
-            return partySize;
+            return reserveMembers.Length;
+            // int partySize = 0;
+            // for (int n = 0; n < reserveMembers.Length; n++)
+            // {
+            //     if (reserveMembers[n] != null)
+            //     { partySize++; }
+            // }
+            // return partySize;
         }
 
         //=============================================================================

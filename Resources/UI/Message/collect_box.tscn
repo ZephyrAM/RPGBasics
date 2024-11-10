@@ -1,0 +1,99 @@
+[gd_scene load_steps=9 format=3 uid="uid://bv0p7bn016keu"]
+
+[ext_resource type="Script" path="res://Scripts/MenuUI/CollectBox.cs" id="1_kpym0"]
+[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Resources/Font/FFVI Regular.ttf" id="2_vixla"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0tp0h"]
+content_margin_left = 40.0
+content_margin_top = 10.0
+content_margin_right = 40.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 0.615686)
+
+[sub_resource type="LabelSettings" id="LabelSettings_puhs2"]
+font = ExtResource("2_vixla")
+font_size = 40
+shadow_size = 5
+shadow_color = Color(0, 0, 0, 0.360784)
+shadow_offset = Vector2(1, 3)
+
+[sub_resource type="Animation" id="Animation_hsr66"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_pnnrd"]
+resource_name = "fade_window"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_agktj"]
+resource_name = "fade_out"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ao532"]
+_data = {
+"RESET": SubResource("Animation_hsr66"),
+"fade_in": SubResource("Animation_pnnrd"),
+"fade_out": SubResource("Animation_agktj")
+}
+
+[node name="CollectBox" type="PanelContainer" node_paths=PackedStringArray("collectLabel", "animPlayer")]
+modulate = Color(1, 1, 1, 0)
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -269.0
+offset_top = 40.0
+offset_right = 270.0
+offset_bottom = 105.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_0tp0h")
+script = ExtResource("1_kpym0")
+collectLabel = NodePath("Label")
+animPlayer = NodePath("AnimationPlayer")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "Test"
+label_settings = SubResource("LabelSettings_puhs2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_ao532")
+}

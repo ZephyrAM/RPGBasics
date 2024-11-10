@@ -1,0 +1,37 @@
+[gd_scene load_steps=4 format=3 uid="uid://dk8vtbbsa1io8"]
+
+[ext_resource type="PackedScene" uid="uid://bqn68bcq1mhg5" path="res://Resources/UI/Message/text_box.tscn" id="1_8b1r8"]
+[ext_resource type="PackedScene" uid="uid://clk0yeroml1j2" path="res://Resources/UI/Message/choice_box.tscn" id="2_455wa"]
+[ext_resource type="PackedScene" uid="uid://bv0p7bn016keu" path="res://Resources/UI/Message/collect_box.tscn" id="3_bk6i3"]
+
+[node name="InteractionText" type="Node"]
+
+[node name="TextBoxContainer" parent="." instance=ExtResource("1_8b1r8")]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -450.0
+offset_top = -343.0
+offset_right = 450.0
+offset_bottom = -53.0
+
+[node name="ChoiceBoxContainer" parent="." instance=ExtResource("2_455wa")]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -202.5
+offset_top = -60.0
+offset_right = 202.5
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CollectBox" parent="." instance=ExtResource("3_bk6i3")]
+visible = false
+offset_left = -269.5
+offset_top = 30.0
+offset_right = 269.5
+offset_bottom = 95.0

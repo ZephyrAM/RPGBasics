@@ -97,7 +97,6 @@ namespace ZAM.System
             battler = [];
             CheckBattlers();
             // SetCursorPosition();
-            SaveLoader.Instance.FillData(SaveLoader.Instance.gameSession);
             InitialHealthBars();
             SetupItemList();
         }
@@ -160,16 +159,16 @@ namespace ZAM.System
             // partyInput.onBattleFinish += OnBattleFinish;
         }
 
-        private void UnSubSignals()
-        {
-            partyInput.onTurnCycle -= OnTurnCycle;
-            partyInput.onTurnEnd -= OnTurnEnd;
-            partyInput.onTargetChange -= OnTargetChange;
-            partyInput.onAbilityUse -= OnAbilityUse;
-            partyInput.onAbilityStop -= OnAbilityStop;
-            partyInput.onItemSelect -= OnItemSelect;
-            partyInput.onItemUse -= OnItemUse;
-        }
+        // private void UnSubSignals()
+        // {
+        //     partyInput.onTurnCycle -= OnTurnCycle;
+        //     partyInput.onTurnEnd -= OnTurnEnd;
+        //     partyInput.onTargetChange -= OnTargetChange;
+        //     partyInput.onAbilityUse -= OnAbilityUse;
+        //     partyInput.onAbilityStop -= OnAbilityStop;
+        //     partyInput.onItemSelect -= OnItemSelect;
+        //     partyInput.onItemUse -= OnItemUse;
+        // }
 
         public void BuildPlayerTeam()
         {
@@ -181,7 +180,7 @@ namespace ZAM.System
 
             for (int n = 0; n < playerParty.GetPartySize(); n++)
             {
-                CharacterBody2D tempChar = playerParty.GetPartyMember(n);
+                CharacterBody2D tempChar = playerParty.GetBattleMember(n);
                 tempChar.Position = partyInput.GetPlayerPositions()[n];
 
                 // partyInput.AddChild(tempTeam[n]);
@@ -197,6 +196,7 @@ namespace ZAM.System
                 playerTeam.Add(tempChar.GetNode<Battler>(ConstTerm.BATTLER));
                 playerTeam[n].onHitEnemy += OnHitEnemy;
                 playerTeam[n].onAbilityHitPlayer += OnAbilityHitPlayer;
+                playerTeam[n].onBattlerLevelUp += OnBattlerLevelUp;
 
                 // UI Bars \\
                 var tempLine = ResourceLoader.Load<PackedScene>(statusList.ResourcePath).Instantiate();
@@ -271,6 +271,11 @@ namespace ZAM.System
             playerParty.ChangePlayerActive(true);
 
             QueueFree();
+
+            // GD.Print("Map enter tree - load data");
+            SaveLoader.Instance.LoadBattlerData(SaveLoader.Instance.gameSession);
+            // GD.Print(SaveLoader.Instance.gameSession.CharData[playerParty.GetPlayerParty()[0].GetCharID()].CurrentHP);
+            // GD.Print(playerParty.GetPlayerParty()[0].GetHealth().GetHP());
         }
 
         public void SetBattleControlActive(bool active)
@@ -367,14 +372,14 @@ namespace ZAM.System
             getExp /= team.Count;
             for (int i = 0; i < team.Count; i++)
             {
+                // GD.Print(team[i].GetBattlerName() + " gains " + getExp + " experience.");
                 team[i].GetExperience().AddExp(getExp);
-                GD.Print(team[i].BattlerName() + " gains " + getExp + " experience.");
-                if (team[i].GetExperience().CheckLevelUp())
-                {
-                    FloatingNumbers(team[i], "Level Up!", ConstTerm.WHITE);
-                    GD.Print("New level is " + team[i].GetExperience().GetCurrentLevel());
-                }
-                GD.Print("Experience - " + team[i].GetExperience().GetTotalExp() + "/" + team[i].GetExperience().GetExpToLevel(team[i].GetExperience().GetCurrentLevel()));
+                // if (team[i].GetExperience().CheckLevelUp())
+                // {
+                //     FloatingNumbers(team[i], "Level Up!", ConstTerm.WHITE);
+                //     GD.Print("New level is " + team[i].GetExperience().GetCurrentLevel());
+                // }
+                // GD.Print("Experience - " + team[i].GetExperience().GetTotalExp() + "/" + team[i].GetExperience().GetExpToLevel());
             }
         }
 
@@ -415,13 +420,13 @@ namespace ZAM.System
         {
             if (enemyTeam.Count <= 0)
             { 
-                GD.Print("You win!"); 
+                // GD.Print("You win!"); 
                 BattleWin();
                 return true;
             }
             if (playerTeam.Count <= 0)
             { 
-                GD.Print("You lose!");
+                // GD.Print("You lose!");
                 return true;
             }
             return false;
@@ -429,8 +434,12 @@ namespace ZAM.System
 
         private async void BattleWin()
         {
-            SaveLoader.Instance.gameSession.CharData = SaveLoader.Instance.GatherBattlers();
+            // GD.Print("Battle end - save data");
+            SaveLoader.Instance.GatherBattlers();
+            // GD.Print(SaveLoader.Instance.gameSession.CharData[playerParty.GetPlayerParty()[0].GetCharID()].CurrentHP);
+            // GD.Print(playerParty.GetPlayerParty()[0].GetHealth().GetHP());
 
+            partyInput.SetTurnPhase(ConstTerm.WAIT);
             partyInput.SetBattleOver(true);
             await ToSignal(partyInput, ConstTerm.BATTLE_FINISHED);
             ReturnMapScene();
@@ -438,7 +447,7 @@ namespace ZAM.System
 
         public async void EnemyTurn()
         {
-            GD.Print(" - Enemy Go");
+            // GD.Print(" - Enemy Go");
             turnActive = true;
 
             AnimationPlayer target = battler[0].GetAnimPlayer();
@@ -450,7 +459,7 @@ namespace ZAM.System
         public void PlayerTurn()
         {
             SetupSkillList(battler[0]);
-            GD.Print(" - Player Go");
+            // GD.Print(" - Player Go");
             partyInput.SetActiveMember(playerTeam.IndexOf(battler[0]));
             MoveCommandPanel(battler[0]);
 
@@ -546,6 +555,7 @@ namespace ZAM.System
         {
             if (activeAbility != null && activeAbility.TargetArea == ConstTerm.GROUP) {
 
+                List<Battler> killTargets = [];
                 for (int n = 0; n < enemyTeam.Count; n++)
                 {
                     Battler defender = enemyTeam[n];
@@ -555,13 +565,18 @@ namespace ZAM.System
 
                     if (defender.GetHealth().GetHP() <= 0)
                     {
+                        killTargets.Add(defender);
                         defender.onHitPlayer -= OnHitPlayer;
-                        KillTarget(defender, enemyTeam, playerTeam);
 
                         enemyList.GetChild(n).QueueFree();
-                        partyInput.SetEnemyTeamSize(enemyTeam.Count);
-                        n--;
+                        // n--;
                     }
+                }
+
+                for (int k = 0; k < killTargets.Count; k++)
+                {
+                    KillTarget(killTargets[k], enemyTeam, playerTeam);
+                    partyInput.SetEnemyTeamSize(enemyTeam.Count);
                 }
             }
             else {
@@ -578,7 +593,7 @@ namespace ZAM.System
                     enemyList.GetChild(partyInput.GetTarget()).QueueFree();
                     partyInput.SetEnemyTeamSize(enemyTeam.Count);
 
-                    BattleEndCheck();
+                    // BattleEndCheck();
                 }
             }
         }
@@ -595,12 +610,14 @@ namespace ZAM.System
             if (defender.GetHealth().GetHP() <= 0)
             {
                 defender.onHitEnemy -= OnHitEnemy;
+                defender.onAbilityHitPlayer -= OnAbilityHitPlayer;
+                defender.onBattlerLevelUp -= OnBattlerLevelUp;
                 KillTarget(defender, playerTeam, enemyTeam);
 
                 playerList.GetChild(target).QueueFree();
                 partyInput.SetPlayerTeamSize(playerTeam.Count);
 
-                BattleEndCheck();
+                // BattleEndCheck();
             }
         }
 
@@ -661,7 +678,7 @@ namespace ZAM.System
             if (battler.Count > 0)
             {
                 if (battler[0] == null) { goto SkipToEnd; }
-                GD.Print(battler[0].GetNameLabel().Text + " Turn Start!");
+                // GD.Print(battler[0].GetNameLabel().Text + " Turn Start!");
                 partyInput.SetTurnPhase(ConstTerm.WAIT);
                 activeAbility = null;
                 activeItem = null;
@@ -685,7 +702,7 @@ namespace ZAM.System
 
         private void OnTurnEnd()
         {
-            GD.Print("End turn.");
+            // GD.Print("End turn.");
             partyInput.SetPlayerTurn(false);
             partyInput.SetControlActive(true);
             turnActive = false;
@@ -765,7 +782,7 @@ namespace ZAM.System
                 {
                     battler[0].AddState(activeAbility.AddedState);
                 }
-                GD.Print(" -- Activate - " + battler[0].GetStateList().Last().StateName);
+                // GD.Print(" -- Activate - " + battler[0].GetStateList().Last().StateName);
             }
 
             battler[0].GetAnimPlayer().Queue(activeAbility.CallAnimation);
@@ -820,6 +837,12 @@ namespace ZAM.System
             // partyInput.ResetTarget();
 
             OnTurnEnd();
+        }
+
+        private void OnBattlerLevelUp(Battler battler)
+        {
+            FloatingNumbers(battler, "Level Up!", ConstTerm.WHITE);
+            // GD.Print("New level is " + battler.GetExperience().GetCurrentLevel());
         }
 
         // private void OnSaveGame()

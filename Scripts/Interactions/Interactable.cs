@@ -19,6 +19,8 @@ namespace ZAM.Interactions
         [Export] private bool isRepeatable = false; // SaveData
         [Export] private int noRepeatStep = 0;      // SaveData
 
+        private string interactPhase = ConstTerm.MOVE;
+
         private int stepNumber = 0;
         private int choiceStep = 0;
         private int choiceOption = 0;
@@ -28,9 +30,13 @@ namespace ZAM.Interactions
 
         private readonly char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
 
+        private NPCMove moveableBody = null;
+        private CharacterBody2D playerTarget = null;
+
         private CanvasLayer uiLayer = null;
         private TextBox textBox = null;
         private ChoiceBox choiceBox = null;
+        private CollectBox collectBox = null;
         // private PartyManager playerParty = null;
         // private CharacterController partyInput = null;
 
@@ -59,9 +65,14 @@ namespace ZAM.Interactions
         {
             objectName ??= GetNode<Label>(ConstTerm.NAMELABEL);
 
+            if (GetNode<NPCMove>(ConstTerm.NPCMOVE) != null) { moveableBody = GetNode<NPCMove>(ConstTerm.NPCMOVE); }
+
             uiLayer ??= GetNode<CanvasLayer>("../../" + ConstTerm.CANVAS_LAYER);
-            textBox ??= uiLayer.GetNode<TextBox>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
-            choiceBox ??= uiLayer.GetNode<ChoiceBox>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
+            
+            Node interactLayer = uiLayer.GetNode(ConstTerm.INTERACT_TEXT);
+            textBox ??= interactLayer.GetNode<TextBox>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
+            choiceBox ??= interactLayer.GetNode<ChoiceBox>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
+            collectBox ??= interactLayer.GetNode<CollectBox>(ConstTerm.COLLECTBOX);
             // playerParty ??= GetNode<PartyManager>("../" + ConstTerm.PARTYMANAGER);
             // partyInput ??= playerParty.GetChild<CharacterController>(0);
         }
@@ -87,8 +98,11 @@ namespace ZAM.Interactions
         // SECTION: Interaction Results
         //=============================================================================
 
-        public void TargetInteraction()
+        public void TargetInteraction(Vector2 direction)
         {
+            SetInteractPhase(ConstTerm.INTERACT);
+            moveableBody?.FaceDirection(direction);
+            
             if (isRepeatable) { stepNumber = 0; choiceStep = 0;}
             isPlaying = true;
 
@@ -121,7 +135,7 @@ namespace ZAM.Interactions
             GD.Print("text" + stepNumber + alphabet[choiceOption] + " " + choiceActive);
             if (choiceActive) { outText = choiceText["text" + stepNumber + alphabet[choiceOption]]; }
             else { outText = choiceText["text" + stepNumber]; }
-            textBox.AddText(objectName.Text, outText);
+            textBox.QueueText(objectName.Text, outText);
             choiceActive = false;
             choiceOption = 0;
 
@@ -146,16 +160,26 @@ namespace ZAM.Interactions
 
         public void AddItemGive()
         {
-            textBox.AddText("", "Receieved " + choiceText["item" + stepNumber] + "!");
+            string outText = "Receieved " + choiceText["item" + stepNumber] + "!";
+            collectBox.AddText(outText);
+            
+            choiceActive = false;
+            choiceOption = 0;
+
             EmitSignal(SignalName.onItemReceive, choiceText["item" + stepNumber]);
 
-            EmitSignal(SignalName.onPhaseSwitch, ConstTerm.TEXT);
+            // EmitSignal(SignalName.onPhaseSwitch, ConstTerm.TEXT);
         }
 
 
         //=============================================================================
         // SECTION: External Access
         //=============================================================================
+
+        public void SetPlayer(CharacterBody2D getPlayer)
+        {
+            playerTarget = getPlayer;
+        }
 
         public void SetChoiceOption(int index)
         {
@@ -184,6 +208,21 @@ namespace ZAM.Interactions
         public ChoiceBox GetChoiceBox()
         {
             return choiceBox;
+        }
+
+        public string GetInteractPhase()
+        {
+            return interactPhase;
+        }
+
+        public void SetInteractPhase(string phase)
+        {
+            interactPhase = phase;
+        }
+
+        public void ResetDirection()
+        {
+            moveableBody?.RevertDirection();
         }
     }
 }

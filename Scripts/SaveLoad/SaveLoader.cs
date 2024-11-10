@@ -30,60 +30,73 @@ public partial class SaveLoader : Node
     // SECTION: Save Methods
     //=============================================================================
 
-    public Dictionary<CharacterID, BattlerData> GatherBattlers()
-    {
-        Dictionary<CharacterID, BattlerData> allBattlers = [];
-        GetTree().CallGroup(ConstTerm.SAVEDATA, ConstTerm.ON_SAVEGAME, allBattlers);
-
-        return allBattlers;
-    }
-
     public void SaveGame()
     {
-        SavedGame gameSave = new() {
-            CharData = GatherBattlers()
-        };
+        // SavedGame gameSave = new() {
+        //     CharData = GatherBattlers()
+        // };
+        SaveAllData();
 
         var dir = DirAccess.Open(ConstTerm.GAME_FOLDER + ConstTerm.SAVE_PATH);
         if (!dir.DirExists(ConstTerm.SAVE_FOLDER)) { dir.MakeDir(ConstTerm.SAVE_FOLDER); }
 
-        ResourceSaver.Save(gameSave, savePath);
+        ResourceSaver.Save(Instance.gameSession, savePath);
+    }
+
+    private void SaveAllData()
+    {
+        GatherBattlers();
+    }
+
+    public void GatherBattlers()
+    {
+        // Dictionary<CharacterID, BattlerData> allBattlers = [];
+        GetTree().CallGroup(ConstTerm.BATTLERDATA, ConstTerm.ON_SAVEGAME, Instance.gameSession.CharData);
+        // GD.Print("CharData count - " + Instance.gameSession.CharData.Count);
+
+        // return Instance.gameSession.CharData;
     }
 
     //=============================================================================
     // SECTION: Load Methods
     //=============================================================================
 
-    public void FillData(SavedGame gameSave)
-    {
-        if (gameSave.CharData == null) { return; }
-        BattlerGroup(ConstTerm.SAVEDATA, gameSave.CharData);
-    }
-
     public void LoadGame()
     {
         SavedGame gameSave = ResourceLoader.Load(savePath) as SavedGame;
         if (gameSave == null) { GD.Print("No save file!"); return; }
 
-        FillData(gameSave);
+        LoadAllData(gameSave);
+    }
+
+    private void LoadAllData(SavedGame gameSave)
+    {
+        LoadBattlerData(gameSave);
+    }
+
+    public void LoadBattlerData(SavedGame gameSave)
+    {
+        if (gameSave.CharData == null) { GD.Print("No save data"); return; }
+        BattlerGroup(gameSave);
     }
 
     //=============================================================================
     // SECTION: Load Data Types
     //=============================================================================
 
-    public void BattlerGroup(string groupName, Dictionary<CharacterID, BattlerData> battlerGroup)
+    public void BattlerGroup(SavedGame gameSave)
     {
-        Array<Node> tempGroup = GetTree().GetNodesInGroup(groupName);
+        GetTree().CallGroup(ConstTerm.BATTLERDATA, ConstTerm.ON_LOADGAME, gameSave.CharData);
+        // GD.Print(GetTree().GetNodeCountInGroup(ConstTerm.BATTLERDATA));
+        //     Array<Node> tempGroup = GetTree().GetNodesInGroup(groupName);
 
-        for (int n = 0; n < GetTree().GetNodeCountInGroup(groupName); n++)
-        {
-            // GD.Print(tempGroup[n].GetType());
-            if (tempGroup[n] is not Battler) { continue; }
-            Battler tempBattler = (Battler)tempGroup[n];
+        //     for (int n = 0; n < GetTree().GetNodeCountInGroup(groupName); n++)
+        //     {
+        //         if (tempGroup[n] is not Battler) { continue; }
+        //         Battler tempBattler = (Battler)tempGroup[n];
 
-            // if (tempBattler.GetCharID() == 0) { continue; } // EDIT = Better conditional
-            tempBattler.OnLoadData(battlerGroup[tempBattler.GetCharID()]);
-        }
+        //         // if (tempBattler.GetCharID() == 0) { continue; } // EDIT = Better conditional
+        //         tempBattler.OnLoadData(battlerGroup[tempBattler.GetCharID()]);
+        //     }
     }
 }

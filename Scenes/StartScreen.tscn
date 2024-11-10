@@ -1,9 +1,9 @@
-[gd_scene load_steps=9 format=3 uid="uid://cj808d7ymeo4m"]
+[gd_scene load_steps=8 format=3 uid="uid://cj808d7ymeo4m"]
 
-[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Resources/Font/FFVI Regular.ttf" id="1_dgulg"]
 [ext_resource type="Script" path="res://Scripts/System/StartScreen.cs" id="1_t8hai"]
-[ext_resource type="PackedScene" uid="uid://cj0v8mojhj4a7" path="res://Scenes/MapSystem.tscn" id="2_owmo2"]
+[ext_resource type="PackedScene" uid="uid://cj0v8mojhj4a7" path="res://Scenes/TestMap.tscn" id="2_owmo2"]
 [ext_resource type="AnimationLibrary" uid="uid://d11gnfe4mn6yp" path="res://Resources/Animations/ui_cursor.res" id="3_jciqq"]
+[ext_resource type="Theme" uid="uid://c2g4cqqe3ifyq" path="res://Resources/UI/Styles/large_button_theme.tres" id="4_ti70t"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bi641"]
 bg_color = Color(0.270588, 0.270588, 0.270588, 0)
@@ -27,10 +27,6 @@ tracks/0/keys = {
 _data = {
 "RESET": SubResource("Animation_ss0f3")
 }
-
-[sub_resource type="LabelSettings" id="LabelSettings_q36lx"]
-font = ExtResource("1_dgulg")
-font_size = 60
 
 [node name="StartScreen" type="Node2D" node_paths=PackedStringArray("optionList", "selectBar")]
 script = ExtResource("1_t8hai")
@@ -63,7 +59,7 @@ layout_mode = 2
 size_flags_vertical = 0
 
 [node name="ColorRect" type="ColorRect" parent="CanvasLayer/PanelContainer/SelectContainer/SelectList"]
-custom_minimum_size = Vector2(0, 55)
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 2
@@ -80,15 +76,14 @@ self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 theme_override_constants/separation = -2
 
-[node name="New Game" type="Label" parent="CanvasLayer/PanelContainer/VBoxContainer"]
+[node name="New Game" type="Button" parent="CanvasLayer/PanelContainer/VBoxContainer"]
 layout_mode = 2
+theme = ExtResource("4_ti70t")
 text = "New Game"
-label_settings = SubResource("LabelSettings_q36lx")
-horizontal_alignment = 1
+flat = true
 
 [node name="Continue" type="Button" parent="CanvasLayer/PanelContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("1_dgulg")
-theme_override_font_sizes/font_size = 60
+theme = ExtResource("4_ti70t")
 text = "Continue"
 flat = true

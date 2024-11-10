@@ -12,6 +12,7 @@ namespace ZAM.System
     {
         [Export] private PackedScene battleScene;
         [Export] private PartyManager playerParty;
+        [Export] private MenuController menuInput = null;
 
         private CharacterController playerInput = null;
         private BattleSystem battleNode = null;
@@ -21,7 +22,11 @@ namespace ZAM.System
         private CanvasLayer uiLayer = null;
         private TextBox textBox = null;
         private ChoiceBox choiceBox = null;
+        private InfoMenu menuScreen = null;
+
+
         private int choiceCommand = 0;
+        private bool hasLoaded = false;
 
         //=============================================================================
         // SECTION: Base Methods
@@ -31,7 +36,25 @@ namespace ZAM.System
         {
             IfNull();
             SubSignals();
-            SaveLoader.Instance.gameSession.CharData = SaveLoader.Instance.GatherBattlers(); // Should only happen once, when game loads.
+
+            menuInput.SetPlayer(playerInput);
+            menuScreen.SetupParty(playerParty.GetPartySize());
+            UpdateMenuInfo();
+
+            // GD.Print("Map ready - save data");
+            SaveLoader.Instance.GatherBattlers(); // Should only happen once, when game loads.
+
+            hasLoaded = true;
+        }
+
+        public override void _EnterTree()
+        {
+            // if (hasLoaded) {
+            //     GD.Print("Map enter tree - load data");
+            //     SaveLoader.Instance.LoadBattlerData(SaveLoader.Instance.gameSession);
+            //     GD.Print(SaveLoader.Instance.gameSession.CharData[playerParty.GetPlayerParty()[0].GetCharID()].CurrentHP);
+            //     GD.Print(playerParty.GetPlayerParty()[0].GetHealth().GetHP());
+            // }
         }
 
         public override void _PhysicsProcess(double delta)
@@ -50,8 +73,13 @@ namespace ZAM.System
             playerInput ??= playerParty.GetPlayer();
 
             uiLayer ??= GetNode<CanvasLayer>(ConstTerm.CANVAS_LAYER);
-            textBox ??= uiLayer.GetNode<TextBox>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
-            choiceBox ??= uiLayer.GetNode<ChoiceBox>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
+
+            Node interactLayer = uiLayer.GetNode(ConstTerm.INTERACT_TEXT);
+            textBox ??= interactLayer.GetNode<TextBox>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
+            choiceBox ??= interactLayer.GetNode<ChoiceBox>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
+
+            menuInput ??= uiLayer.GetNode<MenuController>(ConstTerm.MENU_CONTROLLER);
+            menuScreen ??= menuInput.GetNode<InfoMenu>(ConstTerm.MENU + ConstTerm.CONTAINER);
 
             // interactRay ??= playerInput.GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
         }
@@ -62,15 +90,21 @@ namespace ZAM.System
             playerInput.onSelectChange += OnSelectChange;
             playerInput.onTextProgress += OnTextProgress;
             playerInput.onChoiceSelect += OnChoiceSelect;
+            playerInput.onMenuOpen += OnMenuOpen;
+
+            menuInput.onMenuClose += OnMenuClose;
         }
 
-        private void UnSubSignals() // Inactive: Mapsystem doesn't run _Ready again after _ExitTree
-        {
-            playerInput.onInteractCheck -= OnInteractCheck;
-            playerInput.onSelectChange -= OnSelectChange;
-            playerInput.onTextProgress -= OnTextProgress;
-            playerInput.onChoiceSelect -= OnChoiceSelect;
-        }
+        // private void UnSubSignals() // Inactive: Mapsystem doesn't run _Ready again after _ExitTree
+        // {
+        //     playerInput.onInteractCheck -= OnInteractCheck;
+        //     playerInput.onSelectChange -= OnSelectChange;
+        //     playerInput.onTextProgress -= OnTextProgress;
+        //     playerInput.onChoiceSelect -= OnChoiceSelect;
+        //     playerInput.onMenuOpen -= OnMenuOpen;
+
+        //     menuInput.onMenuClose -= OnMenuClose;
+        // }
 
         // public override void _EnterTree()
         // {
@@ -80,6 +114,12 @@ namespace ZAM.System
         // public override void _ExitTree()
         // {
         //     battleNode.onBuildPlayerTeam -= BuildParty;
+        // }
+
+        // private void SetPlayerToEvents()
+        // {
+        //     Node2D eventNode = GetNode<Node2D>(ConstTerm.EVENTS);
+        //     // Interactable[] eventList = eventNode.GetChildren();
         // }
 
 
@@ -93,7 +133,7 @@ namespace ZAM.System
                 interactTarget.GetTextBox().FasterText(playerInput.TextSpeedCheck()); }
         }
 
-        private void InteractCheck()
+        private void InteractCheck(Vector2 direction)
         {
             interactRay.ForceRaycastUpdate();
             if (interactRay.IsColliding() && !textBox.Visible)
@@ -102,7 +142,7 @@ namespace ZAM.System
                 if (interactRay.GetCollider() is Interactable)
                 {
                     SetInteractTarget();
-                    interactTarget.TargetInteraction();
+                    interactTarget.TargetInteraction(direction);
                 }
             }
         }
@@ -139,6 +179,9 @@ namespace ZAM.System
 
         private void RemoveInteractTarget()
         {
+            interactTarget.SetInteractPhase(ConstTerm.WAIT);
+            interactTarget.ResetDirection();
+
             interactTarget.onPhaseSwitch -= OnPhaseSwitch;
             interactTarget.onItemReceive -= OnItemReceive;
             interactTarget = null;
@@ -148,11 +191,38 @@ namespace ZAM.System
 
 
         //=============================================================================
+        // SECTION: Menu Handling
+        //=============================================================================
+
+
+        private void UpdateMenuInfo()
+        {
+            for (int i = 0; i < menuScreen.GetInfoSize(); i++)
+            {
+                MemberInfo tempInfo = menuScreen.GetMemberInfo(i);
+                // tempInfo.SetCharPortrait(playerParty.GetPlayerParty()[i].GetPortrait());
+                tempInfo.SetCharName(playerParty.GetPlayerParty()[i].GetBattlerName());
+                tempInfo.SetCharTitle(playerParty.GetPlayerParty()[i].GetBattlerTitle());
+                tempInfo.SetHPCurrent(playerParty.GetPlayerParty()[i].GetHealth().GetHP());
+                tempInfo.SetHPMax(playerParty.GetPlayerParty()[i].GetHealth().GetMaxHP());
+                // tempInfo.SetMPCurrent(playerParty.GetPlayerParty()[i].Get???().GetMP());
+                // tempInfo.SetMPMax(playerParty.GetPlayerParty()[i].Get???().GetMaxMP());
+                tempInfo.SetCurrentLevel(playerParty.GetPlayerParty()[i].GetExperience().GetCurrentLevel());
+                tempInfo.SetNextLevel(playerParty.GetPlayerParty()[i].GetExperience().GetExpToLevel());
+
+                menuScreen.UpdateMemberInfo(i, tempInfo);
+            }
+        }
+
+
+        //=============================================================================
         // SECTION: Access Methods
         //=============================================================================
 
         public async void LoadBattle(PackedScene randomGroup)
         {
+            // GD.Print("Battle loading - save data");
+            SaveLoader.Instance.GatherBattlers();
             playerParty.ChangePlayerActive(false);
             Fader.Instance.Transition();
             await ToSignal(Fader.Instance, ConstTerm.TRANSITION_FINISHED);
@@ -164,6 +234,9 @@ namespace ZAM.System
 
             GetTree().Root.AddChild(battleNode);
             GetTree().Root.RemoveChild(this);
+
+            // GD.Print("Battle loading - load data");
+            SaveLoader.Instance.LoadBattlerData(SaveLoader.Instance.gameSession);
 
             // QueueFree();
         }
@@ -183,10 +256,10 @@ namespace ZAM.System
         // SECTION: Signal Methods
         //=============================================================================
 
-        private void OnInteractCheck(RayCast2D ray)
+        private void OnInteractCheck(RayCast2D ray, Vector2 direction)
         {
             interactRay = ray;
-            InteractCheck();
+            InteractCheck(direction);
         }
 
         private void OnPhaseSwitch(string newPhase)
@@ -216,6 +289,22 @@ namespace ZAM.System
         private void OnItemReceive(string newItem)
         {
             ItemBag.Instance.AddToItemBag(newItem);
+        }
+
+        private void OnMenuOpen()
+        {
+            UpdateMenuInfo();
+            menuScreen.Visible = true;
+            playerInput.ChangeActive(false);
+            menuInput.SetMenuActive(true);
+        }
+
+        private void OnMenuClose()
+        {
+            menuScreen.Visible = false;
+            playerInput.SetInputPhase(ConstTerm.MOVE);
+            playerInput.ChangeActive(true);
+            menuInput.SetMenuActive(false);
         }
     }
 }

@@ -3,14 +3,12 @@ using System;
 
 namespace ZAM.MenuUI
 {
-    public partial class ChoiceBox : MarginContainer
+    public partial class ChoiceBox : PanelContainer
     {
         [ExportGroup("Child Nodes")]
         [Export] private PackedScene choiceLabel = null;
-        [Export] private MarginContainer marginBox = null;
         [Export] private VBoxContainer vertBox = null;
-
-        [Export] private MarginContainer selectBox = null;
+        
         [Export] private GridContainer selectList = null;
         [Export] private ColorRect selectBar = null;
 
@@ -33,11 +31,9 @@ namespace ZAM.MenuUI
 
         public void IfNull()
         {
-            marginBox ??= GetNode<MarginContainer>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
-            vertBox ??= marginBox.GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
+            vertBox ??= GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
 
-            selectBox ??= GetNode<MarginContainer>(ConstTerm.SELECT + ConstTerm.CONTAINER);
-            selectList ??= selectBox.GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST);
+            selectList ??= GetNode<MarginContainer>(ConstTerm.SELECT + ConstTerm.CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST);
             selectBar ??= selectList.GetNode<ColorRect>(ConstTerm.COLOR_RECT);
         }
 

@@ -1,0 +1,72 @@
+[gd_scene load_steps=5 format=3 uid="uid://bqn68bcq1mhg5"]
+
+[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Resources/Font/FFVI Regular.ttf" id="1_ncj5p"]
+[ext_resource type="Script" path="res://Scripts/MenuUI/TextBox.cs" id="1_r1cok"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4dp2c"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.0142752, 0.0142752, 0.0142752, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+
+[sub_resource type="LabelSettings" id="LabelSettings_8pyol"]
+font = ExtResource("1_ncj5p")
+font_size = 50
+
+[node name="TextBoxContainer" type="PanelContainer" node_paths=PackedStringArray("startLabel", "textLabel", "endLabel", "marginBox", "vertBox")]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 300.0
+offset_top = -330.0
+offset_right = -300.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_4dp2c")
+script = ExtResource("1_r1cok")
+startLabel = NodePath("MarginContainer/VBoxContainer/Start")
+textLabel = NodePath("MarginContainer/VBoxContainer/Label")
+endLabel = NodePath("MarginContainer/VBoxContainer/End")
+marginBox = NodePath("MarginContainer")
+vertBox = NodePath("MarginContainer/VBoxContainer")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Start" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+text = "*"
+label_settings = SubResource("LabelSettings_8pyol")
+
+[node name="Label" type="RichTextLabel" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_fonts/normal_font = ExtResource("1_ncj5p")
+theme_override_font_sizes/normal_font_size = 50
+bbcode_enabled = true
+text = "Placeholder text! This is going to be my test for text lines, but I have to write a lot because the window is huuuuuggggeeee resolution!
+I mean really a lot!"
+scroll_active = false
+scroll_following = true
+
+[node name="End" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "_"
+label_settings = SubResource("LabelSettings_8pyol")

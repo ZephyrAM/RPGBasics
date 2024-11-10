@@ -1,0 +1,131 @@
+[gd_scene load_steps=9 format=3 uid="uid://bhw8ja7yjcpke"]
+
+[ext_resource type="Script" path="res://Scripts/Control/MenuController.cs" id="1_a143d"]
+[ext_resource type="Script" path="res://Scripts/MenuUI/InfoMenu.cs" id="1_grjns"]
+[ext_resource type="PackedScene" uid="uid://eceb5khigg56" path="res://Resources/UI/Menu/member_info.tscn" id="2_ltrr6"]
+[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Resources/Font/FFVI Regular.ttf" id="3_e64x6"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_36ajg"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.240188, 0.342771, 0.526735, 1)
+border_width_left = 8
+border_width_top = 8
+border_width_right = 8
+border_width_bottom = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_05t86"]
+draw_center = false
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+
+[sub_resource type="LabelSettings" id="LabelSettings_3sgn4"]
+font = ExtResource("3_e64x6")
+font_size = 40
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pm3sy"]
+draw_center = false
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+
+[node name="PartyMenu" type="Node"]
+script = ExtResource("1_a143d")
+
+[node name="MenuContainer" type="PanelContainer" parent="." node_paths=PackedStringArray("infoList")]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -575.5
+offset_top = -271.0
+offset_right = 575.5
+offset_bottom = 271.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_36ajg")
+script = ExtResource("1_grjns")
+memberInfoBox = ExtResource("2_ltrr6")
+infoList = NodePath("HBoxContainer/InfoContainer/InfoList")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuContainer"]
+layout_mode = 2
+
+[node name="InfoContainer" type="MarginContainer" parent="MenuContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 0
+
+[node name="SelectList" type="GridContainer" parent="MenuContainer/HBoxContainer/InfoContainer"]
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="MenuContainer/HBoxContainer/InfoContainer/SelectList"]
+self_modulate = Color(0.627451, 0.627451, 0.627451, 0.313726)
+custom_minimum_size = Vector2(800, 120)
+layout_mode = 2
+
+[node name="InfoList" type="VBoxContainer" parent="MenuContainer/HBoxContainer/InfoContainer"]
+layout_mode = 2
+
+[node name="MemberInfo" parent="MenuContainer/HBoxContainer/InfoContainer/InfoList" instance=ExtResource("2_ltrr6")]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MenuContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="OptionsContainer" type="MarginContainer" parent="MenuContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="PanelContainer" type="PanelContainer" parent="MenuContainer/HBoxContainer/VBoxContainer/OptionsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_05t86")
+
+[node name="OptionsList" type="VBoxContainer" parent="MenuContainer/HBoxContainer/VBoxContainer/OptionsContainer/PanelContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="Label" type="Label" parent="MenuContainer/HBoxContainer/VBoxContainer/OptionsContainer/PanelContainer/OptionsList"]
+layout_mode = 2
+text = "Option 1"
+label_settings = SubResource("LabelSettings_3sgn4")
+horizontal_alignment = 1
+
+[node name="MiscContainer" type="MarginContainer" parent="MenuContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="PanelContainer" type="PanelContainer" parent="MenuContainer/HBoxContainer/VBoxContainer/MiscContainer"]
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_styles/panel = SubResource("StyleBoxFlat_pm3sy")
+
+[node name="MiscList" type="VBoxContainer" parent="MenuContainer/HBoxContainer/VBoxContainer/MiscContainer/PanelContainer"]
+layout_mode = 2
+size_flags_vertical = 8
+
+[node name="Label" type="Label" parent="MenuContainer/HBoxContainer/VBoxContainer/MiscContainer/PanelContainer/MiscList"]
+layout_mode = 2
+text = "Option 1"
+label_settings = SubResource("LabelSettings_3sgn4")
+horizontal_alignment = 1

@@ -11,8 +11,11 @@ script = ExtResource("5_f5u6h")
 Stat = 1
 Value = 50.0
 
-[node name="DataManager" type="Node2D"]
+[node name="DataManager" type="Node2D" node_paths=PackedStringArray("abilityList", "stateList", "itemList")]
 script = ExtResource("1_vh6lm")
+abilityList = NodePath("AbilityDatabase")
+stateList = NodePath("StateDatabase")
+itemList = NodePath("ItemDatabase")
 
 [node name="AbilityDatabase" type="Node2D" parent="."]
 
@@ -65,6 +68,15 @@ NumericValue = 20.0
 DamageType = "Healing"
 CallAnimation = "battle_anim/heal"
 
+[node name="StateDatabase" type="Node2D" parent="."]
+
+[node name="Defend" type="Node" parent="StateDatabase"]
+script = ExtResource("4_58xhj")
+StateName = "Defend (State)"
+StateDescription = "Defensive state cause by Defend."
+AddModifier = Array[Resource]([])
+PercentModifier = Array[Resource]([SubResource("Resource_15cgh")])
+
 [node name="ItemDatabase" type="Node2D" parent="."]
 
 [node name="Healing Item" type="Node" parent="ItemDatabase"]
@@ -76,12 +88,3 @@ TargetArea = "Single"
 NumericValue = 25.0
 DamageType = "Healing"
 CallAnimation = "battle_anim/heal"
-
-[node name="StateDatabase" type="Node2D" parent="."]
-
-[node name="Defend" type="Node" parent="StateDatabase"]
-script = ExtResource("4_58xhj")
-StateName = "Defend (State)"
-StateDescription = "Defensive state cause by Defend."
-AddModifier = Array[Resource]([])
-PercentModifier = Array[Resource]([SubResource("Resource_15cgh")])

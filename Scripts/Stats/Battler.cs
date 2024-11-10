@@ -10,12 +10,16 @@ namespace ZAM.Stats
     {
         [Export] private string battlerType;
         [Export] private CharacterID battlerID;
+        // [Export] private bool hasBattleStats = true; // Implement if needed
 
         [ExportGroup("Nodes")]
         [Export] private Label battlerName;
+        [Export] private string battlerTitle;
         [Export] private CharacterBody2D battlerBody;
         [Export] private Sprite2D battlerSprite;
+        [Export] private Texture2D battlerPortrait;
         [Export] private AnimationPlayer battlerAnim;
+
         [Export] private Health battlerHealth;
         [Export] private BaseStats battlerStats;
         [Export] private Experience battlerExp;
@@ -40,6 +44,8 @@ namespace ZAM.Stats
         public delegate void onAbilityHitEnemyEventHandler(Battler user);
         [Signal]
         public delegate void onAbilityHitPlayerEventHandler(Battler user);
+        [Signal]
+        public delegate void onBattlerLevelUpEventHandler(Battler battler);
 
         //=============================================================================
         // SECTION: Base Methods
@@ -73,6 +79,7 @@ namespace ZAM.Stats
             battlerStats ??= GetNode<BaseStats>("../" + ConstTerm.BASESTATS);
             battlerExp ??= GetNode<Experience>("../" + ConstTerm.EXPERIENCE);
             battlerSkills ??= GetNode<SkillList>("../" + ConstTerm.SKILL_LIST);
+            
         }
 
         private void SubSignals()
@@ -109,9 +116,14 @@ namespace ZAM.Stats
             return battlerID;
         }
 
-        public string BattlerName()
+        public string GetBattlerName()
         {
             return battlerName.Text;
+        }
+
+        public string GetBattlerTitle()
+        {
+            return battlerTitle;
         }
 
         public Label GetNameLabel()
@@ -122,6 +134,11 @@ namespace ZAM.Stats
 
         public Sprite2D GetSprite2D()
         { return battlerSprite; }
+
+        public Texture2D GetPortrait()
+        {
+            return battlerPortrait;
+        }
 
         public float GetWidth()
         {
@@ -190,6 +207,7 @@ namespace ZAM.Stats
 
         public void OnLevelUp()
         {
+            EmitSignal(SignalName.onBattlerLevelUp, this);
             battlerStats.LevelUpStats();
         }
 
@@ -201,32 +219,41 @@ namespace ZAM.Stats
 
         public void OnSaveGame(Godot.Collections.Dictionary<CharacterID, BattlerData> saveData)
         {
+            // GD.Print(this);
+            // GD.Print("Save " + GetCharID());
             // if (GetCharID() == 0) { return; }
 
             BattlerData newData = new()
             {
-                CharID = GetCharID(),
                 CurrentHP = GetHealth().GetHP(),
                 StatValues = GetStats().SaveAllStats(),
                 CurrentExp = GetExperience().GetTotalExp(),
                 CurrentLevel = GetExperience().GetCurrentLevel(),
                 SkillList = GetSkillList().GetSkills()
             };
+            // GD.Print("Battler " + GetHealth().GetHP());
+            // GD.Print("Save - " + " " + GetCharID() + " battler HP at = " + saveData[GetCharID()].CurrentHP + "/" + newData.CurrentHP);
             saveData[GetCharID()] = newData;
+            // GD.Print(saveData[GetCharID()].CurrentHP);
         }
 
-        public void OnLoadData(BattlerData saveData)
+        public void OnLoadGame(Godot.Collections.Dictionary<CharacterID, BattlerData> loadData)
         {
-            if (saveData is BattlerData)
-            {
-                if (GetCharID() != saveData.CharID) { GD.PushError("Battler loaded does not match!"); } // EDIT: Need better check
+            // GD.Print(this);
+            // GD.Print("Load " + GetCharID());
+            // GD.Print(loadData[GetCharID()].CurrentHP);
+            BattlerData saveData = loadData[GetCharID()];
+            if (saveData == null) { GD.Print("Battler data - NULL"); return; }
 
-                GetHealth().SetHP(saveData.CurrentHP);
-                GetStats().LoadAllStats(saveData.StatValues);
-                GetExperience().SetExpTotal(saveData.CurrentExp);
-                GetExperience().SetCurrentLevel(saveData.CurrentLevel);
-                GetSkillList().SetSkills(saveData.SkillList);
-            }
+            // GD.Print("Load - " + " " + GetCharID() + " battler HP at = " + saveData.CurrentHP + "/" + GetHealth().GetHP());
+
+            GetHealth().SetHP(saveData.CurrentHP);
+            GetStats().LoadAllStats(saveData.StatValues);
+            GetExperience().SetExpTotal(saveData.CurrentExp);
+            GetExperience().SetCurrentLevel(saveData.CurrentLevel);
+            GetSkillList().SetSkills(saveData.SkillList);
+
+            // GD.Print(GetHealth().GetHP());
         }
     }
 }

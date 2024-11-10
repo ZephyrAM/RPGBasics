@@ -43,7 +43,7 @@ namespace ZAM.System
         private async void IfNull()
         {
             mapSystem ??= GetTree().Root.GetNode<MapSystem>(ConstTerm.MAPSYSTEM);
-            playerParty ??= GetNode<PartyManager>("../" + ConstTerm.PARTYMANAGER);
+            playerParty ??= GetNode<PartyManager>("../../" + ConstTerm.PARTYMANAGER);
             await ToSignal(playerParty, SignalName.Ready);
 
             playerInput = playerParty.GetChild<CharacterController>(0);
@@ -84,7 +84,7 @@ namespace ZAM.System
 
         private void OnBodyEntered(Node2D body)
         {
-            GD.Print("Entering!");
+            // GD.Print("Entering!");
         }
 
         private void OnStepArea()
@@ -95,7 +95,7 @@ namespace ZAM.System
                 // if (battleCounter == encounterFrequency)
                 if (CheckBattleEncounter())
                 {
-                    GD.Print("-- Encounter!");
+                    // GD.Print("-- Encounter!");
                     battleCounter = 0;
                     mapSystem.LoadBattle(GetEnemyGroup());
                 }

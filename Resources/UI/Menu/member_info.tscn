@@ -1,0 +1,248 @@
+[gd_scene load_steps=13 format=3 uid="uid://eceb5khigg56"]
+
+[ext_resource type="Script" path="res://Scripts/MenuUI/MemberInfo.cs" id="1_6ewv0"]
+[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Resources/Font/FFVI Regular.ttf" id="2_atp7f"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_78mm3"]
+font = ExtResource("2_atp7f")
+font_size = 40
+
+[sub_resource type="LabelSettings" id="LabelSettings_b3v5u"]
+font = ExtResource("2_atp7f")
+font_size = 20
+
+[sub_resource type="LabelSettings" id="LabelSettings_b4iho"]
+font = ExtResource("2_atp7f")
+font_size = 40
+
+[sub_resource type="LabelSettings" id="LabelSettings_ma5vm"]
+font = ExtResource("2_atp7f")
+font_size = 40
+
+[sub_resource type="LabelSettings" id="LabelSettings_2yerx"]
+font = ExtResource("2_atp7f")
+font_size = 40
+
+[sub_resource type="LabelSettings" id="LabelSettings_vkytb"]
+font = ExtResource("2_atp7f")
+font_size = 30
+
+[sub_resource type="LabelSettings" id="LabelSettings_j0vhm"]
+font = ExtResource("2_atp7f")
+font_size = 30
+
+[sub_resource type="LabelSettings" id="LabelSettings_we8ik"]
+font = ExtResource("2_atp7f")
+font_size = 30
+
+[sub_resource type="LabelSettings" id="LabelSettings_sslv2"]
+font = ExtResource("2_atp7f")
+font_size = 30
+
+[sub_resource type="LabelSettings" id="LabelSettings_wr4vi"]
+font = ExtResource("2_atp7f")
+font_size = 30
+
+[node name="MemberInfo" type="Panel" node_paths=PackedStringArray("portrait", "charName", "charTitle", "hpCurrent", "hpMax", "mpCurrent", "mpMax", "lvlCurrent", "expNext")]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(854, 120)
+offset_right = 854.0
+offset_bottom = 120.0
+script = ExtResource("1_6ewv0")
+portrait = NodePath("Portrait")
+charName = NodePath("CharacterName")
+charTitle = NodePath("CharacterTitle")
+hpCurrent = NodePath("HPLabel/HBoxContainer/HPCurrent")
+hpMax = NodePath("HPLabel/HBoxContainer/HPMax")
+mpCurrent = NodePath("MPLabel/HBoxContainer/MPCurrent")
+mpMax = NodePath("MPLabel/HBoxContainer/MPMax")
+lvlCurrent = NodePath("LevelLabel/LevelCurrent")
+expNext = NodePath("ExpLabel/NextLevel")
+
+[node name="Portrait" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 20.0
+offset_top = -50.0
+offset_right = 120.0
+offset_bottom = 50.0
+grow_vertical = 2
+expand_mode = 5
+stretch_mode = 4
+
+[node name="CharacterName" type="Label" parent="."]
+layout_mode = 0
+offset_left = 148.0
+offset_top = 25.0
+offset_right = 340.0
+offset_bottom = 65.0
+text = "Name"
+label_settings = SubResource("LabelSettings_78mm3")
+
+[node name="CharacterTitle" type="Label" parent="."]
+layout_mode = 0
+offset_left = 136.0
+offset_top = 8.0
+offset_right = 274.0
+offset_bottom = 31.0
+text = "Character Title"
+label_settings = SubResource("LabelSettings_b3v5u")
+
+[node name="LevelLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 188.0
+offset_top = 77.0
+offset_right = 323.0
+offset_bottom = 116.0
+text = "Lvl"
+label_settings = SubResource("LabelSettings_b4iho")
+
+[node name="LevelCurrent" type="Label" parent="LevelLabel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -62.0
+offset_top = -11.5
+offset_bottom = 11.5
+grow_horizontal = 0
+grow_vertical = 2
+text = "9999"
+label_settings = SubResource("LabelSettings_ma5vm")
+horizontal_alignment = 2
+
+[node name="HPLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -350.0
+offset_top = 5.0
+offset_right = -89.0
+offset_bottom = 44.0
+grow_horizontal = 0
+text = "HP"
+label_settings = SubResource("LabelSettings_2yerx")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HPLabel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -199.0
+offset_top = -20.0
+offset_bottom = 20.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="HPCurrent" type="Label" parent="HPLabel/HBoxContainer"]
+layout_mode = 2
+text = "9999999"
+label_settings = SubResource("LabelSettings_vkytb")
+
+[node name="Separator" type="Label" parent="HPLabel/HBoxContainer"]
+layout_mode = 2
+text = "/"
+label_settings = SubResource("LabelSettings_j0vhm")
+horizontal_alignment = 1
+
+[node name="HPMax" type="Label" parent="HPLabel/HBoxContainer"]
+layout_mode = 2
+text = "9999999"
+label_settings = SubResource("LabelSettings_we8ik")
+
+[node name="MPLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -350.0
+offset_top = 41.0
+offset_right = -89.0
+offset_bottom = 80.0
+grow_horizontal = 0
+text = "MP"
+label_settings = SubResource("LabelSettings_2yerx")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MPLabel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -199.0
+offset_top = -20.0
+offset_bottom = 20.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="MPCurrent" type="Label" parent="MPLabel/HBoxContainer"]
+layout_mode = 2
+text = "9999999"
+label_settings = SubResource("LabelSettings_vkytb")
+
+[node name="Separator" type="Label" parent="MPLabel/HBoxContainer"]
+layout_mode = 2
+text = "/"
+label_settings = SubResource("LabelSettings_j0vhm")
+horizontal_alignment = 1
+
+[node name="MPMax" type="Label" parent="MPLabel/HBoxContainer"]
+layout_mode = 2
+text = "9999999"
+label_settings = SubResource("LabelSettings_we8ik")
+
+[node name="ExpLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -56.0
+offset_top = -38.0
+offset_right = 208.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Next Level"
+label_settings = SubResource("LabelSettings_sslv2")
+
+[node name="NextLevel" type="Label" parent="ExpLabel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -146.0
+offset_top = -14.0
+offset_bottom = 16.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "99999999"
+label_settings = SubResource("LabelSettings_wr4vi")
+horizontal_alignment = 2
+
+[node name="HSeparator" type="HSeparator" parent="."]
+self_modulate = Color(0.313726, 0.313726, 0.313726, 1)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -6.0
+offset_right = -64.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[connection signal="visibility_changed" from="." to="." method="OnVisible"]

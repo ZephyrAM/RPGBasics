@@ -1,16 +1,18 @@
-[gd_scene load_steps=33 format=3 uid="uid://uqsv1w0qe8uc"]
+[gd_scene load_steps=35 format=3 uid="uid://uqsv1w0qe8uc"]
 
 [ext_resource type="Script" path="res://Scripts/Interactions/Interactable.cs" id="1_1r7ap"]
 [ext_resource type="Texture2D" uid="uid://bpljfe63wdftg" path="res://Assets/Graphics/Characters/Char_Move.png" id="1_m2mkh"]
 [ext_resource type="AnimationLibrary" uid="uid://djlnn8cs542vh" path="res://Resources/Animations/battle_anim.res" id="2_o6csq"]
+[ext_resource type="Script" path="res://Scripts/Interactions/NPCMove.cs" id="3_0wj20"]
 [ext_resource type="AnimationLibrary" uid="uid://fta55tbh4fg5" path="res://Resources/Animations/top_down_move.res" id="3_tasg3"]
-[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="4_05qh1"]
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="4_05qh1"]
 [ext_resource type="Script" path="res://Scripts/Stats/Battler.cs" id="5_w0spe"]
 [ext_resource type="Script" path="res://Scripts/Stats/Health.cs" id="6_gp7k0"]
 [ext_resource type="Script" path="res://Scripts/Stats/BaseStats.cs" id="7_1q5cc"]
 [ext_resource type="Script" path="res://Scripts/Abilities/SkillList.cs" id="8_k5v1v"]
 [ext_resource type="Script" path="res://Scripts/Stats/Experience.cs" id="9_b5xxm"]
 [ext_resource type="Script" path="res://Scripts/Abilities/Modifier.cs" id="9_jr8w5"]
+[ext_resource type="Script" path="res://Scripts/Control/CharacterController.cs" id="13_ta28v"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sby8l"]
 size = Vector2(45, 60)
@@ -134,6 +136,7 @@ z_as_relative = false
 y_sort_enabled = true
 collision_layer = 4
 collision_mask = 15
+platform_floor_layers = 4294967040
 script = ExtResource("1_1r7ap")
 objectName = NodePath("Name")
 isRepeatable = true
@@ -149,6 +152,23 @@ vframes = 3
 y_sort_enabled = true
 position = Vector2(0, 15)
 shape = SubResource("RectangleShape2D_sby8l")
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 2
+input_pickable = false
+monitorable = false
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Area2D"]
+rotation = -1.5708
+polygon = PackedVector2Array(0, -20, -200, 400, 0, 500, 200, 400)
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="RayCast2D" type="RayCast2D" parent="."]
+target_position = Vector2(0, 60)
+collision_mask = 3
+collide_with_areas = true
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
 tree_root = SubResource("AnimationNodeStateMachine_xs4vy")
@@ -196,3 +216,15 @@ script = ExtResource("9_b5xxm")
 
 [node name="SkillList" type="Node" parent="."]
 script = ExtResource("8_k5v1v")
+
+[node name="NPCMove" type="Node" parent="." node_paths=PackedStringArray("npcInteract", "charBody", "charSprite", "sightArea", "navAgent", "checkRay", "animTree")]
+script = ExtResource("3_0wj20")
+playerControlTest = ExtResource("13_ta28v")
+baseSpeed = 250.0
+npcInteract = NodePath("..")
+charBody = NodePath("..")
+charSprite = NodePath("../Sprite2D")
+sightArea = NodePath("../Area2D")
+navAgent = NodePath("../NavigationAgent2D")
+checkRay = NodePath("../RayCast2D")
+animTree = NodePath("../AnimationTree")

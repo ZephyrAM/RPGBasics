@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://c5murpqijft2o"]
 
-[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="1_lmoxb"]
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="1_lmoxb"]
 
 [sub_resource type="Animation" id="Animation_fkhcr"]
 resource_name = "fade_up"

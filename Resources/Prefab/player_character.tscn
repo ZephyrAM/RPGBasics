@@ -1,6 +1,6 @@
 [gd_scene load_steps=26 format=3 uid="uid://da7fwfcevplrb"]
 
-[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/Misc/battle_label_settings.tres" id="1_cu7be"]
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="1_cu7be"]
 [ext_resource type="Texture2D" uid="uid://bpljfe63wdftg" path="res://Assets/Graphics/Characters/Char_Move.png" id="1_e8evb"]
 [ext_resource type="AnimationLibrary" uid="uid://fta55tbh4fg5" path="res://Resources/Animations/top_down_move.res" id="1_n8n3y"]
 [ext_resource type="AnimationLibrary" uid="uid://djlnn8cs542vh" path="res://Resources/Animations/battle_anim.res" id="1_nlbc0"]
@@ -64,6 +64,7 @@ blend_mode = 1
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_2g25q"]
 
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_xs4vy"]
+states/End/position = Vector2(901, 100)
 states/Idle/node = SubResource("AnimationNodeBlendSpace2D_fgkxs")
 states/Idle/position = Vector2(430, 94)
 states/Walk/node = SubResource("AnimationNodeBlendSpace2D_2ln7w")
@@ -107,6 +108,7 @@ z_as_relative = false
 y_sort_enabled = true
 collision_layer = 2
 collision_mask = 31
+platform_floor_layers = 4294967040
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 z_as_relative = false
@@ -120,9 +122,12 @@ y_sort_enabled = true
 position = Vector2(0, 15)
 shape = SubResource("RectangleShape2D_sby8l")
 
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
 [node name="RayCast2D" type="RayCast2D" parent="."]
-z_index = 10
+position = Vector2(0, 15)
 collision_mask = 4
+hit_from_inside = true
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
 tree_root = SubResource("AnimationNodeStateMachine_xs4vy")
@@ -144,7 +149,7 @@ text = "Test Player"
 label_settings = ExtResource("1_cu7be")
 horizontal_alignment = 2
 
-[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills") groups=["SaveData"]]
+[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills") groups=["BattlerData"]]
 script = ExtResource("2_s831g")
 battlerType = "Player"
 battlerName = NodePath("../Name")

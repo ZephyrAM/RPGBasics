@@ -50,19 +50,19 @@ Value = 2.0
 
 [node name="CharacterBody2D" instance=ExtResource("1_8ij14")]
 
-[node name="AnimationTree" parent="." index="3"]
+[node name="AnimationTree" parent="." index="4"]
 parameters/Idle/blend_position = Vector2(0, 0)
 
-[node name="Name" parent="." index="5"]
+[node name="Name" parent="." index="6"]
 text = "Player 1"
 
-[node name="Battler" parent="." index="6"]
+[node name="Battler" parent="." index="7"]
 battlerID = 1
 
-[node name="BaseStats" parent="." index="8"]
+[node name="BaseStats" parent="." index="9"]
 stats = Array[Object]([SubResource("Resource_lynlm"), SubResource("Resource_qbtqn"), SubResource("Resource_oa7rn"), SubResource("Resource_javyd"), SubResource("Resource_7vk6j")])
 levelUpValue = Array[Object]([SubResource("Resource_0o5nl"), SubResource("Resource_4k0e8")])
 upVariance = Array[Object]([SubResource("Resource_ovlnk"), SubResource("Resource_60kdr")])
 
-[node name="SkillList" parent="." index="10"]
+[node name="SkillList" parent="." index="11"]
 defaultSkills = PackedStringArray("Fire", "Fire Wave")

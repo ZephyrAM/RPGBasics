@@ -16,15 +16,15 @@ namespace ZAM.Control
 		private RayCast2D interactRay = null;
 		private Sprite2D charSprite = null;
 		private CollisionShape2D charCollider = null;
+		private NavigationAgent2D navAgent = null;
 		private AnimationTree charAnim = null;
 		private AnimationNodeStateMachinePlayback animPlay = null;
 
 		private Camera2D camera2D;
 		private CanvasLayer uiLayer = null;
-		private MarginContainer textBox = null;
-		private MarginContainer choiceBox = null;
-		private MarginContainer marginBox = null;
-		private VBoxContainer vertBox = null;
+		private PanelContainer textBox = null;
+		private PanelContainer choiceBox = null;
+		private VBoxContainer choiceList = null;
 
 		private int choiceCommand = 0;
 		private Vector2 lookDirection = new Vector2(1, 0);
@@ -37,8 +37,6 @@ namespace ZAM.Control
 		private bool interactToggle = false;
 		private bool speedText = false;
 		private bool runToggle = false;
-		private bool menuToggle = false;
-		private bool battleToggle = false;
 
 		// private CanvasLayer menuUI;
 		// private Vector2 cameraLowLimit, cameraHighLimit;
@@ -52,13 +50,15 @@ namespace ZAM.Control
 		[Signal]
 		public delegate void onStepAreaEventHandler();
 		[Signal]
-		public delegate void onInteractCheckEventHandler(RayCast2D ray);
+		public delegate void onInteractCheckEventHandler(RayCast2D ray, Vector2 direction);
 		[Signal]
 		public delegate void onSelectChangeEventHandler();
 		[Signal]
 		public delegate void onTextProgressEventHandler();
 		[Signal]
 		public delegate void onChoiceSelectEventHandler();
+		[Signal]
+		public delegate void onMenuOpenEventHandler();
 		[Signal]
 		public delegate void onSaveGameEventHandler();
 
@@ -98,17 +98,24 @@ namespace ZAM.Control
 			// InputCheck();
 		}
 
-		private void IfNull()
+        public override void _Input(InputEvent @event)
+        {
+            MenuPhase(@event);
+        }
+
+        private void IfNull()
 		{
 			uiLayer ??= GetNode<CanvasLayer>("../../" + ConstTerm.CANVAS_LAYER);
-			textBox ??= uiLayer.GetNode<MarginContainer>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
-			choiceBox ??= uiLayer.GetNode<MarginContainer>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
-			marginBox ??= choiceBox.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER);
-			vertBox ??= marginBox.GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
+
+			Node interactLayer = uiLayer.GetNode(ConstTerm.INTERACT_TEXT);
+			textBox ??= interactLayer.GetNode<PanelContainer>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
+			choiceBox ??= interactLayer.GetNode<PanelContainer>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
+			choiceList ??= choiceBox.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
 
 			interactRay ??= GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
 			charSprite ??= GetNode<Sprite2D>(ConstTerm.SPRITE2D);
 			charCollider ??= GetNode<CollisionShape2D>(ConstTerm.COLLIDER2D);
+			navAgent ??= GetNode<NavigationAgent2D>(ConstTerm.NAVAGENT2D);
 			charAnim ??= GetNode<AnimationTree>(ConstTerm.ANIM_TREE);
 			animPlay ??= (AnimationNodeStateMachinePlayback)charAnim.Get(ConstTerm.PARAM + ConstTerm.PLAYBACK);
 		}
@@ -128,9 +135,28 @@ namespace ZAM.Control
 		// 	}
 		// }
 
+		private void MenuPhase(InputEvent @event)
+		{
+			switch (inputPhase)
+			{
+				case ConstTerm.COMMAND:
+					break;
+				case ConstTerm.MEMBER:
+					break;
+				case ConstTerm.ITEM:
+					break;
+				case ConstTerm.SKILL:
+					break;
+				case ConstTerm.SAVE:
+					break;
+				default:
+					break;
+			}
+		}
+
 
 		//=============================================================================
-		// SECTION: Control Methods
+		// SECTION: Map Control Methods
 		//=============================================================================
 
 		public void PhaseCheck()
@@ -139,23 +165,48 @@ namespace ZAM.Control
 
 			switch (inputPhase)
 			{
+				// case ConstTerm.MOVE:
+				// 	MoveCheck();
+				// 	break;
 				case ConstTerm.MOVE:
 					AxisCheck();
 					break;
+				// case ConstTerm.CLICK_MOVE:
+				// 	ClickToMoveCheck();
+				// 	break;
 				case ConstTerm.CHOICE:
 					ChoiceCheck();
 					break;
 				case ConstTerm.TEXT:
 					TextCheck();
 					break;
+				case ConstTerm.MENU:
+					MenuCheck();
+					break;
 				default:
 					break;
 			}
 		}
 
+		// private void MoveCheck()
+		// {
+		// 	if (menuToggle) { return; }
+
+		// 	Vector2 moveToPos;
+		// 	if (Input.IsActionJustPressed("MoveTo"))
+		// 	{
+		// 		moveToPos = GetGlobalMousePosition();
+		// 		navAgent.TargetPosition = moveToPos;
+
+		// 		inputPhase = ConstTerm.CLICK_MOVE;
+		// 		ClickToMoveCheck();
+		// 	} else
+		// 	{ inputPhase = ConstTerm.AXIS_MOVE;}
+		// }
+
 		private void AxisCheck()
 		{
-			if (menuToggle) { return; }
+			if (Input.IsActionJustPressed(ConstTerm.MENU)) { inputPhase = ConstTerm.MENU; return; }
 
 			moveInput = Input.GetVector(ConstTerm.LEFT, ConstTerm.RIGHT, ConstTerm.UP, ConstTerm.DOWN);
 			direction = moveInput.Normalized();
@@ -163,10 +214,10 @@ namespace ZAM.Control
 
 			Vector2 targetVelocity = new Vector2(moveInput.X * moveSpeed, moveInput.Y * moveSpeed);
 
-
 			if (direction == Vector2.Zero)
 			{
 				animPlay.Travel(ConstTerm.IDLE);
+				// inputPhase = ConstTerm.MOVE;
 			}
 			else
 			{
@@ -182,6 +233,29 @@ namespace ZAM.Control
 			MoveAndSlide();
 		}
 
+		// public void ClickToMoveCheck()
+		// {
+		// 	if (navAgent.IsNavigationFinished()) { 
+		// 		animPlay.Travel(ConstTerm.IDLE); 
+		// 		inputPhase = ConstTerm.MOVE;
+
+		// 		return; 
+		// 	}
+
+		// 	Vector2 currentPos = GlobalTransform.Origin;
+		// 	Vector2 nextPos = navAgent.GetNextPathPosition();
+		// 	direction = (nextPos - GlobalPosition).Normalized();
+
+		// 	Vector2 clickVelocity = currentPos.DirectionTo(nextPos) * moveSpeed;
+
+		// 	charAnim.Set(ConstTerm.PARAM + ConstTerm.IDLE + ConstTerm.BLEND, direction);
+		// 	charAnim.Set(ConstTerm.PARAM + ConstTerm.WALK + ConstTerm.BLEND, direction);
+		// 	animPlay.Travel(ConstTerm.WALK);
+
+		// 	Velocity = clickVelocity;
+		// 	MoveAndSlide();
+		// }
+
 		public void ChoiceCheck()
 		{
 			if (Input.IsActionJustPressed(ConstTerm.ACCEPT))
@@ -190,11 +264,11 @@ namespace ZAM.Control
 			}
 			else if (Input.IsActionJustPressed(ConstTerm.UP))
 			{
-				CommandSelect(-1, choiceBox);
+				CommandSelect(-1, choiceList);
 			}
 			else if (Input.IsActionJustPressed(ConstTerm.DOWN))
 			{
-				CommandSelect(1, choiceBox);
+				CommandSelect(1, choiceList);
 			}
 		}
 
@@ -204,6 +278,11 @@ namespace ZAM.Control
 			{
 				EmitSignal(SignalName.onTextProgress);
 			}
+		}
+
+		public void MenuCheck()
+		{
+			EmitSignal(SignalName.onMenuOpen);
 		}
 
 		private void RunCheck()
@@ -237,8 +316,7 @@ namespace ZAM.Control
 			}
 
 			interactRay.TargetPosition = multi;
-			QueueRedraw();
-			EmitSignal(SignalName.onInteractCheck, interactRay);
+			EmitSignal(SignalName.onInteractCheck, interactRay, lookDirection);
 		}
 
 
@@ -249,7 +327,7 @@ namespace ZAM.Control
 		private void CommandSelect(int change, Container targetList)
 		{
 			// if (direction == ConstTerm.VERT) { change *= numColumn; }
-			choiceCommand = ChangeTarget(change, choiceCommand, GetCommandCount(targetList));//choiceBox.CountChoices());
+			choiceCommand = ChangeTarget(change, choiceCommand, GetCommandCount(targetList));
 			EmitSignal(SignalName.onSelectChange);
 		}
 

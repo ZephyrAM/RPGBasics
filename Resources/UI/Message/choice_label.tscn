@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://ylwniho8mxrf"]
+
+[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Resources/Font/FFVI Regular.ttf" id="1_hqs7e"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_8pyol"]
+font = ExtResource("1_hqs7e")
+font_size = 50
+
+[node name="Label" type="Label"]
+label_settings = SubResource("LabelSettings_8pyol")
+horizontal_alignment = 1
