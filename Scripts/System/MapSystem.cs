@@ -3,16 +3,25 @@ using System;
 
 using ZAM.Control;
 using ZAM.Interactions;
+using ZAM.Abilities;
+using ZAM.Stats;
+
 using ZAM.Inventory;
 using ZAM.MenuUI;
+
+using ZAM.Managers;
 
 namespace ZAM.System
 {
     public partial class MapSystem : Node
     {
+        [ExportGroup("Nodes")]
         [Export] private PackedScene battleScene;
         [Export] private PartyManager playerParty;
         [Export] private MenuController menuInput = null;
+
+        [ExportGroup("Resources")]
+        [Export] private PackedScene labelSettings = null;
 
         private CharacterController playerInput = null;
         private BattleSystem battleNode = null;
@@ -22,10 +31,11 @@ namespace ZAM.System
         private CanvasLayer uiLayer = null;
         private TextBox textBox = null;
         private ChoiceBox choiceBox = null;
+
         private InfoMenu menuScreen = null;
 
-
         private int choiceCommand = 0;
+        private int memberSelected = 0;
         private bool hasLoaded = false;
 
         //=============================================================================
@@ -39,6 +49,8 @@ namespace ZAM.System
 
             menuInput.SetPlayer(playerInput);
             menuScreen.SetupParty(playerParty.GetPartySize());
+            menuScreen.SetupCommandList(menuInput.GetCommandOptions());
+            SetupItemList();
             UpdateMenuInfo();
 
             // GD.Print("Map ready - save data");
@@ -93,6 +105,9 @@ namespace ZAM.System
             playerInput.onMenuOpen += OnMenuOpen;
 
             menuInput.onMenuClose += OnMenuClose;
+            menuInput.onMenuPhase += OnMenuPhase;
+            menuInput.onTargetChange += OnTargetChange;
+            menuInput.onMemberSelect += OnMemberSelect;
         }
 
         // private void UnSubSignals() // Inactive: Mapsystem doesn't run _Ready again after _ExitTree
@@ -173,7 +188,7 @@ namespace ZAM.System
         {
             playerInput.SetInteractToggle(true);
             interactTarget = (Interactable)interactRay.GetCollider();
-            interactTarget.onPhaseSwitch += OnPhaseSwitch;
+            interactTarget.onInteractPhase += OnInteractPhase;
             interactTarget.onItemReceive += OnItemReceive;
         }
 
@@ -182,7 +197,7 @@ namespace ZAM.System
             interactTarget.SetInteractPhase(ConstTerm.WAIT);
             interactTarget.ResetDirection();
 
-            interactTarget.onPhaseSwitch -= OnPhaseSwitch;
+            interactTarget.onInteractPhase -= OnInteractPhase;
             interactTarget.onItemReceive -= OnItemReceive;
             interactTarget = null;
             playerInput.SetInteractToggle(false);
@@ -211,6 +226,79 @@ namespace ZAM.System
                 tempInfo.SetNextLevel(playerParty.GetPlayerParty()[i].GetExperience().GetExpToLevel());
 
                 menuScreen.UpdateMemberInfo(i, tempInfo);
+            }
+
+            SetupItemList();
+        }
+
+        private void UIVisibility()
+        {
+            CheckHasItems();
+            menuScreen.GetSkillPanel().Visible = menuInput.GetMenuPhase() == ConstTerm.SKILL + ConstTerm.SELECT;
+            menuScreen.GetItemPanel().Visible = menuInput.GetMenuPhase() == ConstTerm.ITEM + ConstTerm.SELECT;
+            menuScreen.GetMemberBar().Visible = menuInput.GetMenuPhase() == ConstTerm.MEMBER + ConstTerm.SELECT;
+        }
+
+        // private void TargetChange(string selectBar)
+        // {
+        //     int index = menuInput.GetCommand();
+        //     ColorRect tempBar = menuScreen.GetSelectBar(selectBar);
+
+        //     tempBar.Position = new Vector2(0, tempBar.Size.Y * index); // EDIT - Temporary!
+        // }
+
+        private void SetupSkillList(Battler player)
+        {
+            foreach (Node child in menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).GetChildren())
+            { child.QueueFree(); }
+
+            foreach (Ability skill in player.GetSkillList().GetSkills())
+            {
+                Label newSkill = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
+                newSkill.Text = skill.AbilityName;
+                newSkill.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
+                if (!player.CheckCanUse(skill)) {
+                    newSkill.Modulate = new Color(ConstTerm.GREY);
+                }
+
+                menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).AddChild(newSkill);
+            }
+        }
+
+        private void SetupItemList()
+        {
+            if (!CheckHasItems()) { return; };
+
+            foreach (Node child in menuScreen.GetItemPanel().GetNode(ConstTerm.ITEM + ConstTerm.LIST).GetChildren())
+            { child.QueueFree(); }
+
+            foreach (Item item in ItemBag.Instance.GetItemBag())
+            {
+                Label newItem = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
+                newItem.Text = item.ItemName;
+                newItem.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
+
+                menuScreen.GetItemPanel().GetNode(ConstTerm.ITEM + ConstTerm.LIST).AddChild(newItem);
+            }
+        }
+
+        private bool CheckHasItems()
+        {
+            int itemCommand = 0;
+            for (int i = 0; i < menuInput.GetCommandOptions().Length; i++)
+            {
+                if (menuInput.GetCommandOptions()[i] == ConstTerm.ITEM) { itemCommand = i; break; }
+            }
+
+            if (ItemBag.Instance.BagIsEmpty())
+            {
+                menuScreen.GetCommandList().GetChild<Label>(itemCommand).Modulate = new Color(ConstTerm.GREY);
+                return false;
+            }
+            else
+            {
+                menuScreen.GetCommandList().GetChild<Label>(itemCommand).Modulate = new Color(ConstTerm.WHITE);
+                return true;
             }
         }
 
@@ -262,7 +350,7 @@ namespace ZAM.System
             InteractCheck(direction);
         }
 
-        private void OnPhaseSwitch(string newPhase)
+        private void OnInteractPhase(string newPhase)
         {
             playerInput.SetInputPhase(newPhase);
         }
@@ -291,20 +379,61 @@ namespace ZAM.System
             ItemBag.Instance.AddToItemBag(newItem);
         }
 
+        private void OnMenuPhase()
+        {
+            UIVisibility();
+        }
+
         private void OnMenuOpen()
         {
             UpdateMenuInfo();
             menuScreen.Visible = true;
             playerInput.ChangeActive(false);
-            menuInput.SetMenuActive(true);
+            playerInput.SetInputPhase(ConstTerm.WAIT);
+            menuInput.MenuOpen();
         }
 
         private void OnMenuClose()
         {
             menuScreen.Visible = false;
-            playerInput.SetInputPhase(ConstTerm.MOVE);
             playerInput.ChangeActive(true);
-            menuInput.SetMenuActive(false);
+            playerInput.SetInputPhase(ConstTerm.MOVE);
+        }
+
+        private void OnTargetChange()
+        {
+            ColorRect tempBar = menuScreen.GetSelectBar(menuInput.GetMenuPhase());
+
+            float index = menuInput.GetCommand();
+            float column = index % menuInput.GetNumColumn();
+            float yPos = (float)(tempBar.Size.Y * Math.Ceiling(index / 2 - column));
+            
+
+            tempBar.Position = new Vector2(column * tempBar.Size.X, yPos); // EDIT - Temporary!
+
+            // switch (menuInput.GetMenuPhase())
+            // {
+            //     case ConstTerm.COMMAND:
+            //         TargetChange(ConstTerm.COMMAND);
+            //         break;
+            //     case ConstTerm.MEMBER + ConstTerm.SELECT:
+            //         TargetChange(ConstTerm.MEMBER);
+            //         break;
+            //     case ConstTerm.SKILL + ConstTerm.SELECT:
+            //         TargetChange(ConstTerm.SKILL);
+            //         break;
+            //     default:
+            //         break;
+            // }
+        }
+
+        private void OnMemberSelect()
+        {
+            memberSelected = menuInput.GetMemberCommand();
+            if (menuInput.GetMenuPhase() == ConstTerm.SKILL + ConstTerm.SELECT) { SetupSkillList(playerParty.GetPlayerParty()[memberSelected]); }
+            else if (menuInput.GetMenuPhase() == ConstTerm.STATUS_SCREEN) { } // EDIT: Create/Assign status screen
+
+            menuInput.SetNumColumn();
         }
     }
 }

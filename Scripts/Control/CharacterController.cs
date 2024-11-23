@@ -33,7 +33,7 @@ namespace ZAM.Control
 		private Vector2 direction;
 		private float moveSpeed;
 
-		private string inputPhase;
+		private string inputPhase = ConstTerm.WAIT;
 		private bool interactToggle = false;
 		private bool speedText = false;
 		private bool runToggle = false;
@@ -98,11 +98,6 @@ namespace ZAM.Control
 			// InputCheck();
 		}
 
-        public override void _Input(InputEvent @event)
-        {
-            MenuPhase(@event);
-        }
-
         private void IfNull()
 		{
 			uiLayer ??= GetNode<CanvasLayer>("../../" + ConstTerm.CANVAS_LAYER);
@@ -135,24 +130,24 @@ namespace ZAM.Control
 		// 	}
 		// }
 
-		private void MenuPhase(InputEvent @event)
-		{
-			switch (inputPhase)
-			{
-				case ConstTerm.COMMAND:
-					break;
-				case ConstTerm.MEMBER:
-					break;
-				case ConstTerm.ITEM:
-					break;
-				case ConstTerm.SKILL:
-					break;
-				case ConstTerm.SAVE:
-					break;
-				default:
-					break;
-			}
-		}
+		// private void MenuPhase(InputEvent @event)
+		// {
+		// 	switch (inputPhase)
+		// 	{
+		// 		case ConstTerm.COMMAND:
+		// 			break;
+		// 		case ConstTerm.MEMBER:
+		// 			break;
+		// 		case ConstTerm.ITEM:
+		// 			break;
+		// 		case ConstTerm.SKILL:
+		// 			break;
+		// 		case ConstTerm.SAVE:
+		// 			break;
+		// 		default:
+		// 			break;
+		// 	}
+		// }
 
 
 		//=============================================================================

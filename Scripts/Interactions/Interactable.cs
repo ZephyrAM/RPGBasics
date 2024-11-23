@@ -19,6 +19,13 @@ namespace ZAM.Interactions
         [Export] private bool isRepeatable = false; // SaveData
         [Export] private int noRepeatStep = 0;      // SaveData
 
+        public enum InteractType
+        {
+            TEXT = 0,
+            CHOICE = 1,
+            ITEM = 2
+        }
+
         private string interactPhase = ConstTerm.MOVE;
 
         private int stepNumber = 0;
@@ -42,7 +49,7 @@ namespace ZAM.Interactions
 
         // Delegate Events \\
         [Signal]
-        public delegate void onPhaseSwitchEventHandler(string newPhase);
+        public delegate void onInteractPhaseEventHandler(string newPhase);
         [Signal]
         public delegate void onItemReceiveEventHandler(string newItem);
 
@@ -63,7 +70,7 @@ namespace ZAM.Interactions
 
         private void IfNull()
         {
-            objectName ??= GetNode<Label>(ConstTerm.NAMELABEL);
+            objectName ??= GetNode<Label>(ConstTerm.NAME);
 
             if (GetNode<NPCMove>(ConstTerm.NPCMOVE) != null) { moveableBody = GetNode<NPCMove>(ConstTerm.NPCMOVE); }
 
@@ -111,7 +118,7 @@ namespace ZAM.Interactions
 
         public void StepInteract(int adjust)
         {
-            GD.Print(actionType[stepNumber + adjust]);
+            // GD.Print(actionType[stepNumber + adjust]);
             switch (actionType[stepNumber + adjust])
             {
                 case InteractType.TEXT:
@@ -130,21 +137,21 @@ namespace ZAM.Interactions
         public void AddText()
         {
             textBox.ResetTextRatio();
-            GD.Print(stepNumber);
+            // GD.Print(stepNumber);
             string outText;
-            GD.Print("text" + stepNumber + alphabet[choiceOption] + " " + choiceActive);
+            // GD.Print("text" + stepNumber + alphabet[choiceOption] + " " + choiceActive);
             if (choiceActive) { outText = choiceText["text" + stepNumber + alphabet[choiceOption]]; }
             else { outText = choiceText["text" + stepNumber]; }
             textBox.QueueText(objectName.Text, outText);
             choiceActive = false;
             choiceOption = 0;
 
-            EmitSignal(SignalName.onPhaseSwitch, ConstTerm.TEXT);
+            EmitSignal(SignalName.onInteractPhase, ConstTerm.TEXT);
         }
 
         public void AddChoiceText()
         {
-            GD.Print(stepNumber);
+            // GD.Print(stepNumber);
             string[] options = new string[choicesGiven[choiceStep]];
             for (int c = 0; c < options.Length; c++)
             {
@@ -155,7 +162,7 @@ namespace ZAM.Interactions
             choiceStep++;
             choiceActive = true;
 
-            EmitSignal(SignalName.onPhaseSwitch, ConstTerm.CHOICE);
+            EmitSignal(SignalName.onInteractPhase, ConstTerm.CHOICE);
         }
 
         public void AddItemGive()
@@ -168,7 +175,7 @@ namespace ZAM.Interactions
 
             EmitSignal(SignalName.onItemReceive, choiceText["item" + stepNumber]);
 
-            // EmitSignal(SignalName.onPhaseSwitch, ConstTerm.TEXT);
+            // EmitSignal(SignalName.onInteractPhase, ConstTerm.TEXT);
         }
 
 
@@ -194,7 +201,7 @@ namespace ZAM.Interactions
         public bool StepCheck()
         {
             stepNumber++;
-            GD.Print("Stepcheck = " + stepNumber);
+            // GD.Print("Stepcheck = " + stepNumber);
             bool stepComplete = stepNumber >= actionType.Count;
             if (stepComplete) { isPlaying = false; }
             return stepComplete;

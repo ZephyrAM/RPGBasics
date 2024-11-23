@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://ca6j0rh7qrlwf"]
 
 [ext_resource type="Script" path="res://Scripts/Abilities/Ability.cs" id="1_c011n"]
-[ext_resource type="Script" path="res://Scripts/System/DatabaseManager.cs" id="1_vh6lm"]
+[ext_resource type="Script" path="res://Scripts/Managers/DatabaseManager.cs" id="1_vh6lm"]
 [ext_resource type="Script" path="res://Scripts/Inventory/Item.cs" id="3_f30r0"]
 [ext_resource type="Script" path="res://Scripts/Abilities/EffectState.cs" id="4_58xhj"]
 [ext_resource type="Script" path="res://Scripts/Abilities/Modifier.cs" id="5_f5u6h"]
@@ -57,6 +57,7 @@ TargetArea = "Single"
 NumericValue = 30.0
 DamageType = "Healing"
 CallAnimation = "battle_anim/heal"
+UseableOutOfBattle = true
 
 [node name="Heal All" type="Node" parent="AbilityDatabase"]
 script = ExtResource("1_c011n")
@@ -67,12 +68,13 @@ TargetArea = "Group"
 NumericValue = 20.0
 DamageType = "Healing"
 CallAnimation = "battle_anim/heal"
+UseableOutOfBattle = true
 
 [node name="StateDatabase" type="Node2D" parent="."]
 
 [node name="Defend" type="Node" parent="StateDatabase"]
 script = ExtResource("4_58xhj")
-StateName = "Defend (State)"
+StateName = "Defend"
 StateDescription = "Defensive state cause by Defend."
 AddModifier = Array[Resource]([])
 PercentModifier = Array[Resource]([SubResource("Resource_15cgh")])
@@ -88,3 +90,4 @@ TargetArea = "Single"
 NumericValue = 25.0
 DamageType = "Healing"
 CallAnimation = "battle_anim/heal"
+UseableOutOfBattle = true

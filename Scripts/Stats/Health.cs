@@ -7,6 +7,8 @@ namespace ZAM.Stats
     {
         [Export] private float maxHP = 100;
 
+        private bool isDead = false;
+
         float currHP;
 
         public override void _Ready()
@@ -18,6 +20,19 @@ namespace ZAM.Stats
         {
             float newHP = currHP + value;
             currHP = MathF.Min(newHP, maxHP);
+
+            if (currHP <= 0) { isDead = true; }
+        }
+
+        public bool IsDead()
+        {
+            return isDead;
+        }
+
+        public void Revive(float value)
+        {
+            isDead = false;
+            SetHP(value);
         }
 
         public void SetHP(float value)

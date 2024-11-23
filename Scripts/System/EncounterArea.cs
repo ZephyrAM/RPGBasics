@@ -3,6 +3,7 @@ using Godot.Collections;
 using System;
 
 using ZAM.Control;
+using ZAM.Managers;
 
 namespace ZAM.System
 {

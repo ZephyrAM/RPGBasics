@@ -68,7 +68,7 @@ namespace ZAM.Stats
         {
             sprite2DName ??= ConstTerm.SPRITE2D;
             animPlayerName ??= ConstTerm.ANIM_PLAYER;
-            labelName ??= ConstTerm.NAMELABEL;
+            labelName ??= ConstTerm.NAME;
 
             battlerBody ??= GetNode<CharacterBody2D>("../" + ConstTerm.CHARBODY2D);
             battlerSprite ??= GetNode<Sprite2D>("../" + sprite2DName);
@@ -78,7 +78,7 @@ namespace ZAM.Stats
             battlerHealth ??= GetNode<Health>("../" + ConstTerm.HEALTH);
             battlerStats ??= GetNode<BaseStats>("../" + ConstTerm.BASESTATS);
             battlerExp ??= GetNode<Experience>("../" + ConstTerm.EXPERIENCE);
-            battlerSkills ??= GetNode<SkillList>("../" + ConstTerm.SKILL_LIST);
+            battlerSkills ??= GetNode<SkillList>("../" + ConstTerm.SKILL + ConstTerm.LIST);
             
         }
 
@@ -90,6 +90,20 @@ namespace ZAM.Stats
         private void UnSubSignals()
         {
             battlerExp.onLevelUp -= OnLevelUp;
+        }
+
+
+        //=============================================================================
+        // SECTION: Set Methods
+        //=============================================================================
+
+        public bool CheckCanUse(Ability skill)
+        {
+            bool outOfBattle = skill.UseableOutOfBattle;
+            bool checkDeath = !GetHealth().IsDead() || (GetHealth().IsDead() && skill.UseableOnDead); // EDIT: Death check should be on TARGET, not CASTER
+
+            bool result = outOfBattle && checkDeath;
+            return result;
         }
 
 

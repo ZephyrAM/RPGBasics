@@ -1,10 +1,11 @@
 using Godot;
-using System;
 using System.Collections.Generic;
-using ZAM.System;
+
+using ZAM.Managers;
 
 namespace ZAM.Inventory
 {
+    // Global Object \\
     public partial class ItemBag : Node
     {
         private List<Item> itemBag = [];

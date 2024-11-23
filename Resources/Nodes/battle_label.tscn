@@ -3,8 +3,7 @@
 [ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="1_eku3u"]
 
 [node name="Label" type="Label"]
-custom_minimum_size = Vector2(280, 42)
-offset_right = 280.0
+offset_right = 63.0
 offset_bottom = 42.0
 text = "Text"
 label_settings = ExtResource("1_eku3u")

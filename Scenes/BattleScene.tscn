@@ -1,11 +1,10 @@
-[gd_scene load_steps=13 format=3 uid="uid://chutyx7868wr6"]
+[gd_scene load_steps=12 format=3 uid="uid://chutyx7868wr6"]
 
 [ext_resource type="Script" path="res://Scripts/Control/BattleController.cs" id="1_0kd48"]
 [ext_resource type="Script" path="res://Scripts/System/BattleSystem.cs" id="1_ffriu"]
 [ext_resource type="PackedScene" uid="uid://drakoxf8swfix" path="res://Resources/UI/Battle/status_list.tscn" id="2_wsqr5"]
 [ext_resource type="AnimationLibrary" uid="uid://d11gnfe4mn6yp" path="res://Resources/Animations/ui_cursor.res" id="7_3grhm"]
 [ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/Nodes/battle_label.tscn" id="7_e71ky"]
-[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="8_fv28a"]
 [ext_resource type="PackedScene" uid="uid://c5murpqijft2o" path="res://Resources/Nodes/floating_text.tscn" id="8_x25aq"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_dvpul"]
@@ -80,6 +79,8 @@ editor_draw_drag_margin = true
 
 [node name="PlayerParty" type="Node2D" parent="." node_paths=PackedStringArray("commandList", "skillList", "itemList")]
 script = ExtResource("1_0kd48")
+commandOptions = PackedStringArray("Attack", "Defend", "Skill", "Item")
+skillItemWidth = 280
 commandList = NodePath("../BattleUI/CommandPanel/CommandList")
 skillList = NodePath("../BattleUI/SkillPanel/SkillList")
 itemList = NodePath("../BattleUI/ItemPanel/ItemList")
@@ -160,30 +161,6 @@ size_flags_vertical = 0
 [node name="CommandList" type="VBoxContainer" parent="BattleUI/CommandPanel"]
 layout_mode = 2
 theme_override_constants/separation = 2
-
-[node name="Command_Attack" type="Label" parent="BattleUI/CommandPanel/CommandList"]
-layout_mode = 2
-text = "Attack"
-label_settings = ExtResource("8_fv28a")
-horizontal_alignment = 1
-
-[node name="Command_Defend" type="Label" parent="BattleUI/CommandPanel/CommandList"]
-layout_mode = 2
-text = "Defend"
-label_settings = ExtResource("8_fv28a")
-horizontal_alignment = 1
-
-[node name="Command_Skill" type="Label" parent="BattleUI/CommandPanel/CommandList"]
-layout_mode = 2
-text = "Skill"
-label_settings = ExtResource("8_fv28a")
-horizontal_alignment = 1
-
-[node name="Command_Item" type="Label" parent="BattleUI/CommandPanel/CommandList"]
-layout_mode = 2
-text = "Item"
-label_settings = ExtResource("8_fv28a")
-horizontal_alignment = 1
 
 [node name="SkillPanel" type="PanelContainer" parent="BattleUI"]
 offset_left = 519.0

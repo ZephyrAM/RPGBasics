@@ -44,8 +44,8 @@ namespace ZAM.MenuUI
             marginBox   ??= GetNode<MarginContainer>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
             vertBox     ??= marginBox.GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
 
-            startLabel  ??= vertBox.GetNode<Label>(ConstTerm.TEXT_START);
-            endLabel    ??= vertBox.GetNode<Label>(ConstTerm.TEXT_END);
+            startLabel  ??= vertBox.GetNode<Label>(ConstTerm.START);
+            endLabel    ??= vertBox.GetNode<Label>(ConstTerm.END);
             textLabel   ??= vertBox.GetNode<RichTextLabel>(ConstTerm.LABEL);
         }
 

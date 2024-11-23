@@ -1,7 +1,7 @@
 using Godot;
-
 using System.Collections.Generic;
-using ZAM.System;
+
+using ZAM.Managers;
 
 namespace ZAM.Abilities
 {

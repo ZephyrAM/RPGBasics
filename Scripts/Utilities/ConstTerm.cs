@@ -1,3 +1,5 @@
+using Microsoft.VisualBasic;
+
 public class ConstTerm
 {
     //=============================================================================
@@ -88,19 +90,15 @@ public class ConstTerm
     public const string COMMAND = "Command";
     public const string ATTACK = "Attack";
     public const string DEFEND = "Defend";
-    public const string SKILL_SELECT = "SkillSelect";
-    public const string SKILL_USE = "SkillUse";
-    public const string ITEM_SELECT = "ItemSelect";
-    public const string ITEM_USE = "ItemUse";
-
+    public const string SKILL = "Skill";
 
 
     //=============================================================================
     // SECTION: Menu Phases
     //=============================================================================
     public const string MEMBER = "Member";
-    public const string ITEM = "Item";
-    public const string SKILL = "Skill";
+    public const string STATUS = "Status";
+    public const string STATUS_SCREEN = "StatusScreen";
     public const string SAVE = "Save";
 
 
@@ -145,10 +143,10 @@ public class ConstTerm
     //=============================================================================
     // SECTION: Variables
     //=============================================================================
-    public const string BATTLERPLAYER = "Player";
-    public const string BATTLERENEMY = "Enemy";
+    public const string PLAYER = "Player";
     public const string NPC = "NPC";
 
+    public const string USE = "Use";
     public const string SELECT = "Select";
     public const string CONTINUE = "Continue";
 
@@ -172,8 +170,8 @@ public class ConstTerm
     public const string HBOX_CONTAINER = "HBoxContainer";
     public const string VBOX_CONTAINER = "VBoxContainer";
 
-    public const string TEXT_START = "Start";
-    public const string TEXT_END = "End";
+    public const string START = "Start";
+    public const string END = "End";
 
     public const string CHARBODY2D = "CharacterBody2D";
     public const string SPRITE2D = "Sprite2D";
@@ -190,7 +188,7 @@ public class ConstTerm
     public const string CAMERA2D = "Camera2D";
     public const string COLOR_RECT = "ColorRect";
 
-    public const string NAMELABEL = "Name";
+    public const string NAME = "Name";
     public const string HEALTH_BAR = "HealthBar";
     public const string BATTLE_UI = "BattleUI";
 
@@ -209,15 +207,14 @@ public class ConstTerm
     public const string HEALTH = "Health";
     public const string BASESTATS = "BaseStats";
     public const string EXPERIENCE = "Experience";
-    public const string SKILL_LIST = "SkillList";
 
     public const string HEALTH_DISPLAY = "HealthDisplay";
 
-    public const string ABILITIES = "Abilities";
+    public const string ABILITY = "Ability";
     public const string ABILITYDATABASE = "AbilityDatabase";
-    public const string STATES = "States";
+    public const string STATE = "State";
     public const string STATEDATABASE = "StateDatabase";
-    public const string ITEMS = "Items";
+    public const string ITEM = "Item";
     public const string ITEMDATABASE = "ItemDatabase";
 
     public const string NPCMOVE = "NPCMove";

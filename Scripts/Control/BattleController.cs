@@ -1,22 +1,28 @@
 using Godot;
+
 using ZAM.Inventory;
 
 namespace ZAM.Control
 {
     public partial class BattleController : Node
     {
-        [ExportGroup("Variables")]
-        [Export] private string animationPlayerName;
+        [Export] private string[] commandOptions = [];
+        [Export] private int skillItemWidth = 0;
+
+        [ExportGroup("Lists")]
         [Export] private VBoxContainer commandList;
         [Export] private GridContainer skillList;
         [Export] private GridContainer itemList;
+
+        [ExportGroup("Variables")]
+        [Export] private string animationPlayerName;
         [Export] private Vector2[] playerPositions;
 
         private AnimationPlayer playerAnim;
 
         private bool playerTurn = false;
         private string turnPhase = ConstTerm.WAIT;
-        private string targetTeam = ConstTerm.BATTLERENEMY;
+        private string targetTeam = ConstTerm.ENEMY;
 
         private int currentCommand = 0;
         private int activeMember = 0;
@@ -31,11 +37,15 @@ namespace ZAM.Control
 
         // Delegate Events \\
         [Signal]
+        public delegate void onBattlePhaseEventHandler();
+        [Signal]
         public delegate void onTurnCycleEventHandler();
         [Signal]
         public delegate void onTurnEndEventHandler();
         [Signal]
         public delegate void onTargetChangeEventHandler();
+        [Signal]
+        public delegate void onSelectCancelEventHandler();
         [Signal]
         public delegate void onAbilitySelectEventHandler(int index);
         [Signal]
@@ -60,7 +70,7 @@ namespace ZAM.Control
         public override void _Ready()
         {
             IfNull();
-            turnPhase = ConstTerm.WAIT;
+            SetTurnPhase(ConstTerm.WAIT);
         }
 
         public override void _Input(InputEvent @event)
@@ -116,16 +126,16 @@ namespace ZAM.Control
                 case ConstTerm.DEFEND:
                     DefendPhase(@event);
                     break;
-                case ConstTerm.SKILL_SELECT:
+                case ConstTerm.SKILL + ConstTerm.SELECT:
                     SkillSelectPhase(@event);
                     break;
-                case ConstTerm.SKILL_USE:
+                case ConstTerm.SKILL + ConstTerm.USE:
                     SkillUsePhase(@event);
                     break;
-                case ConstTerm.ITEM_SELECT:
+                case ConstTerm.ITEM + ConstTerm.SELECT:
                     ItemSelectPhase(@event);
                     break;
-                case ConstTerm.ITEM_USE:
+                case ConstTerm.ITEM + ConstTerm.USE:
                     ItemUsePhase(@event);
                     break;
                 default:
@@ -180,7 +190,7 @@ namespace ZAM.Control
         private void SkillSelectPhase(InputEvent @event) // turnPhase == ConstTerm.SKILL_SELECT;
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
-                turnPhase = ConstTerm.SKILL_USE;
+                SetTurnPhase(ConstTerm.SKILL + ConstTerm.USE);
                 EmitSignal(SignalName.onAbilitySelect, currentCommand);
                 currentCommand = 0;
             }
@@ -209,7 +219,7 @@ namespace ZAM.Control
                 currentCommand = 0;
             }
             else if (@event.IsActionPressed(ConstTerm.CANCEL)) {
-                CancelSelect(ConstTerm.SKILL_SELECT);
+                CancelSelect(ConstTerm.SKILL + ConstTerm.SELECT);
             }
             else if (@event.IsActionPressed(ConstTerm.UP)) {
                 TargetSelect(-1, ConstTerm.VERT);
@@ -229,7 +239,7 @@ namespace ZAM.Control
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT))
             {
-                turnPhase = ConstTerm.ITEM_USE;
+                SetTurnPhase(ConstTerm.ITEM + ConstTerm.USE);
                 EmitSignal(SignalName.onItemSelect, currentCommand);
                 currentCommand = 0;
             }
@@ -265,7 +275,7 @@ namespace ZAM.Control
             }
             else if (@event.IsActionPressed(ConstTerm.CANCEL))
             {
-                CancelSelect(ConstTerm.ITEM_SELECT);
+                CancelSelect(ConstTerm.ITEM + ConstTerm.SELECT);
             }
             else if (@event.IsActionPressed(ConstTerm.UP))
             {
@@ -297,12 +307,12 @@ namespace ZAM.Control
             EmitSignal(SignalName.onTargetChange);
         }
 
-        private void SkillSelect(int change, Container targetList, string direction)
-        {
-            if (direction == ConstTerm.VERT) { change *= numColumn; }
-            currentCommand = ChangeTarget(change, currentCommand, GetCommandCount(targetList));
-            EmitSignal(SignalName.onTargetChange);
-        }
+        // private void SkillSelect(int change, Container targetList, string direction)
+        // {
+        //     if (direction == ConstTerm.VERT) { change *= numColumn; }
+        //     currentCommand = ChangeTarget(change, currentCommand, GetCommandCount(targetList));
+        //     EmitSignal(SignalName.onTargetChange);
+        // }
 
         private void TargetSelect(int change, string direction)
         {
@@ -321,12 +331,14 @@ namespace ZAM.Control
 
         private void CancelSelect(string phase)
         {
-            turnPhase = phase;
+            EmitSignal(SignalName.onSelectCancel);
+
+            SetTurnPhase(phase);
             currentCommand = 0;
-            SetTargetTeam(ConstTerm.BATTLERENEMY);
+            SetTargetTeam(ConstTerm.ENEMY);
             SetNumColumn();
 
-            EmitSignal(SignalName.onTargetChange);
+            // EmitSignal(SignalName.onTargetChange);
         }
 
 
@@ -338,19 +350,20 @@ namespace ZAM.Control
         {
             ResetTarget(); // Reset targetting to correct team by...  reasons. EDIT
 
-            switch (option)
+            switch (commandOptions[option])
             {
-                case 0:
-                    turnPhase = ConstTerm.ATTACK;
+                case ConstTerm.ATTACK:
+                    SetTurnPhase(ConstTerm.ATTACK);
+                    EmitSignal(SignalName.onTargetChange);
                     break;
-                case 1:
-                    turnPhase = ConstTerm.DEFEND;
+                case ConstTerm.DEFEND:
+                    SetTurnPhase(ConstTerm.DEFEND);
                     break;
-                case 2:
-                    turnPhase = ConstTerm.SKILL_SELECT;
+                case ConstTerm.SKILL:
+                    SetTurnPhase(ConstTerm.SKILL + ConstTerm.SELECT);
                     break;
-                case 3:
-                    if (!ItemBag.Instance.BagIsEmpty()) { turnPhase = ConstTerm.ITEM + ConstTerm.SELECT; }
+                case ConstTerm.ITEM:
+                    if (!ItemBag.Instance.BagIsEmpty()) { SetTurnPhase(ConstTerm.ITEM + ConstTerm.SELECT); }
                     else { return; }
                     break;
                 default:
@@ -421,7 +434,7 @@ namespace ZAM.Control
 
         private int GetTargetTeamSize()
         {
-            if (targetTeam == ConstTerm.BATTLERENEMY) { return enemyTeamSize; }
+            if (targetTeam == ConstTerm.ENEMY) { return enemyTeamSize; }
             else { return playerTeamSize; }
         }
 
@@ -430,14 +443,29 @@ namespace ZAM.Control
         // SECTION: External Access Methods
         //=============================================================================
 
+        public bool IsPlayerTurn()
+        {
+            return playerTurn;
+        }
+
+        public int GetSkillItemWidth()
+        {
+            return skillItemWidth;
+        }
+
+        public string[] GetCommandOptions()
+        {
+            return commandOptions;
+        }
+
         public int GetTarget()
         {
             return actionTarget;
         }
 
-        public void SetActionTarget(int target) // Set target to 0 for each turn selection. Adjust if using 'saved selection' settings.
+        public void ResetActionTarget() // Set target to 0 for each turn selection. Adjust if using 'saved selection' settings.
         {
-            actionTarget = target;
+            actionTarget = 0;
             ResetTarget();
         }
 
@@ -456,20 +484,43 @@ namespace ZAM.Control
             currentCommand = index;
         }
 
-        public void SetTurnPhase(string phase)
-        {
-            turnPhase = phase;
-        }
-
         public string GetTurnPhase()
         {
             return turnPhase;
+        }
+
+        public void SetTurnPhase(string phase)
+        {
+            turnPhase = phase;
+            EmitSignal(SignalName.onBattlePhase);
+        }
+
+        public float GetNumColumn()
+        {
+            return numColumn;
+        }
+
+        public void SetNumColumn()
+        {
+            if (turnPhase == ConstTerm.SKILL + ConstTerm.SELECT) { numColumn = skillList.Columns; }
+            else if (turnPhase == ConstTerm.ITEM + ConstTerm.SELECT) { numColumn = itemList.Columns; }
+            else { numColumn = 1; }
+        }
+
+        public Vector2[] GetPlayerPositions()
+        {
+            return playerPositions;
         }
 
         public void SetActiveMember(int member)
         {
             activeMember = member;
             playerAnim = GetChild(member).GetNode<AnimationPlayer>(animationPlayerName);
+        }
+
+        public string GetTargetTeam()
+        {
+            return targetTeam;
         }
 
         public void SetTargetTeam(string team)
@@ -488,31 +539,9 @@ namespace ZAM.Control
             playerTeamSize = size;
         }
 
-        public void SetNumColumn()
-        {
-            if (turnPhase == ConstTerm.SKILL_SELECT) { numColumn = skillList.Columns; }
-            else if (turnPhase == ConstTerm.ITEM_SELECT) { numColumn = itemList.Columns; }
-            else { numColumn = 1; }
-        }
-
-        public float GetNumColumn()
-        {
-            return numColumn;
-        }
-
         public void SetPlayerTurn(bool value)
         {
             playerTurn = value;
-        }
-
-        public bool IsPlayerTurn()
-        {
-            return playerTurn;
-        }
-
-        public Vector2[] GetPlayerPositions()
-        {
-            return playerPositions;
         }
 
         public void SetBattleOver(bool check)
@@ -524,6 +553,7 @@ namespace ZAM.Control
         {
             isControlActive = active;
         }
+
         // public void TakeDamage()
         // {
         //     playerAnim.Play(TAKE_DAMAGE);

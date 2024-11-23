@@ -1,6 +1,7 @@
 using Godot;
 using System;
 
+// Global Object \\
 public partial class Fader : CanvasLayer
 {
     [Export] private ColorRect fadeRect;
