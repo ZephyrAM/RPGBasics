@@ -50,16 +50,16 @@ Value = 1.0
 
 [node name="CharacterBody2D" instance=ExtResource("1_8ux1a")]
 
-[node name="Name" parent="." index="5"]
+[node name="Name" parent="." index="6"]
 text = "Player 2"
 
-[node name="Battler" parent="." index="6"]
+[node name="Battler" parent="." index="7"]
 battlerID = 2
 
-[node name="BaseStats" parent="." index="8"]
+[node name="BaseStats" parent="Battler" index="1"]
 stats = Array[Object]([SubResource("Resource_3g8m3"), SubResource("Resource_af3fc"), SubResource("Resource_e4ndq"), SubResource("Resource_ci123"), SubResource("Resource_xxo0j")])
 levelUpValue = Array[Object]([SubResource("Resource_bdwhd"), SubResource("Resource_quf2n")])
 upVariance = Array[Object]([SubResource("Resource_jhb8r"), SubResource("Resource_dd6ad")])
 
-[node name="SkillList" parent="." index="10"]
+[node name="SkillList" parent="Battler" index="3"]
 defaultSkills = PackedStringArray("Heal", "Heal All")

@@ -1,5 +1,3 @@
-using Microsoft.VisualBasic;
-
 public class ConstTerm
 {
     //=============================================================================
@@ -62,7 +60,7 @@ public class ConstTerm
     public const string GAME_FOLDER = "./";
     public const string SAVE_PATH = "";
     public const string SAVE_FOLDER = "saves/";
-    public const string SAVE_FILE = "saveTeset";
+    public const string SAVE_FILE = "saveTest";
     public const string SAVE_TYPE = ".tres";
 
     public const string PARAM = "parameters/";
@@ -111,6 +109,8 @@ public class ConstTerm
     public const string INTERACT = "Interact";
     public const string CHASE = "Chase";
     public const string RETURN = "Return";
+    public const string MOVE_TO = "MoveTo";
+    public const string DO_NOTHING = "DoNothing";
 
     public const string TEXT = "Text";
     public const string CHOICE = "Choice";
@@ -194,6 +194,7 @@ public class ConstTerm
 
     public const string EVENTS = "Events";
     public const string INTERACT_TEXT = "InteractionText";
+    public const string RAY_CHECK = "RayCheck";
 
 
     //=============================================================================
@@ -216,6 +217,7 @@ public class ConstTerm
     public const string STATEDATABASE = "StateDatabase";
     public const string ITEM = "Item";
     public const string ITEMDATABASE = "ItemDatabase";
+    public const string CLASSDATABASE = "ClassDatabase";
 
     public const string NPCMOVE = "NPCMove";
 

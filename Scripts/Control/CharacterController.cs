@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 // using ZAM.MenuUI;
 // using ZAM.Interactions;
@@ -13,7 +14,8 @@ namespace ZAM.Control
 		[Export] private float runMultiplier = 2f;
 
 		// Setup Variables \\
-		private RayCast2D interactRay = null;
+		// private RayCast2D interactRay = null;
+		private List<RayCast2D> interactArray = [];
 		private Sprite2D charSprite = null;
 		private CollisionShape2D charCollider = null;
 		private NavigationAgent2D navAgent = null;
@@ -50,7 +52,7 @@ namespace ZAM.Control
 		[Signal]
 		public delegate void onStepAreaEventHandler();
 		[Signal]
-		public delegate void onInteractCheckEventHandler(RayCast2D ray, Vector2 direction);
+		public delegate void onInteractCheckEventHandler(Vector2 direction);
 		[Signal]
 		public delegate void onSelectChangeEventHandler();
 		[Signal]
@@ -107,7 +109,14 @@ namespace ZAM.Control
 			choiceBox ??= interactLayer.GetNode<PanelContainer>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
 			choiceList ??= choiceBox.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
 
-			interactRay ??= GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
+			// interactRay ??= GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
+			int rayCount = GetNode(ConstTerm.RAY_CHECK).GetChildren().Count;
+			interactArray = [];
+			for (int r = 0; r <	rayCount; r++)
+			{
+				interactArray.Add((RayCast2D)GetNode(ConstTerm.RAY_CHECK).GetChild(r));
+			}
+
 			charSprite ??= GetNode<Sprite2D>(ConstTerm.SPRITE2D);
 			charCollider ??= GetNode<CollisionShape2D>(ConstTerm.COLLIDER2D);
 			navAgent ??= GetNode<NavigationAgent2D>(ConstTerm.NAVAGENT2D);
@@ -177,6 +186,8 @@ namespace ZAM.Control
 					break;
 				case ConstTerm.MENU:
 					MenuCheck();
+					break;
+				case ConstTerm.DO_NOTHING:
 					break;
 				default:
 					break;
@@ -297,6 +308,23 @@ namespace ZAM.Control
 		// SECTION: Collision Detection
 		//=============================================================================
 
+		// private void UpdateRayCast()
+		// {
+		// 	Vector2 multi = lookDirection;
+
+		// 	if (lookDirection.Y != 0)
+		// 	{
+		// 		multi *= charSize.Y / 1.2f;
+		// 	}
+		// 	else if (lookDirection.X != 0)
+		// 	{
+		// 		multi *= charSize.X / 1.5f;
+		// 	}
+
+		// 	interactRay.TargetPosition = multi;
+		// 	EmitSignal(SignalName.onInteractCheck, interactRay, lookDirection);
+		// }
+
 		private void UpdateRayCast()
 		{
 			Vector2 multi = lookDirection;
@@ -304,14 +332,22 @@ namespace ZAM.Control
 			if (lookDirection.Y != 0)
 			{
 				multi *= charSize.Y / 1.2f;
+				interactArray[1].Position = new Vector2(22.5f, 15);
+				interactArray[2].Position = new Vector2(-22.5f, 15);
 			}
 			else if (lookDirection.X != 0)
 			{
 				multi *= charSize.X / 1.5f;
+				interactArray[1].Position = new Vector2(0, -15);
+				interactArray[2].Position = new Vector2(0, 45);
 			}
 
-			interactRay.TargetPosition = multi;
-			EmitSignal(SignalName.onInteractCheck, interactRay, lookDirection);
+			for (int r = 0; r < interactArray.Count; r++)
+			{
+				interactArray[r].TargetPosition = multi;
+			}
+			// interactRay.TargetPosition = multi;
+			EmitSignal(SignalName.onInteractCheck, lookDirection);
 		}
 
 
@@ -367,7 +403,8 @@ namespace ZAM.Control
 
 		// private void DrawRayCast()
 		// {
-		// 	DrawLine(ToLocal(new Vector2(Position.X, Position.Y)), ToLocal(new Vector2(Position.X + (direction.X * (charSize.X / 2)), Position.Y + (direction.Y * (charSize.Y / 1.5f)))), Colors.Blue, 1f);
+		// 	DrawLine(ToLocal(new Vector2(Position.X, Position.Y)), ToLocal(new Vector2(Position.X + (direction.X * (charSize.X / 2)), 
+		// 		Position.Y + (direction.Y * (charSize.Y / 1.5f)))), Colors.Blue, 1f);
 		// }
 
 
@@ -383,6 +420,11 @@ namespace ZAM.Control
 		public string GetInputPhase()
 		{
 			return inputPhase;
+		}
+
+		public List<RayCast2D> GetInteractArray()
+		{
+			return interactArray;
 		}
 
 		public void SetIdleAnim()

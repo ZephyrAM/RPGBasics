@@ -9,6 +9,9 @@ namespace ZAM.Interactions
     {
         [Export] private Label objectName = null;
 
+        [ExportGroup("Events")]
+        [Export] private Node2D[] movePositions = [];
+
         [ExportGroup("Interactions")]
         [Export] private Array<InteractType> actionType = [];
         [Export] private int[] choicesGiven = [];
@@ -16,8 +19,12 @@ namespace ZAM.Interactions
         [Export] private Dictionary<string, Resource> itemList = [];
 
         [ExportGroup("Values")]
+        [Export] private bool doesMove = true;
         [Export] private bool isRepeatable = false; // SaveData
         [Export] private int noRepeatStep = 0;      // SaveData
+
+        [Export] private bool isEvent = false;
+        [Export] private bool eventDirectStart = false;
 
         public enum InteractType
         {
@@ -39,6 +46,7 @@ namespace ZAM.Interactions
 
         private NPCMove moveableBody = null;
         private CharacterBody2D playerTarget = null;
+        private int currentPosition = 0;
 
         private CanvasLayer uiLayer = null;
         private TextBox textBox = null;
@@ -52,6 +60,10 @@ namespace ZAM.Interactions
         public delegate void onInteractPhaseEventHandler(string newPhase);
         [Signal]
         public delegate void onItemReceiveEventHandler(string newItem);
+        [Signal]
+        public delegate void onEventStartEventHandler();
+        [Signal]
+        public delegate void onInteractEventCompleteEventHandler();
 
         //=============================================================================
         // SECTION: OnReady Methods
@@ -82,6 +94,9 @@ namespace ZAM.Interactions
             collectBox ??= interactLayer.GetNode<CollectBox>(ConstTerm.COLLECTBOX);
             // playerParty ??= GetNode<PartyManager>("../" + ConstTerm.PARTYMANAGER);
             // partyInput ??= playerParty.GetChild<CharacterController>(0);
+
+            moveableBody.SetDoesMove(doesMove);
+            ResetInteractPhase();
         }
 
         // private void SubSignals()
@@ -107,13 +122,20 @@ namespace ZAM.Interactions
 
         public void TargetInteraction(Vector2 direction)
         {
-            SetInteractPhase(ConstTerm.INTERACT);
-            moveableBody?.FaceDirection(direction);
-            
-            if (isRepeatable) { stepNumber = 0; choiceStep = 0;}
-            isPlaying = true;
+            if (!isEvent) 
+            {
+                SetInteractPhase(ConstTerm.INTERACT);
+                moveableBody?.FaceDirection(direction);
 
-            StepInteract(0);
+                if (isRepeatable) { stepNumber = 0; choiceStep = 0; }
+                isPlaying = true;
+
+                StepInteract(0);
+            } else 
+            {
+                isPlaying = true;
+                EmitSignal(SignalName.onEventStart); 
+            }
         }
 
         public void StepInteract(int adjust)
@@ -198,6 +220,11 @@ namespace ZAM.Interactions
             return isPlaying;
         }
 
+        public void SetIsPlaying(bool value)
+        {
+            isPlaying = value;
+        }
+
         public bool StepCheck()
         {
             stepNumber++;
@@ -205,6 +232,12 @@ namespace ZAM.Interactions
             bool stepComplete = stepNumber >= actionType.Count;
             if (stepComplete) { isPlaying = false; }
             return stepComplete;
+        }
+
+        public void EventComplete()
+        {
+            isPlaying = false;
+            EmitSignal(SignalName.onInteractEventComplete);
         }
 
         public TextBox GetTextBox()
@@ -227,9 +260,50 @@ namespace ZAM.Interactions
             interactPhase = phase;
         }
 
+        public void ResetInteractPhase()
+        {
+            if (moveableBody.DoesMove()) { SetInteractPhase(ConstTerm.WAIT); }
+            else { SetInteractPhase(ConstTerm.DO_NOTHING); }
+        }
+
+        public Node2D[] GetMovePositions()
+        {
+            return movePositions;
+        }
+
+        public int GetCurrPosition()
+        {
+            return currentPosition;
+        }
+
+        public void SetCurrPosition(int value)
+        {
+            currentPosition = value;
+        }
+
+        public NPCMove GetMoveAgent()
+        {
+            return moveableBody;
+        }
+
         public void ResetDirection()
         {
             moveableBody?.RevertDirection();
         }
+
+        public bool IsEventAndInteractStart()
+        {
+            return isEvent && eventDirectStart;
+        }
+
+        public bool IsEvent()
+        {
+            return isEvent;
+        }
+
+        // public bool IsEventDirectStart()
+        // {
+        //     return eventDirectStart;
+        // }
     }
 }

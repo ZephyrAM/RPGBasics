@@ -30,5 +30,5 @@ Value = 8.0
 
 [node name="Enemy" instance=ExtResource("1_timfd")]
 
-[node name="BaseStats" parent="." index="7"]
+[node name="BaseStats" parent="Battler" index="1"]
 stats = Array[Object]([SubResource("Resource_ryjqy"), SubResource("Resource_nkre3"), SubResource("Resource_30ybm"), SubResource("Resource_g6mrp"), SubResource("Resource_uwemf")])

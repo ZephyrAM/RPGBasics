@@ -80,21 +80,21 @@ battlerName = NodePath("../Name")
 battlerBody = NodePath("..")
 battlerSprite = NodePath("../Sprite2D")
 battlerAnim = NodePath("../AnimationPlayer")
-battlerHealth = NodePath("../Health")
-battlerStats = NodePath("../BaseStats")
-battlerExp = NodePath("../Experience")
-battlerSkills = NodePath("../SkillList")
+battlerHealth = NodePath("Health")
+battlerStats = NodePath("BaseStats")
+battlerExp = NodePath("Experience")
+battlerSkills = NodePath("SkillList")
 
-[node name="Health" type="Node" parent="."]
+[node name="Health" type="Node" parent="Battler"]
 script = ExtResource("1_x77f6")
 
-[node name="BaseStats" type="Node" parent="." node_paths=PackedStringArray("battler")]
+[node name="BaseStats" type="Node" parent="Battler" node_paths=PackedStringArray("battler")]
 script = ExtResource("3_bhlhe")
-battler = NodePath("../Battler")
+battler = NodePath("..")
 
-[node name="Experience" type="Node" parent="."]
+[node name="Experience" type="Node" parent="Battler"]
 script = ExtResource("9_mvfr5")
 expOnKill = 80.0
 
-[node name="SkillList" type="Node" parent="."]
+[node name="SkillList" type="Node" parent="Battler"]
 script = ExtResource("8_rop6n")

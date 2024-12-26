@@ -76,6 +76,12 @@ namespace ZAM.Control
                 case ConstTerm.SKILL + ConstTerm.SELECT:
                     SkillSelectPhase(@event);
                     break;
+                case ConstTerm.ITEM + ConstTerm.USE:
+                    ItemUsePhase(@event);
+                    break;
+                case ConstTerm.SKILL + ConstTerm.USE:
+                    SkillUsePhase(@event);
+                    break;
                 case ConstTerm.STATUS_SCREEN:
                     StatusPhase(@event);
                     break;
@@ -87,7 +93,7 @@ namespace ZAM.Control
             }
         }
 
-        private void CommandPhase(InputEvent @event)
+        private void CommandPhase(InputEvent @event) // inputPhase == ConstTerm.COMMAND
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT))
             {
@@ -107,7 +113,7 @@ namespace ZAM.Control
             }
         }
 
-        private void MemberPhase(InputEvent @event)
+        private void MemberPhase(InputEvent @event) // inputPhase == ConstTerm.MEMBER_SELECT
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT))
             {
@@ -190,7 +196,17 @@ namespace ZAM.Control
             }
         }
 
-        private void StatusPhase(InputEvent @event)
+        private void ItemUsePhase(InputEvent @event) // inputPhase == ConstTerm.ITEM_USE
+        {
+
+        }
+        
+        private void SkillUsePhase(InputEvent @event) // inputPhase == ConstTerm.SKILL_USE
+        {
+
+        }
+
+        private void StatusPhase(InputEvent @event) // inputPhase == ConstTerm.STATUS_SCREEN
         {
             // Show status screen of selected member
             if (@event.IsActionPressed(ConstTerm.CANCEL))
@@ -199,7 +215,7 @@ namespace ZAM.Control
             }
         }
 
-        private void SavePhase(InputEvent @event)
+        private void SavePhase(InputEvent @event) // inputPhase == ConstTerm.SAVE
         {
             // Bring up save menu
             if (@event.IsActionPressed(ConstTerm.CANCEL))

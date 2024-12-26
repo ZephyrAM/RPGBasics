@@ -321,7 +321,7 @@ namespace ZAM.System
 
         public List<Battler> SortSpeed(List<Battler> battlers)
         {
-            List<Battler> sortedBattlers = battlers.OrderByDescending(x => x.GetStats().GetStatValue(Stat.Agility)).ToList();
+            List<Battler> sortedBattlers = battlers.OrderByDescending(x => x.GetStats().GetStatValue(StatID.Agility)).ToList();
             return sortedBattlers;
         }
 
@@ -338,7 +338,7 @@ namespace ZAM.System
             int target = partyInput.GetTarget();
             List<Battler> targetTeam = enemyTeam;
 
-            if (activeAbility != null) {
+            if (partyInput.GetTurnPhase() == ConstTerm.SKILL + ConstTerm.USE) {
                 switch (activeAbility.TargetType)
                 {
                     case ConstTerm.ALLY:
@@ -348,12 +348,12 @@ namespace ZAM.System
                         targetTeam = enemyTeam;
                         break;
                     default:
-                        GD.PushError("Invalid item target type!");
+                        GD.PushError("Invalid SKILL target type!");
                         break;
                 }
             }
 
-            if (activeItem != null) {
+            if (partyInput.GetTurnPhase() == ConstTerm.ITEM + ConstTerm.USE) {
                 switch (activeItem.TargetType)
                 {
                     case ConstTerm.ALLY:
@@ -363,7 +363,7 @@ namespace ZAM.System
                         targetTeam = enemyTeam;
                         break;
                     default:
-                        GD.PushError("Invalid item target type!");
+                        GD.PushError("Invalid ITEM target type!");
                         break;
                 }
             }
@@ -509,11 +509,16 @@ namespace ZAM.System
         // SECTION: Menu UI
         //=============================================================================
 
-        private void CommandChange()
+        private void SelectChange(ColorRect selectBar)
         {
-            int index = partyInput.GetCommand();
+            ColorRect tempBar = selectBar;
 
-            commandBar.Position = new Vector2(0, commandBar.Size.Y * index); // EDIT - Temporary!
+            float index = partyInput.GetCommand();
+            float numColumns = partyInput.GetNumColumn();
+            float column = index % numColumns;
+            float yPos = (float)(tempBar.Size.Y * Math.Ceiling(index / numColumns - column));
+
+            tempBar.Position = new Vector2(column * tempBar.Size.X, yPos); // EDIT - Temporary!
         }
 
         private void SetupCommandList()
@@ -525,24 +530,6 @@ namespace ZAM.System
 
                 commandPanel.GetNode(ConstTerm.COMMAND + ConstTerm.LIST).AddChild(newCommand);
             }
-        }
-
-        private void SkillChange()
-        {
-            float index = partyInput.GetCommand();
-            float column = index % partyInput.GetNumColumn();
-            float yPos = (float)(skillBar.Size.Y * Math.Ceiling(index / 2 - column));
-
-            skillBar.Position = new Vector2(column * skillBar.Size.X, yPos); // EDIT - Temporary!
-        }
-
-        private void ItemChange()
-        {
-            float index = partyInput.GetCommand();
-            float column = index % partyInput.GetNumColumn();
-            float yPos = (float)(itemBar.Size.Y * Math.Ceiling(index / 2 - column));
-
-            itemBar.Position = new Vector2(column * itemBar.Size.X, yPos); // EDIT - Temporary!
         }
 
         private void SetupSkillList(Battler player)
@@ -792,13 +779,13 @@ namespace ZAM.System
                 switch (partyInput.GetTurnPhase())
                 {
                     case ConstTerm.COMMAND:
-                        CommandChange();
+                        SelectChange(commandBar);
                         break;
                     case ConstTerm.ITEM + ConstTerm.SELECT:
-                        ItemChange();
+                        SelectChange(itemBar);
                         break;
                     case ConstTerm.SKILL + ConstTerm.SELECT:
-                        SkillChange();
+                        SelectChange(skillBar);
                         break;
                     case ConstTerm.ATTACK:
                     case ConstTerm.ITEM + ConstTerm.USE:

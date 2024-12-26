@@ -24,6 +24,7 @@ namespace ZAM.Interactions
         [Export] private Area2D sightArea = null;
         [Export] private NavigationAgent2D navAgent = null;
         [Export] private RayCast2D checkRay = null;
+        [Export] private ShapeCast2D checkShape = null;
         [Export] private AnimationTree animTree = null;
 
         private AnimationNodeStateMachinePlayback animPlay = null;
@@ -31,11 +32,13 @@ namespace ZAM.Interactions
         private Node2D playerParty = null;
         private float chaseTimer = 0;
 
+        private bool doesMove = true;
         private float waitTimer = 0;
         private float moveTimer = 0;
         private Vector2 moveDirection = Vector2.Zero;
         private Vector2 oldDirection = Vector2.Zero;
         private Vector2 returnPosition = Vector2.Zero;
+        private Vector2 blockedDirection = Vector2.Zero;
 
         Vector2 charSize;
 
@@ -76,6 +79,7 @@ namespace ZAM.Interactions
             animTree ??= charBody.GetNode<AnimationTree>(ConstTerm.ANIM_TREE);
             navAgent ??= charBody.GetNode<NavigationAgent2D>(ConstTerm.NAVAGENT2D);
             checkRay ??= charBody.GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
+            checkShape ??= charBody.GetNode<ShapeCast2D>(ConstTerm.SHAPECAST2D);
 
             animPlay ??= (AnimationNodeStateMachinePlayback)animTree.Get(ConstTerm.PARAM + ConstTerm.PLAYBACK);
 
@@ -98,6 +102,8 @@ namespace ZAM.Interactions
 
         private void PhaseCheck()
         {
+            // if (!doesMove) { return; }
+
             switch (npcInteract.GetInteractPhase())
             {
                 case ConstTerm.WAIT:
@@ -114,6 +120,12 @@ namespace ZAM.Interactions
                     break;
                 case ConstTerm.RETURN:
                     ReturnCycle();
+                    break;
+                case ConstTerm.MOVE_TO:
+                    MoveToCycle();
+                    break;
+                case ConstTerm.DO_NOTHING:
+                    DoNothing();
                     break;
                 default:
                     break;
@@ -202,6 +214,25 @@ namespace ZAM.Interactions
             NavToTarget(baseSpeed * 0.75f);
         }
 
+        private void MoveToCycle()
+        {
+            if (navAgent.IsNavigationFinished())
+            {
+                if (DoesMove()) { npcInteract.SetInteractPhase(ConstTerm.WAIT); }
+                else { npcInteract.SetInteractPhase(ConstTerm.DO_NOTHING); }
+                npcInteract.EventComplete();
+                return;
+            }
+
+            NavToTarget(baseSpeed);
+        }
+
+        private void DoNothing()
+        {
+            moveDirection = Vector2.Zero;
+            animPlay.Travel(ConstTerm.IDLE);
+        }
+
         private void HearingCheck()
         {
             if (!shouldChasePlayer) { return; }
@@ -250,6 +281,39 @@ namespace ZAM.Interactions
             return false;
         }
 
+        private bool UpdateShapeCast()
+        {
+            Vector2 multi = moveDirection;
+
+            if (moveDirection.Y != 0)
+            {
+                multi *= charSize.Y / 1.6f;
+            }
+            else if (moveDirection.X != 0)
+            {
+                multi *= charSize.X / 2f;
+            }
+
+            checkShape.TargetPosition = multi;
+
+            checkShape.ForceShapecastUpdate();
+            if (checkShape.IsColliding())
+            { 
+                blockedDirection = moveDirection;
+                GD.Print(blockedDirection);
+                return true; 
+            }
+
+            return false;
+        }
+
+        private Vector2 ShiftDirection()
+        {
+            Vector2 shiftAmount = checkShape.GetCollisionNormal(0) ;
+            GD.Print(shiftAmount);
+            return shiftAmount;
+        }
+
         private void MoveDirection(Vector2 direction)
         {
             moveDirection = direction;
@@ -272,16 +336,25 @@ namespace ZAM.Interactions
         {
             Vector2 currentPos = charBody.GlobalPosition;
             Vector2 nextPos = navAgent.GetNextPathPosition();
+            if (UpdateShapeCast()) { nextPos = new Vector2(MathF.Round(nextPos.X), MathF.Round(nextPos.Y)) * new Vector2(MathF.Round(blockedDirection.Y), MathF.Round(blockedDirection.X)); }
             MoveDirection((nextPos - charBody.Position).Normalized());
 
             Vector2 moveVelocity = currentPos.DirectionTo(nextPos) * speed;
-
+            
             animTree.Set(ConstTerm.PARAM + ConstTerm.IDLE + ConstTerm.BLEND, moveDirection);
             animTree.Set(ConstTerm.PARAM + ConstTerm.WALK + ConstTerm.BLEND, moveDirection);
             animPlay.Travel(ConstTerm.WALK);
 
             charBody.Velocity = moveVelocity;
             charBody.MoveAndSlide();
+        }
+
+        public void MoveToTarget(Node2D target)
+        {
+            npcInteract.SetInteractPhase(ConstTerm.MOVE_TO);
+            
+            navAgent.TargetPosition = target.GlobalPosition;
+            NavToTarget(baseSpeed);
         }
 
         // private bool ReachTest()
@@ -292,6 +365,16 @@ namespace ZAM.Interactions
         //=============================================================================
         // SECTION: Access Methods
         //=============================================================================
+
+        public bool DoesMove()
+        {
+            return doesMove;
+        }
+
+        public void SetDoesMove(bool value)
+        {
+            doesMove = value;
+        }
         
         public Node2D GetChaseTarget()
         {

@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="TurnBasedBattle_Basic"
+config/name="RPGBasics"
 run/main_scene="res://Scenes/StartScreen.tscn"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
 config/icon="res://icon.svg"
@@ -34,7 +34,6 @@ project/assembly_name="TurnBasedBattle_Basic"
 
 [global_group]
 
-SaveData=""
 BattlerData=""
 
 [input]
@@ -115,11 +114,17 @@ Esc={
 [layer_names]
 
 2d_physics/layer_1="walls"
+2d_navigation/layer_1="Ground"
 2d_physics/layer_2="player"
 2d_physics/layer_3="characters"
 2d_physics/layer_4="enemies"
 2d_physics/layer_5="collectibles"
 2d_physics/layer_6="encounters"
+avoidance/layer_1="walls"
+avoidance/layer_2="player"
+avoidance/layer_3="characters"
+avoidance/layer_4="enemies"
+avoidance/layer_5="collectibles"
 
 [rendering]
 

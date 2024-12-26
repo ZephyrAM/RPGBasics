@@ -123,10 +123,25 @@ position = Vector2(0, 15)
 shape = SubResource("RectangleShape2D_sby8l")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+avoidance_enabled = true
+avoidance_layers = 2
+avoidance_mask = 15
 
-[node name="RayCast2D" type="RayCast2D" parent="."]
+[node name="RayCheck" type="Node2D" parent="."]
+
+[node name="RayCast2D1" type="RayCast2D" parent="RayCheck"]
 position = Vector2(0, 15)
-collision_mask = 4
+collision_mask = 20
+hit_from_inside = true
+
+[node name="RayCast2D2" type="RayCast2D" parent="RayCheck"]
+position = Vector2(22.5, 15)
+collision_mask = 20
+hit_from_inside = true
+
+[node name="RayCast2D3" type="RayCast2D" parent="RayCheck"]
+position = Vector2(-22.5, 15)
+collision_mask = 20
 hit_from_inside = true
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
@@ -156,20 +171,20 @@ battlerName = NodePath("../Name")
 battlerBody = NodePath("..")
 battlerSprite = NodePath("../Sprite2D")
 battlerAnim = NodePath("../AnimationPlayer")
-battlerHealth = NodePath("../Health")
-battlerStats = NodePath("../BaseStats")
-battlerExp = NodePath("../Experience")
-battlerSkills = NodePath("../SkillList")
+battlerHealth = NodePath("Health")
+battlerStats = NodePath("BaseStats")
+battlerExp = NodePath("Experience")
+battlerSkills = NodePath("SkillList")
 
-[node name="Health" type="Node" parent="."]
+[node name="Health" type="Node" parent="Battler"]
 script = ExtResource("3_rfmda")
 
-[node name="BaseStats" type="Node" parent="." node_paths=PackedStringArray("battler")]
+[node name="BaseStats" type="Node" parent="Battler" node_paths=PackedStringArray("battler")]
 script = ExtResource("4_fic8q")
-battler = NodePath("../Battler")
+battler = NodePath("..")
 
-[node name="Experience" type="Node" parent="."]
+[node name="Experience" type="Node" parent="Battler"]
 script = ExtResource("9_01k6b")
 
-[node name="SkillList" type="Node" parent="."]
+[node name="SkillList" type="Node" parent="Battler"]
 script = ExtResource("8_q4v62")

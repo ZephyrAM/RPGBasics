@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 using ZAM.Control;
 using ZAM.Interactions;
@@ -10,6 +11,7 @@ using ZAM.Inventory;
 using ZAM.MenuUI;
 
 using ZAM.Managers;
+using ZAM.MapEvents;
 
 namespace ZAM.System
 {
@@ -19,13 +21,17 @@ namespace ZAM.System
         [Export] private PackedScene battleScene;
         [Export] private PartyManager playerParty;
         [Export] private MenuController menuInput = null;
+        [Export] private Node eventNode = null;
 
         [ExportGroup("Resources")]
         [Export] private PackedScene labelSettings = null;
+        [Export] private Script eventScript = null;
 
+        private MapEventScript mapEvents = null;
         private CharacterController playerInput = null;
         private BattleSystem battleNode = null;
-        private RayCast2D interactRay = null;
+        // private RayCast2D interactRay = null;
+        private List<RayCast2D> interactArray = [];
         private Interactable interactTarget;
 
         private CanvasLayer uiLayer = null;
@@ -36,7 +42,8 @@ namespace ZAM.System
 
         private int choiceCommand = 0;
         private int memberSelected = 0;
-        private bool hasLoaded = false;
+        private int rayTarget = 0;
+        // private bool hasLoaded = false;
 
         //=============================================================================
         // SECTION: Base Methods
@@ -56,7 +63,7 @@ namespace ZAM.System
             // GD.Print("Map ready - save data");
             SaveLoader.Instance.GatherBattlers(); // Should only happen once, when game loads.
 
-            hasLoaded = true;
+            // hasLoaded = true;
         }
 
         public override void _EnterTree()
@@ -94,6 +101,10 @@ namespace ZAM.System
             menuScreen ??= menuInput.GetNode<InfoMenu>(ConstTerm.MENU + ConstTerm.CONTAINER);
 
             // interactRay ??= playerInput.GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
+            interactArray = playerInput.GetInteractArray();
+
+            mapEvents = SafeScriptAssign(eventNode, eventScript) as MapEventScript;
+            GD.Print(mapEvents);
         }
 
         private void SubSignals()
@@ -108,6 +119,8 @@ namespace ZAM.System
             menuInput.onMenuPhase += OnMenuPhase;
             menuInput.onTargetChange += OnTargetChange;
             menuInput.onMemberSelect += OnMemberSelect;
+
+            mapEvents.onEventComplete += OnEventComplete;
         }
 
         // private void UnSubSignals() // Inactive: Mapsystem doesn't run _Ready again after _ExitTree
@@ -150,14 +163,31 @@ namespace ZAM.System
 
         private void InteractCheck(Vector2 direction)
         {
-            interactRay.ForceRaycastUpdate();
-            if (interactRay.IsColliding() && !textBox.Visible)
+            // interactRay.ForceRaycastUpdate();
+            // if (interactRay.IsColliding() && !textBox.Visible)
+            // {
+            //     if (interactRay.GetCollider() is Interactable)
+            //     {
+            //         playerInput.SetIdleAnim();
+                    
+            //         SetInteractTarget();
+            //         interactTarget.TargetInteraction(direction);
+            //     }
+            // }
+
+            for (int r = 0; r < interactArray.Count; r++)
             {
-                playerInput.SetIdleAnim();
-                if (interactRay.GetCollider() is Interactable)
+                interactArray[r].ForceRaycastUpdate();
+                if (interactArray[r].IsColliding() && !textBox.Visible)
                 {
-                    SetInteractTarget();
-                    interactTarget.TargetInteraction(direction);
+                    if (interactArray[r].GetCollider() is Interactable)
+                    {
+                        playerInput.SetIdleAnim();
+
+                        SetInteractTarget(r);
+                        interactTarget.TargetInteraction(direction);
+                        return;
+                    }
                 }
             }
         }
@@ -176,6 +206,11 @@ namespace ZAM.System
             }
         }
 
+        private void ContinueEvent() // EDIT: For Event processing
+        {
+            
+        }
+
         private void SelectChoice()
         {
             // playerInput.SetInputPhase(ConstTerm.INTERACT);
@@ -184,21 +219,32 @@ namespace ZAM.System
             choiceCommand = 0;
         }
 
-        private void SetInteractTarget()
+        private void SetInteractTarget(int index)
         {
             playerInput.SetInteractToggle(true);
-            interactTarget = (Interactable)interactRay.GetCollider();
-            interactTarget.onInteractPhase += OnInteractPhase;
-            interactTarget.onItemReceive += OnItemReceive;
+            interactTarget = (Interactable)interactArray[index].GetCollider();
+            
+            if (!interactTarget.IsEventAndInteractStart()) {
+                interactTarget.onInteractPhase += OnInteractPhase;
+                interactTarget.onItemReceive += OnItemReceive;
+            } else {
+                interactTarget.onEventStart += OnEventStart;
+            }
         }
 
         private void RemoveInteractTarget()
         {
-            interactTarget.SetInteractPhase(ConstTerm.WAIT);
+            interactTarget.ResetInteractPhase();
             interactTarget.ResetDirection();
 
-            interactTarget.onInteractPhase -= OnInteractPhase;
-            interactTarget.onItemReceive -= OnItemReceive;
+            if (!interactTarget.IsEventAndInteractStart()) {
+                interactTarget.onInteractPhase -= OnInteractPhase;
+                interactTarget.onItemReceive -= OnItemReceive;
+            } else {
+                interactTarget.onEventStart -= OnEventStart;
+                interactTarget.onInteractEventComplete -= mapEvents.OnInteractEventComplete;
+            }
+            
             interactTarget = null;
             playerInput.SetInteractToggle(false);
             playerInput.SetInputPhase(ConstTerm.MOVE);
@@ -344,9 +390,29 @@ namespace ZAM.System
         // SECTION: Signal Methods
         //=============================================================================
 
-        private void OnInteractCheck(RayCast2D ray, Vector2 direction)
+        private void OnEventStart()
         {
-            interactRay = ray;
+            mapEvents.Call(interactTarget.Name, interactTarget);
+            playerInput.SetInputPhase(ConstTerm.DO_NOTHING);
+            // GD.Print(mapEvents.GetScriptMethodList()[0]["name"].ToString());
+            // GD.Print(interactTarget.Name);
+
+            // for (int e = 0; e < mapEvents.GetScriptMethodList().Count; e++)
+            // {
+            //     if (mapEvents.GetScriptMethodList()[e]["name"].ToString() == interactTarget.Name) {
+            //         mapEvents.Call(mapEvents.GetScriptMethodList()[e]["name"].ToString());
+            //     }
+            // }
+        }
+
+        private void OnEventComplete()
+        {
+            RemoveInteractTarget();
+        }
+
+        private void OnInteractCheck(Vector2 direction)
+        {
+            // interactRay = ray;
             InteractCheck(direction);
         }
 
@@ -365,7 +431,8 @@ namespace ZAM.System
         private void OnTextProgress()
         {
             if (interactTarget.GetTextBox().IsTextComplete()) {
-                UpdateInteraction();
+                if (!interactTarget.IsEventAndInteractStart()) { UpdateInteraction(); }
+                else { } // EDIT: Add Event processing
             }
         }
 
@@ -405,8 +472,9 @@ namespace ZAM.System
             ColorRect tempBar = menuScreen.GetSelectBar(menuInput.GetMenuPhase());
 
             float index = menuInput.GetCommand();
-            float column = index % menuInput.GetNumColumn();
-            float yPos = (float)(tempBar.Size.Y * Math.Ceiling(index / 2 - column));
+            float numColumns = menuInput.GetNumColumn();
+            float column = index % numColumns;
+            float yPos = (float)(tempBar.Size.Y * Math.Ceiling(index / numColumns - column));
             
 
             tempBar.Position = new Vector2(column * tempBar.Size.X, yPos); // EDIT - Temporary!
@@ -434,6 +502,24 @@ namespace ZAM.System
             else if (menuInput.GetMenuPhase() == ConstTerm.STATUS_SCREEN) { } // EDIT: Create/Assign status screen
 
             menuInput.SetNumColumn();
+        }
+
+        //=============================================================================
+        // SECTION: Utility Methods
+        //=============================================================================
+
+        private static Node SafeScriptAssign(Node target, Script scriptAssign) // May shift to shared Utilities script
+        {
+            // This whole section... \\
+            ulong charId = target.GetInstanceId();
+            target.SetScript(ResourceLoader.Load(scriptAssign.ResourcePath));
+            target = (Node)InstanceFromId(charId);
+
+            target._Ready();
+            target.SetProcess(true);
+            target.SetPhysicsProcess(true);
+            return target;
+            // ... is a blasted mess. \\
         }
     }
 }

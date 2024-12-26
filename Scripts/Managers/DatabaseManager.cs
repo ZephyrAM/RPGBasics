@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 using ZAM.Abilities;
 using ZAM.Inventory;
+using ZAM.Stats;
 
 namespace ZAM.Managers
 {
@@ -13,10 +14,12 @@ namespace ZAM.Managers
         [Export] private Node abilityList = null;
         [Export] private Node stateList = null;
         [Export] private Node itemList = null;
+        [Export] private Node classList = null;
 
         public Dictionary<string, Ability> abilityDatabase = [];
         public Dictionary<string, EffectState> stateDatabase = [];
         public Dictionary<string, Item> itemDatabase = [];
+        public Dictionary<string, CharClass> classDatabase = [];
 
         public static DatabaseManager Instance { get; private set; }
 
@@ -32,6 +35,7 @@ namespace ZAM.Managers
             abilityList ??= GetNode(ConstTerm.ABILITYDATABASE);
             stateList ??= GetNode(ConstTerm.STATEDATABASE);
             itemList ??= GetNode(ConstTerm.ITEMDATABASE);
+            classList ??= GetNode(ConstTerm.CLASSDATABASE);
         }
 
         private void CreateDatabase()
@@ -44,12 +48,20 @@ namespace ZAM.Managers
 
             for (int s = 0; s < stateList.GetChildCount(); s++)
             {
-                stateDatabase[stateList.GetChild(s).Name] = (EffectState)stateList.GetChild(s);
+                EffectState tempState = (EffectState)stateList.GetChild(s);
+                stateDatabase[tempState.StateName] = tempState;
             }
 
             for (int i = 0; i < itemList.GetChildCount(); i++)
             {
-                itemDatabase[itemList.GetChild(i).Name] = (Item)itemList.GetChild(i);
+                Item tempItem = (Item)itemList.GetChild(i);
+                itemDatabase[tempItem.ItemName] = tempItem;
+            }
+
+            for (int c = 0; c < classList.GetChildCount(); c++)
+            {
+                CharClass tempClass = (CharClass)classList.GetChild(c);
+                classDatabase[tempClass.ClassName] = tempClass;
             }
         }
 
@@ -66,6 +78,11 @@ namespace ZAM.Managers
         public Dictionary<string, Item> GetItemDatabase()
         {
             return itemDatabase;
+        }
+
+        public Dictionary<string, CharClass> GetClassDatabase()
+        {
+            return classDatabase;
         }
 
         public Ability GetDefend()

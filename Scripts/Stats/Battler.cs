@@ -10,6 +10,7 @@ namespace ZAM.Stats
     {
         [Export] private string battlerType;
         [Export] private CharacterID battlerID;
+        [Export] private ClassID battlerClass;
         // [Export] private bool hasBattleStats = true; // Implement if needed
 
         [ExportGroup("Nodes")]
@@ -24,11 +25,6 @@ namespace ZAM.Stats
         [Export] private BaseStats battlerStats;
         [Export] private Experience battlerExp;
         [Export] private SkillList battlerSkills;
-
-        [ExportGroup("Variables")]
-        [Export] private string labelName;
-        [Export] private string sprite2DName;
-        [Export] private string animPlayerName;
 
         private List<EffectState> states;
         private Vector2 basePosition;
@@ -66,19 +62,15 @@ namespace ZAM.Stats
         //=============================================================================
         private void IfNull()
         {
-            sprite2DName ??= ConstTerm.SPRITE2D;
-            animPlayerName ??= ConstTerm.ANIM_PLAYER;
-            labelName ??= ConstTerm.NAME;
+            battlerBody ??= GetNode<CharacterBody2D>(ConstTerm.CHARBODY2D);
+            battlerSprite ??= GetNode<Sprite2D>(ConstTerm.SPRITE2D);
+            battlerAnim ??= GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
 
-            battlerBody ??= GetNode<CharacterBody2D>("../" + ConstTerm.CHARBODY2D);
-            battlerSprite ??= GetNode<Sprite2D>("../" + sprite2DName);
-            battlerAnim ??= GetNode<AnimationPlayer>("../" + animPlayerName);
-
-            battlerName ??= GetNode<Label>("../" + labelName);
-            battlerHealth ??= GetNode<Health>("../" + ConstTerm.HEALTH);
-            battlerStats ??= GetNode<BaseStats>("../" + ConstTerm.BASESTATS);
-            battlerExp ??= GetNode<Experience>("../" + ConstTerm.EXPERIENCE);
-            battlerSkills ??= GetNode<SkillList>("../" + ConstTerm.SKILL + ConstTerm.LIST);
+            battlerName ??= GetNode<Label>(ConstTerm.NAME);
+            battlerHealth ??= GetNode<Health>(ConstTerm.HEALTH);
+            battlerStats ??= GetNode<BaseStats>(ConstTerm.BASESTATS);
+            battlerExp ??= GetNode<Experience>(ConstTerm.EXPERIENCE);
+            battlerSkills ??= GetNode<SkillList>(ConstTerm.SKILL + ConstTerm.LIST);
             
         }
 

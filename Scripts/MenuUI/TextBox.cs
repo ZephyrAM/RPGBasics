@@ -99,10 +99,10 @@ namespace ZAM.MenuUI
             switch (currentState)
             {
                 case State.READY:
-                    GD.Print("Ready");
+                    // GD.Print("Ready");
                     break;
                 case State.ACTIVE:
-                    GD.Print("Active");
+                    // GD.Print("Active");
                     break;
                 case State.FINISHED:
                     endLabel.Text = "_";

@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://uqsv1w0qe8uc"]
+[gd_scene load_steps=36 format=3 uid="uid://uqsv1w0qe8uc"]
 
 [ext_resource type="Script" path="res://Scripts/Interactions/Interactable.cs" id="1_1r7ap"]
 [ext_resource type="Texture2D" uid="uid://bpljfe63wdftg" path="res://Assets/Graphics/Characters/Char_Move.png" id="1_m2mkh"]
@@ -16,6 +16,10 @@
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sby8l"]
 size = Vector2(45, 60)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_tfa1i"]
+radius = 22.5
+height = 60.0
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_50t2m"]
 animation = &"top_down_move/idle_down"
@@ -164,11 +168,39 @@ rotation = -1.5708
 polygon = PackedVector2Array(0, -20, -200, 400, 0, 500, 200, 400)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+avoidance_enabled = true
+avoidance_layers = 4
+avoidance_mask = 15
+
+[node name="RayCheck" type="Node2D" parent="."]
+visible = false
+
+[node name="RayCast2D1" type="RayCast2D" parent="RayCheck"]
+position = Vector2(0, 15)
+collision_mask = 7
+hit_from_inside = true
+
+[node name="RayCast2D2" type="RayCast2D" parent="RayCheck"]
+position = Vector2(22.5, 15)
+collision_mask = 7
+hit_from_inside = true
+
+[node name="RayCast2D3" type="RayCast2D" parent="RayCheck"]
+position = Vector2(-22.5, 15)
+collision_mask = 7
+hit_from_inside = true
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
 target_position = Vector2(0, 60)
-collision_mask = 3
+collision_mask = 7
 collide_with_areas = true
+
+[node name="ShapeCast2D" type="ShapeCast2D" parent="."]
+position = Vector2(0, 17)
+shape = SubResource("CapsuleShape2D_tfa1i")
+target_position = Vector2(0, 40)
+max_results = 4
+collision_mask = 15
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
 tree_root = SubResource("AnimationNodeStateMachine_xs4vy")
@@ -191,33 +223,7 @@ text = "Test NPC"
 label_settings = ExtResource("4_05qh1")
 horizontal_alignment = 2
 
-[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills")]
-script = ExtResource("5_w0spe")
-battlerType = "NPC"
-battlerName = NodePath("../Name")
-battlerBody = NodePath("..")
-battlerSprite = NodePath("../Sprite2D")
-battlerAnim = NodePath("../AnimationPlayer")
-battlerHealth = NodePath("../Health")
-battlerStats = NodePath("../BaseStats")
-battlerExp = NodePath("../Experience")
-battlerSkills = NodePath("../SkillList")
-
-[node name="Health" type="Node" parent="."]
-script = ExtResource("6_gp7k0")
-
-[node name="BaseStats" type="Node" parent="." node_paths=PackedStringArray("battler")]
-script = ExtResource("7_1q5cc")
-battler = NodePath("../Battler")
-stats = Array[Object]([SubResource("Resource_s1ijm"), SubResource("Resource_tv32p"), SubResource("Resource_5msao"), SubResource("Resource_l646h"), SubResource("Resource_s6gr8")])
-
-[node name="Experience" type="Node" parent="."]
-script = ExtResource("9_b5xxm")
-
-[node name="SkillList" type="Node" parent="."]
-script = ExtResource("8_k5v1v")
-
-[node name="NPCMove" type="Node" parent="." node_paths=PackedStringArray("npcInteract", "charBody", "charSprite", "sightArea", "navAgent", "checkRay", "animTree")]
+[node name="NPCMove" type="Node" parent="." node_paths=PackedStringArray("npcInteract", "charBody", "charSprite", "sightArea", "navAgent", "checkRay", "checkShape", "animTree")]
 script = ExtResource("3_0wj20")
 playerControlTest = ExtResource("13_ta28v")
 baseSpeed = 250.0
@@ -227,4 +233,31 @@ charSprite = NodePath("../Sprite2D")
 sightArea = NodePath("../Area2D")
 navAgent = NodePath("../NavigationAgent2D")
 checkRay = NodePath("../RayCast2D")
+checkShape = NodePath("../ShapeCast2D")
 animTree = NodePath("../AnimationTree")
+
+[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills")]
+script = ExtResource("5_w0spe")
+battlerType = "NPC"
+battlerName = NodePath("../Name")
+battlerBody = NodePath("..")
+battlerSprite = NodePath("../Sprite2D")
+battlerAnim = NodePath("../AnimationPlayer")
+battlerHealth = NodePath("Health")
+battlerStats = NodePath("BaseStats")
+battlerExp = NodePath("Experience")
+battlerSkills = NodePath("SkillList")
+
+[node name="Health" type="Node" parent="Battler"]
+script = ExtResource("6_gp7k0")
+
+[node name="BaseStats" type="Node" parent="Battler" node_paths=PackedStringArray("battler")]
+script = ExtResource("7_1q5cc")
+battler = NodePath("..")
+stats = Array[Object]([SubResource("Resource_s1ijm"), SubResource("Resource_tv32p"), SubResource("Resource_5msao"), SubResource("Resource_l646h"), SubResource("Resource_s6gr8")])
+
+[node name="Experience" type="Node" parent="Battler"]
+script = ExtResource("9_b5xxm")
+
+[node name="SkillList" type="Node" parent="Battler"]
+script = ExtResource("8_k5v1v")

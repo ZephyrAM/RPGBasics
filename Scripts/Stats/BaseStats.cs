@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 
 using ZAM.Abilities;
+using ZAM.Managers;
 
 namespace ZAM.Stats
 {
@@ -12,15 +13,15 @@ namespace ZAM.Stats
         
         [ExportGroup("Stat Values")]
         [Export] private Modifier [] stats;
-        [Export] private Modifier [] levelUpValue;
-        [Export] private Modifier [] upVariance;
 
         [ExportGroup("Options")]
         [Export] private bool shouldUseAddModifiers = true;
         [Export] private bool shouldUseBonusModifiers = true;
 
-        private List<Stat> stat = null;
-        private Dictionary<Stat, float> statSheet = null;
+        private List<StatID> stat = null;
+        private Dictionary<StatID, float> statSheet = null;
+        private Dictionary<string, CharClass> classDatabase = [];
+        private float[] diffMod = [0.75f, 1f, 1.25f, 1.75f];
 
         //=============================================================================
         // SECTION: Base Methods
@@ -37,6 +38,7 @@ namespace ZAM.Stats
         private void IfNull()
         {
             battler ??= GetNode<Battler>("../Battler");
+            classDatabase = DatabaseManager.Instance.GetClassDatabase();
         }
 
         //=============================================================================
@@ -63,26 +65,28 @@ namespace ZAM.Stats
 
         public void LevelUpStats()
         {
-            for (int s = 0; s < levelUpValue.Length; s++)
+            CharClass battlerClass = classDatabase[battler.GetClass()];
+            for (int s = 0; s < battlerClass.LevelUpValue.Length; s++)
             {
-                if (levelUpValue[s] == null) { continue;} // Stat doesn't provide an increase on leveling
+                if (battlerClass.LevelUpValue[s] == null) { continue;} // Stat doesn't provide an increase on leveling
 
-                float incVal = levelUpValue[s].Value;
-                if (upVariance[s] != null) {
+                float incVal = battlerClass.LevelUpValue[s].Value;
+                if (battlerClass.LevelUpVariance[s] != null) {
                     Random variance = new();
-                    float lowVal = levelUpValue[s].Value - upVariance[s].Value;
-                    float highVal = levelUpValue[s].Value + upVariance[s].Value;
+                    float lowVal = battlerClass.LevelUpValue[s].Value - battlerClass.LevelUpVariance[s].Value;
+                    float highVal = battlerClass.LevelUpValue[s].Value + battlerClass.LevelUpVariance[s].Value;
                     incVal = variance.Next((int)lowVal, (int)highVal + 1);
                 }
-                // GD.Print(levelUpValue[s].Stat + " + " + incVal);
-                statSheet[levelUpValue[s].Stat] += incVal;
+                // GD.Print(battlerClass.LevelUpValue[s].Stat + " + " + incVal);
+                statSheet[battlerClass.LevelUpValue[s].Stat] += incVal;
             }
         }
 
-        public float GetStatValue(Stat stat)
+        public float GetStatValue(StatID stat)
         {
             float totalValue = statSheet[stat] * (1 + GetPercetageModifier(stat)) + GetAdditiveModifier(stat);
             // if (stat == Stat.Stamina) { GD.Print(stat + " " + totalValue); }
+            // if (battler.GetBattlerType() == ConstTerm.ENEMY) { totalValue *= ConfigSettings.GetDifficulty()} // Create Instance? Just use save file?
             return totalValue;
         }
 
@@ -112,7 +116,7 @@ namespace ZAM.Stats
         // SECTION: Stat Adjustments
         //=============================================================================
 
-        private float GetAdditiveModifier(Stat stat)
+        private float GetAdditiveModifier(StatID stat)
         {
             if (!shouldUseAddModifiers) { return 0; }
             float total = 0;
@@ -131,7 +135,7 @@ namespace ZAM.Stats
             return total;
         }
 
-        private float GetPercetageModifier(Stat stat)
+        private float GetPercetageModifier(StatID stat)
         {
             if (!shouldUseBonusModifiers) { return 0; }
             float total = 0;
