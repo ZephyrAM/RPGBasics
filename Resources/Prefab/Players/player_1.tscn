@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bjoehnkxwngcu"]
+[gd_scene load_steps=8 format=3 uid="uid://bjoehnkxwngcu"]
 
 [ext_resource type="PackedScene" uid="uid://da7fwfcevplrb" path="res://Resources/Prefab/player_character.tscn" id="1_8ij14"]
 [ext_resource type="Script" path="res://Scripts/Abilities/Modifier.cs" id="2_1jf01"]
@@ -28,26 +28,6 @@ script = ExtResource("2_1jf01")
 Stat = 4
 Value = 10.0
 
-[sub_resource type="Resource" id="Resource_0o5nl"]
-script = ExtResource("2_1jf01")
-Stat = 0
-Value = 5.0
-
-[sub_resource type="Resource" id="Resource_4k0e8"]
-script = ExtResource("2_1jf01")
-Stat = 2
-Value = 5.0
-
-[sub_resource type="Resource" id="Resource_ovlnk"]
-script = ExtResource("2_1jf01")
-Stat = 0
-Value = 2.0
-
-[sub_resource type="Resource" id="Resource_60kdr"]
-script = ExtResource("2_1jf01")
-Stat = 2
-Value = 2.0
-
 [node name="CharacterBody2D" instance=ExtResource("1_8ij14")]
 
 [node name="AnimationTree" parent="." index="4"]
@@ -58,11 +38,10 @@ text = "Player 1"
 
 [node name="Battler" parent="." index="7"]
 battlerID = 1
+battlerClass = 2
 
 [node name="BaseStats" parent="Battler" index="1"]
 stats = Array[Object]([SubResource("Resource_lynlm"), SubResource("Resource_qbtqn"), SubResource("Resource_oa7rn"), SubResource("Resource_javyd"), SubResource("Resource_7vk6j")])
-levelUpValue = Array[Object]([SubResource("Resource_0o5nl"), SubResource("Resource_4k0e8")])
-upVariance = Array[Object]([SubResource("Resource_ovlnk"), SubResource("Resource_60kdr")])
 
 [node name="SkillList" parent="Battler" index="3"]
 defaultSkills = PackedStringArray("Fire", "Fire Wave")

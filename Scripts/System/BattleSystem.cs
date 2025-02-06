@@ -19,10 +19,12 @@ namespace ZAM.System
 
         [ExportGroup("Nodes")]
         [Export] private BattleController partyInput = null;
-        [Export] private Node2D floatingText = null;
-        [Export] private Node2D cursorTarget = null;
         [Export] private Camera2D baseCamera = null;
         [Export] private CanvasLayer battleUI = null;
+
+        [Export] private Node2D floatingText = null;
+        [Export] private Node2D cursorTarget = null;
+
         [Export] private PanelContainer commandPanel = null;
         [Export] private PanelContainer skillPanel = null;
         [Export] private PanelContainer itemPanel = null;
@@ -47,7 +49,7 @@ namespace ZAM.System
 
 
         private PackedScene enemyEncounter = null;
-        private MapSystem mapScene;
+        private Node2D mapScene;
         private PartyManager playerParty;
 
         private Ability defendAbility;
@@ -115,10 +117,10 @@ namespace ZAM.System
         //     UIVisibility();
         // }
 
-        public void StoreMapScene(MapSystem map)
+        public void StoreMapScene(Node2D map)
         {
             mapScene = map;
-            playerParty = mapScene.GetPartyManager();
+            playerParty = mapScene.GetChild<MapSystem>(0).GetPartyManager();
         }
 
         //=============================================================================
@@ -271,14 +273,18 @@ namespace ZAM.System
         public async void ReturnMapScene()
         {
             SetBattleControlActive(false);
-            Fader.Instance.Transition();
-            await ToSignal(Fader.Instance, ConstTerm.TRANSITION_FINISHED);
+            Fader.Instance.FadeOut();
+            await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
 
             // mapScene.Reparent(GetTree().Root);
+            GD.Print("Add child - mapScene");
+            GD.Print(mapScene);
             GetTree().Root.AddChild(mapScene); // Causes error - already has parent? Still functions properly, without indication of error.
-            playerParty.ChangePlayerActive(true);
+            GetTree().Root.RemoveChild(this);
 
-            QueueFree();
+            Fader.Instance.FadeIn();
+            await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
+            playerParty.ChangePlayerActive(true);
 
             // GD.Print("Map enter tree - load data");
             SaveLoader.Instance.LoadBattlerData(SaveLoader.Instance.gameSession);
@@ -468,11 +474,11 @@ namespace ZAM.System
 
         private async void BattleWin()
         {
-            // GD.Print("Battle end - save data");
+            GD.Print("Battle end - save data");
             SaveLoader.Instance.GatherBattlers();
             // GD.Print(SaveLoader.Instance.gameSession.CharData[playerParty.GetPlayerParty()[0].GetCharID()].CurrentHP);
             // GD.Print(playerParty.GetPlayerParty()[0].GetHealth().GetHP());
-
+            GD.Print(partyInput);
             partyInput.SetTurnPhase(ConstTerm.WAIT);
             partyInput.SetBattleOver(true);
             await ToSignal(partyInput, ConstTerm.BATTLE_FINISHED);

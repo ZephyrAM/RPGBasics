@@ -122,6 +122,11 @@ namespace ZAM.Stats
             return battlerID;
         }
 
+        public ClassID GetCharClass()
+        {
+            return battlerClass;
+        }
+
         public string GetBattlerName()
         {
             return battlerName.Text;
@@ -223,9 +228,8 @@ namespace ZAM.Stats
 
         // GDScript BattlerData = GD.Load<GDScript>("res://Scripts/SaveLoad/battler_data.gd");
 
-        public void OnSaveGame(Godot.Collections.Dictionary<CharacterID, BattlerData> saveData)
+        public void OnSaveGame(SavedGame saveData)
         {
-            // GD.Print(this);
             // GD.Print("Save " + GetCharID());
             // if (GetCharID() == 0) { return; }
 
@@ -239,7 +243,7 @@ namespace ZAM.Stats
             };
             // GD.Print("Battler " + GetHealth().GetHP());
             // GD.Print("Save - " + " " + GetCharID() + " battler HP at = " + saveData[GetCharID()].CurrentHP + "/" + newData.CurrentHP);
-            saveData[GetCharID()] = newData;
+            saveData.CharData[GetCharID()] = newData;
             // GD.Print(saveData[GetCharID()].CurrentHP);
         }
 

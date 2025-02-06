@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://Scripts/System/BattleSystem.cs" id="1_ffriu"]
 [ext_resource type="PackedScene" uid="uid://drakoxf8swfix" path="res://Resources/UI/Battle/status_list.tscn" id="2_wsqr5"]
 [ext_resource type="AnimationLibrary" uid="uid://d11gnfe4mn6yp" path="res://Resources/Animations/ui_cursor.res" id="7_3grhm"]
-[ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/Nodes/battle_label.tscn" id="7_e71ky"]
+[ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/UI/Menu/button_label.tscn" id="7_e71ky"]
 [ext_resource type="PackedScene" uid="uid://c5murpqijft2o" path="res://Resources/Nodes/floating_text.tscn" id="8_x25aq"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_dvpul"]
@@ -33,13 +33,13 @@ border_width_top = 4
 border_width_right = 4
 border_width_bottom = 4
 
-[node name="BattleSystem" type="Node2D" node_paths=PackedStringArray("partyInput", "floatingText", "cursorTarget", "baseCamera", "battleUI", "commandPanel", "skillPanel", "itemPanel")]
+[node name="BattleSystem" type="Node2D" node_paths=PackedStringArray("partyInput", "baseCamera", "battleUI", "floatingText", "cursorTarget", "commandPanel", "skillPanel", "itemPanel")]
 script = ExtResource("1_ffriu")
 partyInput = NodePath("PlayerParty")
-floatingText = NodePath("BattleUI/FloatingValues")
-cursorTarget = NodePath("BattleUI/CursorTarget")
 baseCamera = NodePath("Camera2D")
 battleUI = NodePath("BattleUI")
+floatingText = NodePath("BattleUI/FloatingValues")
+cursorTarget = NodePath("BattleUI/CursorTarget")
 commandPanel = NodePath("BattleUI/CommandPanel")
 skillPanel = NodePath("BattleUI/SkillPanel")
 itemPanel = NodePath("BattleUI/ItemPanel")

@@ -15,10 +15,10 @@ namespace ZAM.MenuUI
 
         [ExportGroup("UI Resources")]
         [Export] private PackedScene labelSettings = null;
-        [Export] private ColorRect memberBar = null;
-        [Export] private ColorRect commandBar = null;
-        [Export] private ColorRect skillBar = null;
-        [Export] private ColorRect itemBar = null;
+        // [Export] private ColorRect memberBar = null;
+        // [Export] private ColorRect commandBar = null;
+        // [Export] private ColorRect skillBar = null;
+        // [Export] private ColorRect itemBar = null;
 
         private List<MemberInfo> partyMembers = [];
 
@@ -42,31 +42,31 @@ namespace ZAM.MenuUI
             }
         }
 
-        public ColorRect GetSelectBar(string selectBar)
-        {
-            ColorRect tempBar = null;
+        // public ColorRect GetSelectBar(string selectBar)
+        // {
+        //     ColorRect tempBar = null;
 
-            switch (selectBar)
-            {
-                case ConstTerm.COMMAND:
-                    tempBar = commandBar;
-                    break;
-                case ConstTerm.MEMBER + ConstTerm.SELECT:
-                    tempBar = memberBar;
-                    break;
-                case ConstTerm.SKILL + ConstTerm.SELECT:
-                    tempBar = skillBar;
-                    break;
-                case ConstTerm.ITEM + ConstTerm.SELECT:
-                    tempBar = itemBar;
-                    break;
-                default:
-                    GD.PushError("Invalid selection bar!");
-                    break;
-            }
+        //     switch (selectBar)
+        //     {
+        //         case ConstTerm.COMMAND:
+        //             tempBar = commandBar;
+        //             break;
+        //         case ConstTerm.MEMBER + ConstTerm.SELECT:
+        //             tempBar = memberBar;
+        //             break;
+        //         case ConstTerm.SKILL + ConstTerm.SELECT:
+        //             tempBar = skillBar;
+        //             break;
+        //         case ConstTerm.ITEM + ConstTerm.SELECT:
+        //             tempBar = itemBar;
+        //             break;
+        //         default:
+        //             GD.PushError("Invalid selection bar!");
+        //             break;
+        //     }
 
-            return tempBar;
-        }
+        //     return tempBar;
+        // }
 
         //=============================================================================
         // SECTION: Member Info 
@@ -112,6 +112,26 @@ namespace ZAM.MenuUI
             partyMembers[index] = newInfo;
         }
 
+        //=============================================================================
+        // SECTION: External Access Methods
+        //=============================================================================
+
+        public void DisableOption(Label option)
+        {
+            option.Modulate = new Color(ConstTerm.GREY);
+            
+            Button optionButton = option.GetNode<Button>(ConstTerm.BUTTON);
+            optionButton.Disabled = true;
+        }
+
+        public void EnableOption(Label option)
+        {
+            option.Modulate = new Color(ConstTerm.WHITE);
+
+            Button optionButton = option.GetNode<Button>(ConstTerm.BUTTON);
+            optionButton.Disabled = false;
+        }
+
         public VBoxContainer GetCommandList()
         {
             return optionsList;
@@ -127,9 +147,9 @@ namespace ZAM.MenuUI
             return itemPanel;
         }
 
-        public ColorRect GetMemberBar()
-        {
-            return memberBar;
-        }
+        // public ColorRect GetMemberBar()
+        // {
+        //     return memberBar;
+        // }
     }
 }

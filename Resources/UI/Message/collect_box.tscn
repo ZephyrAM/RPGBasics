@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=3 uid="uid://bv0p7bn016keu"]
 
 [ext_resource type="Script" path="res://Scripts/MenuUI/CollectBox.cs" id="1_kpym0"]
-[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Resources/Font/FFVI Regular.ttf" id="2_vixla"]
+[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Assets/Font/FFVI Regular.ttf" id="2_vixla"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0tp0h"]
 content_margin_left = 40.0

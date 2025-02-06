@@ -1,10 +1,11 @@
-[gd_scene load_steps=12 format=3 uid="uid://bhw8ja7yjcpke"]
+[gd_scene load_steps=11 format=3 uid="uid://bhw8ja7yjcpke"]
 
 [ext_resource type="Script" path="res://Scripts/Control/MenuController.cs" id="1_a143d"]
 [ext_resource type="Script" path="res://Scripts/MenuUI/InfoMenu.cs" id="1_grjns"]
 [ext_resource type="PackedScene" uid="uid://eceb5khigg56" path="res://Resources/UI/Menu/member_info.tscn" id="2_ltrr6"]
-[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Resources/Font/FFVI Regular.ttf" id="3_e64x6"]
-[ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/Nodes/battle_label.tscn" id="4_nrhpl"]
+[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Assets/Font/FFVI Regular.ttf" id="3_e64x6"]
+[ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/UI/Menu/button_label.tscn" id="4_nrhpl"]
+[ext_resource type="PackedScene" uid="uid://iy362h4v47pc" path="res://Resources/UI/Menu/list_panel.tscn" id="6_oeqb3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_36ajg"]
 content_margin_left = 4.0
@@ -35,30 +36,16 @@ border_width_bottom = 4
 font = ExtResource("3_e64x6")
 font_size = 40
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kaets"]
-bg_color = Color(0.239216, 0.341176, 0.52549, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ud0gw"]
-bg_color = Color(0.239216, 0.341176, 0.52549, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-
-[node name="PartyMenu" type="Node" node_paths=PackedStringArray("commandList", "infoList", "skillList", "itemList")]
+[node name="PartyMenu" type="Node" node_paths=PackedStringArray("commandList", "infoList", "skillPanel", "itemPanel")]
 script = ExtResource("1_a143d")
-commandOptions = PackedStringArray("Item", "Skill", "Status")
+commandOptions = PackedStringArray("Item", "Skill")
 skillItemWidth = 280
 commandList = NodePath("MenuContainer/HBoxContainer/VBoxContainer/OptionsContainer/PanelContainer/OptionsList")
 infoList = NodePath("MenuContainer/HBoxContainer/InfoContainer/InfoList")
-skillList = NodePath("SkillPanel/SkillList")
-itemList = NodePath("ItemPanel/ItemList")
+skillPanel = NodePath("SkillPanel")
+itemPanel = NodePath("ItemPanel")
 
-[node name="MenuContainer" type="PanelContainer" parent="." node_paths=PackedStringArray("infoList", "optionsList", "skillPanel", "itemPanel", "memberBar", "commandBar", "skillBar", "itemBar")]
+[node name="MenuContainer" type="PanelContainer" parent="." node_paths=PackedStringArray("infoList", "optionsList", "skillPanel", "itemPanel")]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -78,10 +65,6 @@ optionsList = NodePath("HBoxContainer/VBoxContainer/OptionsContainer/PanelContai
 skillPanel = NodePath("../SkillPanel")
 itemPanel = NodePath("../ItemPanel")
 labelSettings = ExtResource("4_nrhpl")
-memberBar = NodePath("HBoxContainer/InfoContainer/SelectList/ColorRect")
-commandBar = NodePath("HBoxContainer/VBoxContainer/OptionsContainer/PanelContainer/MarginContainer/SelectList/ColorRect")
-skillBar = NodePath("../SkillPanel/MarginContainer/SelectList/ColorRect")
-itemBar = NodePath("../ItemPanel/MarginContainer/SelectList/ColorRect")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MenuContainer"]
 layout_mode = 2
@@ -98,6 +81,7 @@ theme_override_constants/margin_right = 0
 layout_mode = 2
 
 [node name="ColorRect" type="ColorRect" parent="MenuContainer/HBoxContainer/InfoContainer/SelectList"]
+visible = false
 self_modulate = Color(0.627451, 0.627451, 0.627451, 0.313726)
 custom_minimum_size = Vector2(800, 120)
 layout_mode = 2
@@ -138,6 +122,7 @@ theme_override_constants/margin_bottom = 2
 layout_mode = 2
 
 [node name="ColorRect" type="ColorRect" parent="MenuContainer/HBoxContainer/VBoxContainer/OptionsContainer/PanelContainer/MarginContainer/SelectList"]
+visible = false
 self_modulate = Color(0.627451, 0.627451, 0.627451, 0.313726)
 custom_minimum_size = Vector2(240, 42)
 layout_mode = 2
@@ -145,6 +130,7 @@ layout_mode = 2
 [node name="OptionsList" type="VBoxContainer" parent="MenuContainer/HBoxContainer/VBoxContainer/OptionsContainer/PanelContainer"]
 layout_mode = 2
 size_flags_vertical = 0
+mouse_filter = 0
 theme_override_constants/separation = 0
 
 [node name="MiscContainer" type="MarginContainer" parent="MenuContainer/HBoxContainer/VBoxContainer"]
@@ -175,60 +161,6 @@ text = "0"
 label_settings = SubResource("LabelSettings_3sgn4")
 horizontal_alignment = 2
 
-[node name="SkillPanel" type="PanelContainer" parent="."]
-visible = false
-offset_left = 519.0
-offset_top = 269.0
-offset_right = 1083.0
-offset_bottom = 639.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_kaets")
+[node name="SkillPanel" parent="." instance=ExtResource("6_oeqb3")]
 
-[node name="MarginContainer" type="MarginContainer" parent="SkillPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="SelectList" type="GridContainer" parent="SkillPanel/MarginContainer"]
-layout_mode = 2
-columns = 2
-
-[node name="ColorRect" type="ColorRect" parent="SkillPanel/MarginContainer/SelectList"]
-modulate = Color(0.615686, 0.615686, 0.615686, 0.537255)
-custom_minimum_size = Vector2(278, 42)
-layout_mode = 2
-size_flags_vertical = 0
-
-[node name="SkillList" type="GridContainer" parent="SkillPanel"]
-layout_mode = 2
-columns = 2
-
-[node name="ItemPanel" type="PanelContainer" parent="."]
-visible = false
-offset_left = 519.0
-offset_top = 269.0
-offset_right = 1083.0
-offset_bottom = 639.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_ud0gw")
-
-[node name="MarginContainer" type="MarginContainer" parent="ItemPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="SelectList" type="GridContainer" parent="ItemPanel/MarginContainer"]
-layout_mode = 2
-columns = 2
-
-[node name="ColorRect" type="ColorRect" parent="ItemPanel/MarginContainer/SelectList"]
-modulate = Color(0.615686, 0.615686, 0.615686, 0.537255)
-custom_minimum_size = Vector2(278, 40)
-layout_mode = 2
-size_flags_vertical = 0
-
-[node name="ItemList" type="GridContainer" parent="ItemPanel"]
-layout_mode = 2
-columns = 2
+[node name="ItemPanel" parent="." instance=ExtResource("6_oeqb3")]

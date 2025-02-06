@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 namespace ZAM.Interactions
 {
@@ -14,13 +15,14 @@ namespace ZAM.Interactions
         [Export] private float moveStepDuration = 60;
 
         [ExportGroup("Chase")]
-        [Export] private bool shouldChasePlayer = false;
         [Export] private float lostSightTimer = 300;
+        [Export] private PackedScene battleGroup = null;
 
         [ExportGroup("Nodes")]
         [Export] private Interactable npcInteract = null;
         [Export] private CharacterBody2D charBody = null;
         [Export] private Sprite2D charSprite = null;
+        [Export] private CollisionShape2D charCollider = null;
         [Export] private Area2D sightArea = null;
         [Export] private NavigationAgent2D navAgent = null;
         [Export] private RayCast2D checkRay = null;
@@ -30,6 +32,9 @@ namespace ZAM.Interactions
         private AnimationNodeStateMachinePlayback animPlay = null;
 
         private Node2D playerParty = null;
+        // private List<RayCast2D> checkArray = [];
+
+        private bool shouldChasePlayer = false;
         private float chaseTimer = 0;
 
         private bool doesMove = true;
@@ -43,8 +48,10 @@ namespace ZAM.Interactions
         Vector2 charSize;
 
         // Delegate Events \\
-        // [Signal]
-        // public delegate void onTargetSetEventHandler(Node2D body);
+        [Signal]
+        public delegate void onEndEventStepEventHandler(Interactable interactor);
+        [Signal]
+        public delegate void onCatchPlayerEventHandler(PackedScene battle);
 
         //=============================================================================
         // SECTION: OnReady Methods
@@ -56,7 +63,9 @@ namespace ZAM.Interactions
             SubSignals();
 
             npcInteract.SetInteractPhase(ConstTerm.WAIT);
-            // EmitSignal(SignalName.onTargetSet);
+            
+            shouldChasePlayer = npcInteract.GetShouldChase();
+            if (!shouldChasePlayer) { DisableChaseArea(); }
         }
 
         // public override void _ExitTree()
@@ -75,6 +84,7 @@ namespace ZAM.Interactions
 
             charBody ??= GetParent<CharacterBody2D>();
             charSprite ??= charBody.GetNode<Sprite2D>(ConstTerm.SPRITE2D);
+            charCollider ??= charBody.GetNode<CollisionShape2D>(ConstTerm.COLLIDER2D);
             sightArea ??= charBody.GetNode<Area2D>(ConstTerm.AREA2D);
             animTree ??= charBody.GetNode<AnimationTree>(ConstTerm.ANIM_TREE);
             navAgent ??= charBody.GetNode<NavigationAgent2D>(ConstTerm.NAVAGENT2D);
@@ -89,6 +99,7 @@ namespace ZAM.Interactions
         private void SubSignals()
         {
             sightArea.BodyEntered += OnBodyEntered;
+            navAgent.Connect(NavigationAgent2D.SignalName.NavigationFinished, new Callable(this, MethodName.OnNavigationFinished));
         }
 
         // private void UnSubSignals()
@@ -195,9 +206,12 @@ namespace ZAM.Interactions
 
             navAgent.TargetPosition = playerParty.GlobalPosition;
 
-            if (navAgent.IsNavigationFinished()) {
-                // OnCatchCode
-            }
+            if (charBody.GetLastSlideCollision() != null) { npcInteract.SetInteractPhase(ConstTerm.RETURN); }// GD.Print(charBody.GetLastSlideCollision().GetCollider()); }
+            // if () { // OnCatchCode // EDIT: Switch to collider, not navigation
+            //     GD.Print("Caught player!");
+            //     EmitSignal(SignalName.onCatchPlayer, battleGroup);
+            //     QueueFree();         
+            // }
 
             NavToTarget(baseSpeed * 1.5f);
         }
@@ -216,11 +230,12 @@ namespace ZAM.Interactions
 
         private void MoveToCycle()
         {
+            // GD.Print("Moving to goal!");
             if (navAgent.IsNavigationFinished())
             {
                 if (DoesMove()) { npcInteract.SetInteractPhase(ConstTerm.WAIT); }
                 else { npcInteract.SetInteractPhase(ConstTerm.DO_NOTHING); }
-                npcInteract.EventComplete();
+                // npcInteract.EventComplete();
                 return;
             }
 
@@ -300,19 +315,19 @@ namespace ZAM.Interactions
             if (checkShape.IsColliding())
             { 
                 blockedDirection = moveDirection;
-                GD.Print(blockedDirection);
+                // GD.Print(blockedDirection);
                 return true; 
             }
 
             return false;
         }
 
-        private Vector2 ShiftDirection()
-        {
-            Vector2 shiftAmount = checkShape.GetCollisionNormal(0) ;
-            GD.Print(shiftAmount);
-            return shiftAmount;
-        }
+        // private Vector2 ShiftDirection()
+        // {
+        //     Vector2 shiftAmount = checkShape.GetCollisionNormal(0) ;
+        //     // GD.Print(shiftAmount);
+        //     return shiftAmount;
+        // }
 
         private void MoveDirection(Vector2 direction)
         {
@@ -332,11 +347,11 @@ namespace ZAM.Interactions
             }
         }
 
-        private void NavToTarget(float speed)
+        private void NavToTarget(float speed) // 
         {
             Vector2 currentPos = charBody.GlobalPosition;
             Vector2 nextPos = navAgent.GetNextPathPosition();
-            if (UpdateShapeCast()) { nextPos = new Vector2(MathF.Round(nextPos.X), MathF.Round(nextPos.Y)) * new Vector2(MathF.Round(blockedDirection.Y), MathF.Round(blockedDirection.X)); }
+            // if (UpdateShapeCast()) { nextPos = new Vector2(MathF.Round(nextPos.X), MathF.Round(nextPos.Y)) * new Vector2(MathF.Round(blockedDirection.Y), MathF.Round(blockedDirection.X)); }
             MoveDirection((nextPos - charBody.Position).Normalized());
 
             Vector2 moveVelocity = currentPos.DirectionTo(nextPos) * speed;
@@ -375,6 +390,11 @@ namespace ZAM.Interactions
         {
             doesMove = value;
         }
+
+        public void SetChasePlayer(bool value)
+        {
+            shouldChasePlayer = value;
+        }
         
         public Node2D GetChaseTarget()
         {
@@ -384,6 +404,11 @@ namespace ZAM.Interactions
         public void SetPlayer(CharacterBody2D player)
         {
             playerParty = player;
+        }
+
+        public NavigationAgent2D GetNavAgent()
+        {
+            return navAgent;
         }
 
         public void FaceDirection(Vector2 direction)
@@ -397,6 +422,23 @@ namespace ZAM.Interactions
             MoveDirection(oldDirection);
         }
 
+        public CollisionShape2D GetCollider()
+        {
+            return charCollider;
+        }
+
+        public void DisableChaseArea()
+        {
+            sightArea.ProcessMode = ProcessModeEnum.Disabled;
+            sightArea.Visible = false;
+        }
+
+        public void EnableChaseArea()
+        {
+            sightArea.ProcessMode = ProcessModeEnum.Inherit;
+            sightArea.Visible = true;
+        }
+
         //=============================================================================
         // SECTION: Signal Methods
         //=============================================================================
@@ -408,6 +450,12 @@ namespace ZAM.Interactions
             if (body.GetScript().AsGodotObject() == playerControlTest){
                 StartChase((CharacterBody2D)body);
             }
+        }
+        
+        private void OnNavigationFinished()
+        {
+            GD.Print("Nav finished");
+            EmitSignal(SignalName.onEndEventStep, npcInteract); // -> MapEventScript
         }
     }
 }

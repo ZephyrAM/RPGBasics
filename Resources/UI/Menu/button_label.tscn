@@ -1,0 +1,37 @@
+[gd_scene load_steps=7 format=3 uid="uid://6ohqlnsimgok"]
+
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="1_25g73"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6cxpw"]
+bg_color = Color(0.6, 0.6, 0.6, 0.882353)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_33adc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_17wb0"]
+bg_color = Color(0.6, 0.6, 0.6, 0.882353)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_go241"]
+bg_color = Color(0.45098, 0.580392, 0.941176, 0.882353)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_b7tir"]
+
+[node name="Label" type="Label"]
+offset_right = 63.0
+offset_bottom = 42.0
+text = "Text"
+label_settings = ExtResource("1_25g73")
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="."]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/focus = SubResource("StyleBoxFlat_6cxpw")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_33adc")
+theme_override_styles/hover = SubResource("StyleBoxFlat_17wb0")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_go241")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_b7tir")

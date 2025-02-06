@@ -89,7 +89,7 @@ namespace ZAM.MenuUI
             textTween = CreateTween();
             textTween.TweenProperty(textLabel, ConstTerm.PERCENT_VISIBLE, 1, textLabel.Text.Length / textRate).SetTrans(Tween.TransitionType.Linear);
 
-            await ToSignal(textTween, ConstTerm.TWEEN_FINISHED);
+            await ToSignal(textTween, ConstTerm.FINISHED_SIGNAL);
             ChangeState(State.FINISHED);
         }
 

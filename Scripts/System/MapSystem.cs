@@ -17,24 +17,33 @@ namespace ZAM.System
 {
     public partial class MapSystem : Node
     {
+        [Export] private MapID mapId;
+
         [ExportGroup("Nodes")]
-        [Export] private PackedScene battleScene;
         [Export] private PartyManager playerParty;
         [Export] private MenuController menuInput = null;
-        [Export] private Node eventNode = null;
+        [Export] private CanvasLayer uiLayer = null;
+        [Export] private Node2D transit = null;
+
+        [ExportGroup("Battle Info")]
+        [Export] private PackedScene battleScene;
+        [Export] private EncounterArea[] battleAreas;
 
         [ExportGroup("Resources")]
         [Export] private PackedScene labelSettings = null;
         [Export] private Script eventScript = null;
 
-        private MapEventScript mapEvents = null;
-        private CharacterController playerInput = null;
         private BattleSystem battleNode = null;
-        // private RayCast2D interactRay = null;
+        private Node2D eventNode = null;
+        private MapEventScript mapEvents = null;
+
+        private CharacterController playerInput = null;
         private List<RayCast2D> interactArray = [];
+        private RayCast2D mouseRay = null;
         private Interactable interactTarget;
 
-        private CanvasLayer uiLayer = null;
+        private List<Transitions> travelList = [];
+
         private TextBox textBox = null;
         private ChoiceBox choiceBox = null;
 
@@ -43,6 +52,8 @@ namespace ZAM.System
         private int choiceCommand = 0;
         private int memberSelected = 0;
         private int rayTarget = 0;
+
+        private bool barVisible = false;
         // private bool hasLoaded = false;
 
         //=============================================================================
@@ -60,21 +71,20 @@ namespace ZAM.System
             SetupItemList();
             UpdateMenuInfo();
 
-            // GD.Print("Map ready - save data");
+            // // GD.Print("Map ready - save data");
             SaveLoader.Instance.GatherBattlers(); // Should only happen once, when game loads.
-
             // hasLoaded = true;
         }
 
-        public override void _EnterTree()
-        {
-            // if (hasLoaded) {
-            //     GD.Print("Map enter tree - load data");
-            //     SaveLoader.Instance.LoadBattlerData(SaveLoader.Instance.gameSession);
-            //     GD.Print(SaveLoader.Instance.gameSession.CharData[playerParty.GetPlayerParty()[0].GetCharID()].CurrentHP);
-            //     GD.Print(playerParty.GetPlayerParty()[0].GetHealth().GetHP());
-            // }
-        }
+        // public override void _EnterTree()
+        // {
+        //     // if (hasLoaded) {
+        //     //     GD.Print("Map enter tree - load data");
+        //     //     SaveLoader.Instance.LoadBattlerData(SaveLoader.Instance.gameSession);
+        //     //     GD.Print(SaveLoader.Instance.gameSession.CharData[playerParty.GetPlayerParty()[0].GetCharID()].CurrentHP);
+        //     //     GD.Print(playerParty.GetPlayerParty()[0].GetHealth().GetHP());
+        //     // }
+        // }
 
         public override void _PhysicsProcess(double delta)
         {
@@ -92,23 +102,35 @@ namespace ZAM.System
             playerInput ??= playerParty.GetPlayer();
 
             uiLayer ??= GetNode<CanvasLayer>(ConstTerm.CANVAS_LAYER);
+            menuInput ??= uiLayer.GetNode<MenuController>(ConstTerm.MENU_CONTROLLER);
+            
+            menuScreen = menuInput.GetNode<InfoMenu>(ConstTerm.MENU + ConstTerm.CONTAINER);
 
             Node interactLayer = uiLayer.GetNode(ConstTerm.INTERACT_TEXT);
-            textBox ??= interactLayer.GetNode<TextBox>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
-            choiceBox ??= interactLayer.GetNode<ChoiceBox>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
+            textBox = interactLayer.GetNode<TextBox>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
+            choiceBox = interactLayer.GetNode<ChoiceBox>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
 
-            menuInput ??= uiLayer.GetNode<MenuController>(ConstTerm.MENU_CONTROLLER);
-            menuScreen ??= menuInput.GetNode<InfoMenu>(ConstTerm.MENU + ConstTerm.CONTAINER);
-
-            // interactRay ??= playerInput.GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
             interactArray = playerInput.GetInteractArray();
-
+            
+            eventNode = GetNode<Node2D>(ConstTerm.EVENTS);
             mapEvents = SafeScriptAssign(eventNode, eventScript) as MapEventScript;
-            GD.Print(mapEvents);
+
+            if (travelList.Count <= 0) { // Populate transition list
+                travelList = [];
+                for (int n = 0; n < transit.GetChildCount(); n++)
+                { 
+                    Transitions nextTravel = transit.GetChild(n) as Transitions;
+                    travelList.Add(nextTravel); 
+                }
+            }
+            // GD.Print(mapEvents);
         }
 
         private void SubSignals()
         {
+            playerInput.onSaveGame += OnSaveGame;
+            playerInput.onLoadGame += OnLoadGame;
+
             playerInput.onInteractCheck += OnInteractCheck;
             playerInput.onSelectChange += OnSelectChange;
             playerInput.onTextProgress += OnTextProgress;
@@ -117,10 +139,15 @@ namespace ZAM.System
 
             menuInput.onMenuClose += OnMenuClose;
             menuInput.onMenuPhase += OnMenuPhase;
-            menuInput.onTargetChange += OnTargetChange;
+            // menuInput.onTargetChange += OnTargetChange;
             menuInput.onMemberSelect += OnMemberSelect;
 
             mapEvents.onEventComplete += OnEventComplete;
+
+            for (int a = 0; a < battleAreas.Length; a++)
+            {
+                battleAreas[a].onBattleTrigger += OnBattleTrigger;
+            }
         }
 
         // private void UnSubSignals() // Inactive: Mapsystem doesn't run _Ready again after _ExitTree
@@ -169,12 +196,12 @@ namespace ZAM.System
             //     if (interactRay.GetCollider() is Interactable)
             //     {
             //         playerInput.SetIdleAnim();
-                    
+
             //         SetInteractTarget();
             //         interactTarget.TargetInteraction(direction);
             //     }
             // }
-
+            // GD.Print("Interact check");
             for (int r = 0; r < interactArray.Count; r++)
             {
                 interactArray[r].ForceRaycastUpdate();
@@ -182,10 +209,15 @@ namespace ZAM.System
                 {
                     if (interactArray[r].GetCollider() is Interactable)
                     {
+                        Interactable checkTarget = (Interactable)interactArray[r].GetCollider();
+                        if (!checkTarget.CheckValidInteract()) { return; }
+
                         playerInput.SetIdleAnim();
 
                         SetInteractTarget(r);
-                        interactTarget.TargetInteraction(direction);
+                        interactTarget.TargetInteraction(direction); // -> Interactable
+                        // GD.Print(interactTarget);
+                        // GD.Print(playerInput.GetInputPhase());
                         return;
                     }
                 }
@@ -198,17 +230,18 @@ namespace ZAM.System
             if (stepComplete)
             {
                 textBox.HideTextBox();
-                RemoveInteractTarget();
+                OnEventComplete();
             }
             else
             {
-                interactTarget.StepInteract(0);
+                if (interactTarget.IsEvent()) 
+                {
+                    textBox.HideTextBox();
+                    playerInput.SetInputPhase(ConstTerm.DO_NOTHING);
+                    mapEvents.Call(interactTarget.Name, interactTarget);
+                }
+                else { interactTarget.StepInteract(0); }
             }
-        }
-
-        private void ContinueEvent() // EDIT: For Event processing
-        {
-            
         }
 
         private void SelectChoice()
@@ -221,30 +254,29 @@ namespace ZAM.System
 
         private void SetInteractTarget(int index)
         {
+            // GD.Print("Set interact target");
             playerInput.SetInteractToggle(true);
             interactTarget = (Interactable)interactArray[index].GetCollider();
             
-            if (!interactTarget.IsEventAndInteractStart()) {
-                interactTarget.onInteractPhase += OnInteractPhase;
-                interactTarget.onItemReceive += OnItemReceive;
-            } else {
-                interactTarget.onEventStart += OnEventStart;
-            }
+            if (interactTarget.IsEventAndInteractStart()) {
+                interactTarget.onEventStart += OnEventStart; }
+            interactTarget.onInteractPhase += OnInteractPhase;
+            interactTarget.onItemReceive += OnItemReceive;
         }
 
         private void RemoveInteractTarget()
         {
             interactTarget.ResetInteractPhase();
             interactTarget.ResetDirection();
+            interactTarget.ResetEvent();
 
-            if (!interactTarget.IsEventAndInteractStart()) {
-                interactTarget.onInteractPhase -= OnInteractPhase;
-                interactTarget.onItemReceive -= OnItemReceive;
-            } else {
+            if (interactTarget.IsEventAndInteractStart()) {
                 interactTarget.onEventStart -= OnEventStart;
-                interactTarget.onInteractEventComplete -= mapEvents.OnInteractEventComplete;
+                interactTarget.GetMoveAgent().onEndEventStep -= mapEvents.OnEndEventStep; 
             }
-            
+            interactTarget.onInteractPhase -= OnInteractPhase;
+            interactTarget.onItemReceive -= OnItemReceive;
+
             interactTarget = null;
             playerInput.SetInteractToggle(false);
             playerInput.SetInputPhase(ConstTerm.MOVE);
@@ -282,7 +314,7 @@ namespace ZAM.System
             CheckHasItems();
             menuScreen.GetSkillPanel().Visible = menuInput.GetMenuPhase() == ConstTerm.SKILL + ConstTerm.SELECT;
             menuScreen.GetItemPanel().Visible = menuInput.GetMenuPhase() == ConstTerm.ITEM + ConstTerm.SELECT;
-            menuScreen.GetMemberBar().Visible = menuInput.GetMenuPhase() == ConstTerm.MEMBER + ConstTerm.SELECT;
+            // menuScreen.GetMemberBar().Visible = menuInput.GetMenuPhase() == ConstTerm.MEMBER + ConstTerm.SELECT;
         }
 
         // private void TargetChange(string selectBar)
@@ -295,8 +327,16 @@ namespace ZAM.System
 
         private void SetupSkillList(Battler player)
         {
-            foreach (Node child in menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).GetChildren())
-            { child.QueueFree(); }
+            foreach (Node child in menuScreen.GetSkillPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
+            { menuScreen.GetSkillPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).RemoveChild(child); child.QueueFree(); }
+
+            // for (int c = 0; c < menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).GetChildCount(); c++)
+            // {
+            //     Node tempChild = menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).GetChild(c);
+            //     menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).RemoveChild(tempChild);
+            //     tempChild.QueueFree();
+            // }
+            // GD.Print(menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).GetChildCount());
 
             foreach (Ability skill in player.GetSkillList().GetSkills())
             {
@@ -304,10 +344,10 @@ namespace ZAM.System
                 newSkill.Text = skill.AbilityName;
                 newSkill.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
                 if (!player.CheckCanUse(skill)) {
-                    newSkill.Modulate = new Color(ConstTerm.GREY);
+                    menuScreen.DisableOption(newSkill);
                 }
 
-                menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).AddChild(newSkill);
+                menuScreen.GetSkillPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newSkill);
             }
         }
 
@@ -315,7 +355,7 @@ namespace ZAM.System
         {
             if (!CheckHasItems()) { return; };
 
-            foreach (Node child in menuScreen.GetItemPanel().GetNode(ConstTerm.ITEM + ConstTerm.LIST).GetChildren())
+            foreach (Node child in menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
             { child.QueueFree(); }
 
             foreach (Item item in ItemBag.Instance.GetItemBag())
@@ -324,7 +364,7 @@ namespace ZAM.System
                 newItem.Text = item.ItemName;
                 newItem.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
 
-                menuScreen.GetItemPanel().GetNode(ConstTerm.ITEM + ConstTerm.LIST).AddChild(newItem);
+                menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newItem);
             }
         }
 
@@ -338,12 +378,14 @@ namespace ZAM.System
 
             if (ItemBag.Instance.BagIsEmpty())
             {
-                menuScreen.GetCommandList().GetChild<Label>(itemCommand).Modulate = new Color(ConstTerm.GREY);
+                menuScreen.DisableOption(menuScreen.GetCommandList().GetChild<Label>(itemCommand));
+                // menuScreen.GetCommandList().GetChild<Label>(itemCommand).Modulate = new Color(ConstTerm.GREY);
                 return false;
             }
             else
             {
-                menuScreen.GetCommandList().GetChild<Label>(itemCommand).Modulate = new Color(ConstTerm.WHITE);
+                menuScreen.EnableOption(menuScreen.GetCommandList().GetChild<Label>(itemCommand));
+                // menuScreen.GetCommandList().GetChild<Label>(itemCommand).Modulate = new Color(ConstTerm.WHITE);
                 return true;
             }
         }
@@ -355,22 +397,33 @@ namespace ZAM.System
 
         public async void LoadBattle(PackedScene randomGroup)
         {
-            // GD.Print("Battle loading - save data");
+            // EDIT: this(MapSystem) node not found. 'Disposed'
+            GD.Print("Battle loading - save data");
             SaveLoader.Instance.GatherBattlers();
+            GD.Print("Change player active control");
             playerParty.ChangePlayerActive(false);
-            Fader.Instance.Transition();
-            await ToSignal(Fader.Instance, ConstTerm.TRANSITION_FINISHED);
-
+            GD.Print("Fade Out");
+            Fader.Instance.FadeOut();
+            GD.Print("Instantiate battle scene");
             battleNode = (BattleSystem)battleScene.Instantiate();
+            GD.Print("Set battle group");
             battleNode.SetEnemyGroup(randomGroup);
-            battleNode.StoreMapScene(this);
-            battleNode.SetBattleControlActive(true);
+            GD.Print("Storing Map scene - ");
+            GD.Print(Name);
+            battleNode.StoreMapScene(GetParent<Node2D>());
+
+            await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
 
             GetTree().Root.AddChild(battleNode);
-            GetTree().Root.RemoveChild(this);
+            GetTree().Root.RemoveChild(GetParent());
 
             // GD.Print("Battle loading - load data");
             SaveLoader.Instance.LoadBattlerData(SaveLoader.Instance.gameSession);
+
+            Fader.Instance.FadeIn();
+            await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
+
+            battleNode.SetBattleControlActive(true);
 
             // QueueFree();
         }
@@ -380,20 +433,39 @@ namespace ZAM.System
             return playerParty;
         }
 
-        // private void OnSaveGame()
-        // {
+        public void SetParty(PartyManager party)
+        {
+            playerParty = party;
+            // for (int c = 0; c < party.GetChildCount(); c++)
+            // {
+            //     playerParty.AddChild(party.GetChild(c));
+            // }
+        }
 
-        // }
+        public List<Transitions> GetTransitions()
+        {
+            return travelList;
+        }
 
 
         //=============================================================================
         // SECTION: Signal Methods
         //=============================================================================
 
+        private void OnSaveGame()
+        {
+            SaveLoader.Instance.SaveGame();
+        }
+
+        private void OnLoadGame()
+        {
+            SaveLoader.Instance.LoadGame();
+        }
+
         private void OnEventStart()
         {
-            mapEvents.Call(interactTarget.Name, interactTarget);
             playerInput.SetInputPhase(ConstTerm.DO_NOTHING);
+            mapEvents.Call(interactTarget.Name, interactTarget); // -> MapEventScript: Map# - Event# function
             // GD.Print(mapEvents.GetScriptMethodList()[0]["name"].ToString());
             // GD.Print(interactTarget.Name);
 
@@ -407,6 +479,8 @@ namespace ZAM.System
 
         private void OnEventComplete()
         {
+            GD.Print("Event complete");
+            interactTarget.TurnOffEvent();
             RemoveInteractTarget();
         }
 
@@ -418,7 +492,8 @@ namespace ZAM.System
 
         private void OnInteractPhase(string newPhase)
         {
-            playerInput.SetInputPhase(newPhase);
+            playerInput.SetInputPhase(newPhase); // -> CharacterControler
+            // GD.Print("MapSystem " + playerInput.GetInputPhase());
         }
 
         private void OnSelectChange()
@@ -431,8 +506,8 @@ namespace ZAM.System
         private void OnTextProgress()
         {
             if (interactTarget.GetTextBox().IsTextComplete()) {
-                if (!interactTarget.IsEventAndInteractStart()) { UpdateInteraction(); }
-                else { } // EDIT: Add Event processing
+                UpdateInteraction();
+                // else { } // EDIT: Add Event processing
             }
         }
 
@@ -467,33 +542,32 @@ namespace ZAM.System
             playerInput.SetInputPhase(ConstTerm.MOVE);
         }
 
-        private void OnTargetChange()
-        {
-            ColorRect tempBar = menuScreen.GetSelectBar(menuInput.GetMenuPhase());
+        // private void OnTargetChange()
+        // {
+        //     ColorRect tempBar = menuScreen.GetSelectBar(menuInput.GetMenuPhase());
 
-            float index = menuInput.GetCommand();
-            float numColumns = menuInput.GetNumColumn();
-            float column = index % numColumns;
-            float yPos = (float)(tempBar.Size.Y * Math.Ceiling(index / numColumns - column));
-            
+        //     float index = menuInput.GetCommand();
+        //     float numColumns = menuInput.GetNumColumn();
+        //     float column = index % numColumns;
+        //     float yPos = (float)(tempBar.Size.Y * Math.Ceiling(index / numColumns - column));
 
-            tempBar.Position = new Vector2(column * tempBar.Size.X, yPos); // EDIT - Temporary!
+        //     tempBar.Position = new Vector2(column * tempBar.Size.X, yPos); // EDIT - Temporary!
 
-            // switch (menuInput.GetMenuPhase())
-            // {
-            //     case ConstTerm.COMMAND:
-            //         TargetChange(ConstTerm.COMMAND);
-            //         break;
-            //     case ConstTerm.MEMBER + ConstTerm.SELECT:
-            //         TargetChange(ConstTerm.MEMBER);
-            //         break;
-            //     case ConstTerm.SKILL + ConstTerm.SELECT:
-            //         TargetChange(ConstTerm.SKILL);
-            //         break;
-            //     default:
-            //         break;
-            // }
-        }
+        //     // switch (menuInput.GetMenuPhase())
+        //     // {
+        //     //     case ConstTerm.COMMAND:
+        //     //         TargetChange(ConstTerm.COMMAND);
+        //     //         break;
+        //     //     case ConstTerm.MEMBER + ConstTerm.SELECT:
+        //     //         TargetChange(ConstTerm.MEMBER);
+        //     //         break;
+        //     //     case ConstTerm.SKILL + ConstTerm.SELECT:
+        //     //         TargetChange(ConstTerm.SKILL);
+        //     //         break;
+        //     //     default:
+        //     //         break;
+        //     // }
+        // }
 
         private void OnMemberSelect()
         {
@@ -502,6 +576,16 @@ namespace ZAM.System
             else if (menuInput.GetMenuPhase() == ConstTerm.STATUS_SCREEN) { } // EDIT: Create/Assign status screen
 
             menuInput.SetNumColumn();
+        }
+
+        private void OnCatchPlayer(PackedScene battleGroup)
+        {
+            LoadBattle(battleGroup);
+        }
+
+        private void OnBattleTrigger(PackedScene battleGroup)
+        {
+            LoadBattle(battleGroup);
         }
 
         //=============================================================================

@@ -1,21 +1,73 @@
 using Godot;
-using System;
+using Godot.Collections;
+using System.IO;
+using System.Text.Json;
+
+using ZAM.Interactions;
 
 namespace ZAM.MapEvents
 {
     public partial class MapEventScript : Node
     {
+        private string jsonFile;
+        protected Dictionary<string, Dictionary<string, string>> mapText = [];
+
+        protected string mapNumber;
+        protected string eventNumber;
+        protected string textSource;
+
+        public enum InteractType
+        {
+            TEXT = 0,
+            CHOICE = 1,
+            ITEM = 2,
+            MOVE = 3
+        }
+        
         // Delegate Events \\
         [Signal]
         public delegate void onEventCompleteEventHandler();
+
+        public override void _Ready()
+        {
+            LoadMapText();
+        }
+
+        protected void LoadMapText()
+        {
+            jsonFile = File.ReadAllText("./Resources/Data/InteractTextData.json");
+            mapText = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(jsonFile);
+        }
+
+        //=============================================================================
+        // SECTION: External Access
+        //=============================================================================
+
+        public string GetMapNumer()
+        {
+            return mapNumber;
+        }
+
+        public Dictionary<string, Dictionary<string, string>> GetMapText()
+        {
+            return mapText;
+        }
 
         //=============================================================================
         // SECTION: Signal Calls
         //=============================================================================
 
-        public void OnInteractEventComplete()
+        // public void OnInteractEventComplete()
+        // {
+        //     EmitSignal(SignalName.onEventComplete);
+        // }
+
+        public void OnEndEventStep(Interactable interactor)
         {
-            EmitSignal(SignalName.onEventComplete);
+            if (!interactor.IsEvent()) { return; }
+
+            if (interactor.StepCheck()) { EmitSignal(SignalName.onEventComplete); } // -> MapSystem
+            else { Call(interactor.Name, interactor); } // -> Map#: Event# function
         }
     }
 }

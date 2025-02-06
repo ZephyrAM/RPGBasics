@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bqn68bcq1mhg5"]
 
-[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Resources/Font/FFVI Regular.ttf" id="1_ncj5p"]
+[ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Assets/Font/FFVI Regular.ttf" id="1_ncj5p"]
 [ext_resource type="Script" path="res://Scripts/MenuUI/TextBox.cs" id="1_r1cok"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4dp2c"]

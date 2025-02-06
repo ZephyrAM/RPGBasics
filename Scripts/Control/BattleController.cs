@@ -83,18 +83,18 @@ namespace ZAM.Control
             if (playerTurn == true) {
                 PhaseCheck(@event);
                 // Data test commands \\
-                // if (Input.IsActionJustPressed("Save"))
-                // {
-                //     GD.Print("Saving game!");
-                //     SaveLoader.Instance.SaveGame();          
-                //     // EmitSignal(SignalName.onSaveGame);
-                // }
-                // else if (Input.IsActionJustPressed("Load"))
-                // {
-                //     GD.Print("Loading game!");
-                //     SaveLoader.Instance.LoadGame();
-                //     // EmitSignal(SignalName.onLoadGame);
-                // }
+                if (Input.IsActionJustPressed(ConstTerm.SAVE)) // EDIT: Temporary for debugging
+                {
+                    GD.Print("Saving game!");
+                    SaveLoader.Instance.SaveGame();          
+                    // EmitSignal(SignalName.onSaveGame);
+                }
+                else if (Input.IsActionJustPressed(ConstTerm.LOAD))
+                {
+                    GD.Print("Loading game!");
+                    SaveLoader.Instance.LoadGame();
+                    // EmitSignal(SignalName.onLoadGame);
+                }
             }
         }
 

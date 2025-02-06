@@ -65,7 +65,7 @@ namespace ZAM.Stats
 
         public void LevelUpStats()
         {
-            CharClass battlerClass = classDatabase[battler.GetClass()];
+            CharClass battlerClass = classDatabase[Enum.GetName(typeof(ClassID), battler.GetCharClass())];
             for (int s = 0; s < battlerClass.LevelUpValue.Length; s++)
             {
                 if (battlerClass.LevelUpValue[s] == null) { continue;} // Stat doesn't provide an increase on leveling

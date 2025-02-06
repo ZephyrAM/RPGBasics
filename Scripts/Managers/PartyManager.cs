@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 using System.Collections.Generic;
 
 using ZAM.Control;
@@ -9,13 +10,13 @@ namespace ZAM.Managers
     public partial class PartyManager : Node
     {
         // Assigned Variables \\
-        [Export] private PackedScene[] partyMembers = null;
-        [Export] private PackedScene[] reserveMembers = null;
+        [Export] private Array<PackedScene> partyMembers = [];
+        [Export] private Array<PackedScene> reserveMembers = [];
         [Export] private Script charController = null;
 
         // Setup Variables \\
-        private Node leaderMember = null;
-        private List<Battler> activeParty = null;
+        private CharacterBody2D leaderMember = null;
+        private List<Battler> activeParty = [];
 
         private double timePlayed;
         private int currencyTotal = 0;
@@ -24,26 +25,43 @@ namespace ZAM.Managers
         // SECTION: Base Methods
         //=============================================================================
 
+        public PartyManager(){}
+
+        // public PartyManager(PartyManager oldparty)
+        // {
+        //     partyMembers = oldparty.partyMembers;
+        //     reserveMembers = oldparty.reserveMembers;
+
+        //     charController = oldparty.charController;
+
+        //     leaderMember = oldparty.leaderMember;
+        //     activeParty = oldparty.activeParty;
+        // }
+
         public override void _Ready()
         {
             // If party doesn't exist, skip creation. Force create after manually assigning member to party.
-            if (partyMembers.Length < 1) { return; }
+            // if (partyMembers.Count < 1) { return; }
             // CreateParty();
 
             // Assure the leader never gets double loaded.
-            if (!IsInstanceValid(leaderMember)) { LoadLeader(); }
+            if (leaderMember == null) { 
+                if (partyMembers.Count > 0) { LoadLeader(); }
+                else if (GetChildCount() > 0) { CreateParty(); }
+                else { GD.PushError("No party members!"); }
+            }
         }
 
         //=============================================================================
         // SECTION: Utility Methods
         //=============================================================================
 
-        private static Node SafeScriptAssign(Node target, Script scriptAssign) // May shift to shared Utilities script
+        private static Node2D SafeScriptAssign(Node2D target, Script scriptAssign) // May shift to shared Utilities script
         {
             // This whole section... \\
             ulong charId = target.GetInstanceId();
             target.SetScript(ResourceLoader.Load(scriptAssign.ResourcePath));
-            target = (Node)InstanceFromId(charId);
+            target = (Node2D)InstanceFromId(charId);
 
             target._Ready();
             target.SetProcess(true);
@@ -75,23 +93,42 @@ namespace ZAM.Managers
         {
             activeParty = [];
 
-            Node tempLead = partyMembers[0].Instantiate();
+            CharacterBody2D tempLead = (CharacterBody2D)partyMembers[0].Instantiate();
             AddChild(tempLead);
             activeParty.Add(GetChild(0).GetNode<Battler>(ConstTerm.BATTLER));
 
-            leaderMember = SafeScriptAssign(tempLead, charController);
+            leaderMember = (CharacterBody2D)SafeScriptAssign(tempLead, charController);
             leaderMember.GetNode<Label>(ConstTerm.NAME).Visible = false;
             LoadParty();
         }
 
         private void LoadParty()
         {
-            for (int p = 1; p < partyMembers.Length; p++)
+            for (int p = 1; p < partyMembers.Count; p++)
             {
                 CharacterBody2D tempMember = (CharacterBody2D)partyMembers[p].Instantiate();
                 tempMember.Visible = false;
                 tempMember.ProcessMode = ProcessModeEnum.Disabled;
                 AddChild(tempMember);
+
+                activeParty.Add(GetChild(p).GetNode<Battler>(ConstTerm.BATTLER));
+            }
+        }
+
+        private void CreateParty()
+        {
+            activeParty = [];
+
+            CharacterBody2D tempLead = (CharacterBody2D)GetChild(0);
+            activeParty.Add(tempLead.GetNode<Battler>(ConstTerm.BATTLER));
+            leaderMember = (CharacterBody2D)SafeScriptAssign(tempLead, charController);
+            leaderMember.GetNode<Label>(ConstTerm.NAME).Visible = false;
+
+            for (int p = 1; p < GetChildCount(); p++)
+            {
+                CharacterBody2D tempMember = (CharacterBody2D)GetChild(p);
+                tempMember.Visible = false;
+                tempMember.ProcessMode = ProcessModeEnum.Disabled;
 
                 activeParty.Add(GetChild(p).GetNode<Battler>(ConstTerm.BATTLER));
             }
@@ -103,7 +140,7 @@ namespace ZAM.Managers
         }
 
         //=============================================================================
-        // SECTION: Get Methods
+        // SECTION: Access Methods
         //=============================================================================
 
         public CharacterController GetPlayer()
@@ -121,11 +158,28 @@ namespace ZAM.Managers
             return activeParty;
         }
 
+        public Array<PackedScene> GetPartyArray()
+        {
+            return partyMembers;
+        }
+
+        public Array<PackedScene> GetReserveArray()
+        {
+            return reserveMembers;
+        }
+
+        public void SetMemberArrays(Array<PackedScene> party, Array<PackedScene> reserve)
+        {
+            // GD.Print("Setting Members...");
+            partyMembers = party;
+            reserveMembers = reserve;
+        }
+
         public int GetPartySize()
         {
-            return partyMembers.Length;
+            return partyMembers.Count;
             // int partySize = 0;
-            // for (int n = 0; n < partyMembers.Length; n++)
+            // for (int n = 0; n < partyMembers.Count; n++)
             // {
             //     if (partyMembers[n] != null)
             //     { partySize++; }
@@ -135,9 +189,9 @@ namespace ZAM.Managers
 
         public int GetReservePartySize()
         {
-            return reserveMembers.Length;
+            return reserveMembers.Count;
             // int partySize = 0;
-            // for (int n = 0; n < reserveMembers.Length; n++)
+            // for (int n = 0; n < reserveMembers.Count; n++)
             // {
             //     if (reserveMembers[n] != null)
             //     { partySize++; }
@@ -178,6 +232,32 @@ namespace ZAM.Managers
         //=============================================================================
         // SECTION: Save System
         //=============================================================================
+
+        public void OnSaveGame(SavedGame saveData)
+        {
+            PartyData newData = new()
+            {
+                PartyMembers = GetPartyArray(),
+                ReserveMembers = GetReserveArray(),
+                MapPosition = GetPlayer().GlobalPosition,
+                FaceDirection = GetPlayer().GetFaceDirection(),
+                TotalGold = GetTotalCurrency()
+            };
+            
+            saveData.PartyData = newData;
+        }
+
+        public void OnLoadGame(PartyData loadData)
+        {
+            PartyData saveData = loadData;
+            if (saveData == null) { GD.Print("Party Data - NULL"); return; }
+
+            partyMembers = saveData.PartyMembers;
+            reserveMembers = saveData.ReserveMembers;
+            GetPlayer().GlobalPosition = saveData.MapPosition;
+            GetPlayer().SetLookDirection(saveData.FaceDirection);
+            currencyTotal = saveData.TotalGold;
+        }
 
         // public void SaveData()
         // {

@@ -16,7 +16,7 @@ public partial class Fader : CanvasLayer
     {
         Instance = this;
         fadeRect.Visible = false;
-        animPlayer.Connect(AnimationPlayer.SignalName.AnimationFinished, new Callable(this, MethodName.OnAnimationFinished));
+        // animPlayer.Connect(AnimationPlayer.SignalName.AnimationFinished, new Callable(this, MethodName.OnAnimationFinished));
     }
 
     public override void _EnterTree()
@@ -30,19 +30,38 @@ public partial class Fader : CanvasLayer
         animPlayer ??= GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
     }
 
-    public void Transition()
+    // public void Transition()
+    // {
+    //     fadeRect.Visible = true;
+    //     animPlayer.Play(ConstTerm.FADE_OUT);
+    // }
+
+    public void FadeOut()
     {
         fadeRect.Visible = true;
         animPlayer.Play(ConstTerm.FADE_OUT);
     }
 
-    public void OnAnimationFinished(string animName)
+    public async void FadeIn()
     {
-        if (animName == ConstTerm.FADE_OUT) {
-            EmitSignal(SignalName.onTransitionFinished);
-            animPlayer.Play(ConstTerm.FADE_IN);
-        } else {
-            fadeRect.Visible = false;
-        }
+        animPlayer.Play(ConstTerm.FADE_IN);
+        await ToSignal(animPlayer, ConstTerm.ANIM_FINISHED);
+
+        fadeRect.Visible = false;
+    }
+
+    // public void OnAnimationFinished(string animName)
+    // {
+    //     if (animName == ConstTerm.FADE_OUT) {
+    //         EmitSignal(SignalName.onTransitionFinished);
+    //         animPlayer.Play(ConstTerm.FADE_IN);
+    //     } else {
+    //         fadeRect.Visible = false;
+    //     }
+    // }
+
+    public AnimationPlayer GetAnimPlayer()
+    {
+        return animPlayer;
     }
 }

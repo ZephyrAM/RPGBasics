@@ -43,7 +43,8 @@ public class ConstTerm
     public const string ANIM_FINISHED = "animation_finished";
     public const string BATTLE_FINISHED = "onBattleFinish";
     public const string TRANSITION_FINISHED = "onTransitionFinished";
-    public const string TWEEN_FINISHED = "finished";
+    public const string NAVIGATION_FINISHED = "navigation_finished";
+    public const string FINISHED_SIGNAL = "finished";
 
 
     //=============================================================================
@@ -61,13 +62,18 @@ public class ConstTerm
     public const string SAVE_PATH = "";
     public const string SAVE_FOLDER = "saves/";
     public const string SAVE_FILE = "saveTest";
-    public const string SAVE_TYPE = ".tres";
+    public const string SAVE_TYPE = ".saveGame";
+
+    public const string TXT = ".txt";
+    public const string TRES = ".tres";
+    public const string TSCN = ".tscn";
 
     public const string PARAM = "parameters/";
     public const string BLEND = "/blend_position";
     public const string PLAYBACK = "playback";
     public const string BATTLE_SCENE = "res://Scenes/BattleScene.tscn";
     public const string NEWGAME_SCENE = "res://Scenes/MapSysem.tscn"; // EDIT: Change to default scene!!
+    public const string MAP_SCENE = "res://Scenes/Maps/";
 
 
     //=============================================================================
@@ -98,6 +104,7 @@ public class ConstTerm
     public const string STATUS = "Status";
     public const string STATUS_SCREEN = "StatusScreen";
     public const string SAVE = "Save";
+    public const string LOAD = "Load";
 
 
     //=============================================================================
@@ -115,6 +122,9 @@ public class ConstTerm
     public const string TEXT = "Text";
     public const string CHOICE = "Choice";
 
+    public const string MOUSE = "Mouse";
+    public const string KEY_GAMEPAD = "KeyboardGamepad";
+
 
     //=============================================================================
     // SECTION: Colors
@@ -129,6 +139,7 @@ public class ConstTerm
     //=============================================================================
     public const string SAVEDATA = "SaveData";
     public const string BATTLERDATA = "BattlerData";
+    public const string PARTYDATA = "PartyData";
 
 
     //=============================================================================
@@ -166,6 +177,7 @@ public class ConstTerm
     // SECTION: Node Names
     //=============================================================================
     public const string LABEL = "Label";
+    public const string BUTTON = "Button";
     public const string MARGIN_CONTAINER = "MarginContainer";
     public const string HBOX_CONTAINER = "HBoxContainer";
     public const string VBOX_CONTAINER = "VBoxContainer";
@@ -226,4 +238,20 @@ public class ConstTerm
     // SECTION: Node Properties
     //=============================================================================
     public const string PERCENT_VISIBLE = "visible_ratio";
+
+
+    //=============================================================================
+    // SECTION: Map Event Strings
+    //=============================================================================
+    public const string MAP = "Map";
+    public const string EVENT = "Event";
+    public const string STEP = "Step";
+    public const string DIVIDER = ".";
+
+
+    //=============================================================================
+    // SECTION: Language Abbreviations
+    //=============================================================================
+    public const string EN = "EN";
+    public const string JP = "JP";
 }

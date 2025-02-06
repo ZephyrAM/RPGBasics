@@ -13,11 +13,13 @@ namespace ZAM.System
         [Export] Array<PackedScene> enemyGroups = [];
         [Export] int encounterFrequency = 30; // Percent each second to proc a battle.
 
-        MapSystem mapSystem;
-
-        Area2D encounterArea;
+        // Area2D encounterArea;
         CharacterController playerInput;
         int battleCounter = 0;
+
+        // Delegate Events \\
+        [Signal]
+        public delegate void onBattleTriggerEventHandler(PackedScene battleGroup);
 
         //=============================================================================
         // SECTION: Base Methods
@@ -25,8 +27,9 @@ namespace ZAM.System
 
         public override void _Ready()
         {
-            encounterArea = this;
+            // encounterArea = this;
         }
+        
         public override void _EnterTree()
         {
             IfNull();
@@ -43,9 +46,9 @@ namespace ZAM.System
 
         private async void IfNull()
         {
-            mapSystem ??= GetTree().Root.GetNode<MapSystem>(ConstTerm.MAPSYSTEM);
             playerParty ??= GetNode<PartyManager>("../../" + ConstTerm.PARTYMANAGER);
-            await ToSignal(playerParty, SignalName.Ready);
+
+            if (!playerParty.IsNodeReady()) { await ToSignal(playerParty, SignalName.Ready); }
 
             playerInput = playerParty.GetChild<CharacterController>(0);
             SubSignals();
@@ -53,15 +56,15 @@ namespace ZAM.System
 
         private void SubSignals()
         {
-            encounterArea.BodyEntered += OnBodyEntered;
+            // BodyEntered += OnBodyEntered;
             playerInput.onStepArea += OnStepArea;
         }
 
-        private void UnSubSignals()
-        {
-            encounterArea.BodyEntered -= OnBodyEntered;
-            playerInput.onStepArea -= OnStepArea;
-        }
+        // private void UnSubSignals()
+        // {
+        //     BodyEntered -= OnBodyEntered;
+        //     playerInput.onStepArea -= OnStepArea;
+        // }
 
         private PackedScene GetEnemyGroup()
         {
@@ -73,24 +76,25 @@ namespace ZAM.System
 
         private bool CheckBattleEncounter()
         {
+            GD.Print("Check battle encounter");
             Random random = new();
-            int chance = random.Next(0, 100);
+            int chance = random.Next(1, 101); // Number between 1 - 100
 
-            return chance < encounterFrequency;
+            return chance < encounterFrequency + 1; // encounterFrequency between 0 - 100. 0 Never true, 100 always true.
         }
 
         //=============================================================================
         // SECTION: Delegate Methods
         //=============================================================================
 
-        private void OnBodyEntered(Node2D body)
-        {
-            // GD.Print("Entering!");
-        }
+        // private void OnBodyEntered(Node2D body)
+        // {
+        //     // GD.Print("Entering!");
+        // }
 
         private void OnStepArea()
         {
-            if (encounterArea.OverlapsBody(playerInput)) 
+            if (OverlapsBody(playerInput)) 
             { 
                 // battleCounter++;
                 // if (battleCounter == encounterFrequency)
@@ -98,7 +102,7 @@ namespace ZAM.System
                 {
                     // GD.Print("-- Encounter!");
                     battleCounter = 0;
-                    mapSystem.LoadBattle(GetEnemyGroup());
+                    EmitSignal(SignalName.onBattleTrigger, GetEnemyGroup());
                 }
             }
         }

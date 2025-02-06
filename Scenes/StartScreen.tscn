@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://cj808d7ymeo4m"]
 
 [ext_resource type="Script" path="res://Scripts/System/StartScreen.cs" id="1_t8hai"]
-[ext_resource type="PackedScene" uid="uid://cj0v8mojhj4a7" path="res://Scenes/TestMap.tscn" id="2_owmo2"]
+[ext_resource type="PackedScene" uid="uid://cj0v8mojhj4a7" path="res://Scenes/Maps/Map1.tscn" id="2_owmo2"]
 [ext_resource type="AnimationLibrary" uid="uid://d11gnfe4mn6yp" path="res://Resources/Animations/ui_cursor.res" id="3_jciqq"]
 [ext_resource type="Theme" uid="uid://c2g4cqqe3ifyq" path="res://Resources/UI/Styles/large_button_theme.tres" id="4_ti70t"]
 

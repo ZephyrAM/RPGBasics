@@ -9,7 +9,7 @@ namespace ZAM.System
         [Export] private VBoxContainer optionList = null;
         [Export] private ColorRect selectBar = null;
 
-        private MapSystem newGameScene = null;
+        private Node2D newGameScene = null;
 
         private int optionCommand = 0;
         private bool savesExist = false;
@@ -73,11 +73,14 @@ namespace ZAM.System
             {
                 controlActive = false;
 
-                Fader.Instance.Transition();
-                await ToSignal(Fader.Instance, ConstTerm.TRANSITION_FINISHED);
+                Fader.Instance.FadeOut();
+                await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
+                // await ToSignal(Fader.Instance, ConstTerm.TRANSITION_FINISHED);
 
-                newGameScene = (MapSystem)newGame.Instantiate();
+                newGameScene = (Node2D)newGame.Instantiate();
                 GetTree().Root.AddChild(newGameScene);
+
+                Fader.Instance.FadeIn();
 
                 QueueFree();
             }
