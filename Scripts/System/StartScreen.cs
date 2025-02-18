@@ -149,9 +149,9 @@ namespace ZAM.System
             // string[] dirTest = DirAccess.GetFilesAt(SaveLoader.Instance.GetSavePath()); // EDIT: Separate file names array needed?
             var dir = DirAccess.Open(SaveLoader.Instance.GetSavePath());
             if (dir.GetFiles().Length > 0) { savesExist = true; }
-            else
-            {
-                optionList.GetNode<Button>(ConstTerm.CONTINUE).Disabled = true;
+            else { 
+                optionList.GetNode<Label>(ConstTerm.CONTINUE).Modulate = new Color(ConstTerm.GREY);
+                optionList.GetNode<Label>(ConstTerm.CONTINUE).GetNode<Button>(ConstTerm.BUTTON).Disabled = true; 
             }
         }
 

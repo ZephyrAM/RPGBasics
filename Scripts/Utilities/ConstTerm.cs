@@ -60,7 +60,7 @@ public class ConstTerm
     //=============================================================================
     // SECTION: Paths
     //=============================================================================
-    public const string GAME_FOLDER = "./";
+    public const string GAME_FOLDER = "user://";
     public const string SAVE_PATH = "";
     public const string SAVE_FOLDER = "saves/";
     public const string SAVE_FILE = "saveTest";

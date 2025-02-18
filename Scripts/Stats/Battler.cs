@@ -62,11 +62,11 @@ namespace ZAM.Stats
             // battlerHealth.SetMaxHP(battlerStats.GetStatValue(Stat.Stamina) * 10); // EDIT: Find better place to load.
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            UnSubSignals();
-        }
+        // protected override void Dispose(bool disposing)
+        // {
+        //     base.Dispose(disposing);
+        //     UnSubSignals();
+        // }
 
         //=============================================================================
         // SECTION: OnReady Methods
@@ -95,12 +95,12 @@ namespace ZAM.Stats
             // battlerBody.Connect(CharacterBody2D.SignalName.MouseEntered, new Callable(this, MethodName.OnMouseOver));
         }
 
-        private void UnSubSignals()
-        {
-            battlerExp.onLevelUp -= OnLevelUp;
-            battlerBody.MouseEntered -= () => OnMouseOver(true);
-            battlerBody.MouseExited -= () => OnMouseOver(false);
-        }
+        // private void UnSubSignals()
+        // {
+        //     battlerExp.onLevelUp -= OnLevelUp;
+        //     battlerBody.MouseEntered -= () => OnMouseOver(true);
+        //     battlerBody.MouseExited -= () => OnMouseOver(false);
+        // }
 
 
         //=============================================================================

@@ -17,6 +17,9 @@ public partial class SaveLoader : Node
     {
         Instance = this;
         Instance.gameSession = new();
+
+        DirAccess dir = DirAccess.Open(ConstTerm.GAME_FOLDER);
+        if (!dir.DirExists(ConstTerm.SAVE_PATH + ConstTerm.SAVE_FOLDER)) { dir.MakeDir(ConstTerm.SAVE_PATH + ConstTerm.SAVE_FOLDER); }
     }
 
     public string GetSavePath()
@@ -36,12 +39,12 @@ public partial class SaveLoader : Node
         // };
         SaveAllData();
 
-        var dir = DirAccess.Open(ConstTerm.GAME_FOLDER + ConstTerm.SAVE_PATH);
+        DirAccess dir = DirAccess.Open(ConstTerm.GAME_FOLDER + ConstTerm.SAVE_PATH);
         if (!dir.DirExists(ConstTerm.SAVE_FOLDER)) { dir.MakeDir(ConstTerm.SAVE_FOLDER); }
 
         ResourceSaver.Save(Instance.gameSession, resourceSavePath); // Save as Resource (.tres)
-        using var readSave = FileAccess.Open(resourceSavePath, FileAccess.ModeFlags.Read);
-        using var fileSave = FileAccess.OpenEncryptedWithPass(savePath, FileAccess.ModeFlags.Write, "Conduit"); // EDIT: Temp encryption pass
+        using FileAccess readSave = FileAccess.Open(resourceSavePath, FileAccess.ModeFlags.Read);
+        using FileAccess fileSave = FileAccess.OpenEncryptedWithPass(savePath, FileAccess.ModeFlags.Write, "Conduit"); // EDIT: Temp encryption pass
         fileSave.StoreString(readSave.GetAsText()); // Save as encrypted file
         fileSave.Close();
         readSave.Close();
@@ -75,12 +78,12 @@ public partial class SaveLoader : Node
 
     public void LoadGame()
     {
-        using var file = FileAccess.OpenEncryptedWithPass(savePath, FileAccess.ModeFlags.Read, "Conduit"); // Load Encrypted save file // EDIT: Temp encryption pass
-        using var fileSave = FileAccess.Open(textSavePath, FileAccess.ModeFlags.Write);
+        using FileAccess file = FileAccess.OpenEncryptedWithPass(savePath, FileAccess.ModeFlags.Read, "Conduit"); // Load Encrypted save file // EDIT: Temp encryption pass
+        using FileAccess fileSave = FileAccess.Open(textSavePath, FileAccess.ModeFlags.Write);
         fileSave.StoreString(file.GetAsText()); // Save as text file
         fileSave.Close();
         
-        var dir = DirAccess.RenameAbsolute(textSavePath, resourceSavePath); // Rename .txt to .tres
+        Error dir = DirAccess.RenameAbsolute(textSavePath, resourceSavePath); // Rename .txt to .tres
         SavedGame gameSave = ResourceLoader.Load(resourceSavePath) as SavedGame; // Load as Resource (.tres)
         DirAccess.RemoveAbsolute(resourceSavePath); // Remove temporary Resource save
 

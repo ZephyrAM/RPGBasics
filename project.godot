@@ -12,6 +12,7 @@ config_version=5
 
 config/name="RPGBasics"
 run/main_scene="res://Scenes/StartScreen.tscn"
+config/use_custom_user_dir=true
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -30,7 +31,7 @@ window/stretch/mode="viewport"
 
 [dotnet]
 
-project/assembly_name="TurnBasedBattle_Basic"
+project/assembly_name="RPGBasics"
 
 [global_group]
 

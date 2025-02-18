@@ -1,6 +1,6 @@
 using Godot;
 using Godot.Collections;
-using System.IO;
+using System;
 using System.Text.Json;
 
 using ZAM.Interactions;
@@ -9,7 +9,6 @@ namespace ZAM.MapEvents
 {
     public partial class MapEventScript : Node
     {
-        private string jsonFile;
         protected Dictionary<string, Dictionary<string, string>> mapText = [];
 
         protected string mapNumber;
@@ -35,8 +34,14 @@ namespace ZAM.MapEvents
 
         protected void LoadMapText()
         {
-            jsonFile = File.ReadAllText("./Resources/Data/InteractTextData.json");
-            mapText = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(jsonFile);
+            // using FileAccess textFile = FileAccess.Open("./Resources/Data/InteractTextData.json", FileAccess.ModeFlags.Read);
+            string jsonFile = FileAccess.GetFileAsString("res://Resources/Data/InteractTextData.json");
+            Json tempJson = new();
+            tempJson.Parse(jsonFile);
+            mapText = (Dictionary<string, Dictionary<string, string>>)tempJson.Data;
+            // jsonFile = File.ReadAllText("./Resources/Data/InteractTextData.json");
+            // mapText = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(jsonFile);
+            // mapText = (Dictionary<string, Dictionary<string, string>>)Json.ParseString(jsonFile);
         }
 
         //=============================================================================

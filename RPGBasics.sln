@@ -1,6 +1,6 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TurnBasedBattle_Basic", "TurnBasedBattle_Basic.csproj", "{DFED3526-FC75-4BC3-9DC2-DCED8BC76590}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPGBasics", "RPGBasics.csproj", "{DFED3526-FC75-4BC3-9DC2-DCED8BC76590}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
