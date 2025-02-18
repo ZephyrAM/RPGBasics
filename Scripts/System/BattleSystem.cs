@@ -23,7 +23,7 @@ namespace ZAM.System
         [Export] private CanvasLayer battleUI = null;
 
         [Export] private Node2D floatingText = null;
-        [Export] private Node2D cursorTarget = null;
+        // [Export] private Node2D cursorTarget = null;
 
         [Export] private PanelContainer commandPanel = null;
         [Export] private PanelContainer skillPanel = null;
@@ -33,21 +33,7 @@ namespace ZAM.System
         [Export] private PackedScene statusList = null;
         [Export] private PackedScene labelSettings = null;
 
-        [ExportGroup("Variables")]
-        [Export] private string battleUIName;
-
-        [Export] private string enemyTeamName;
-        [Export] private string playerPartyName;
-        [Export] private string enemyListName;
-        [Export] private string playerListName;
-        [Export] private string healthListName;
-        [Export] private string healthBarName;
-
-        [Export] private string cursorSpriteName;
-        [Export] private string cursorAnimatorName;
-
-
-
+        // private List<PackedScene> cursorTargetList = [];
         private PackedScene enemyEncounter = null;
         private Node2D mapScene;
         private PartyManager playerParty;
@@ -62,16 +48,17 @@ namespace ZAM.System
         private VBoxContainer enemyList = null;
         private VBoxContainer playerList = null;
 
-        private ColorRect commandBar = null;
-        private ColorRect skillBar = null;
-        private ColorRect itemBar = null;
+        // private ColorRect commandBar = null;
+        // private ColorRect skillBar = null;
+        // private ColorRect itemBar = null;
 
         private bool turnActive = false;
         private int nextFloatValue = 0;
         private Vector2 marginSize = new(4, 4);
 
-        private Vector2 offset;
+        // private Vector2 offset;
         private float cursorOffset, targetOffset;
+        private Button itemButton = null;
 
 
         // Delegate Events \\
@@ -88,11 +75,11 @@ namespace ZAM.System
             // mapScene.BuildParty();
             BuildEnemyTeam();
 
-            cursorOffset = cursorTarget.GetNode<Sprite2D>(cursorSpriteName).Texture.GetHeight() / 2;
-            targetOffset = enemyTeam[partyInput.GetTarget()].GetSprite2D().Texture.GetHeight() / 2;
-            offset = new Vector2(0, targetOffset + cursorOffset);
+            // cursorOffset = cursorTarget.GetNode<Sprite2D>(ConstTerm.SPRITE2D).Texture.GetHeight() / 2;
+            // targetOffset = enemyTeam[partyInput.GetTarget()].GetSprite2D().Texture.GetHeight() / 2;
+            // offset = new Vector2(0, targetOffset + cursorOffset);
 
-            cursorTarget.GetNode<Sprite2D>(cursorSpriteName).GetNode<AnimationPlayer>(cursorAnimatorName).Play(ConstTerm.CURSOR_BOUNCE);
+            // cursorTarget.GetNode<Sprite2D>(ConstTerm.SPRITE2D).GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER).Play(ConstTerm.CURSOR_BOUNCE);
             defendAbility = DatabaseManager.Instance.GetDefend();
 
             SubSignals();
@@ -107,10 +94,11 @@ namespace ZAM.System
             UIVisibility();
         }
 
-        // public override void _ExitTree()
-        // {
-        //     UnSubSignals();
-        // }
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            UnSubSignals();
+        }
 
         // public override void _Process(double delta)
         // {
@@ -129,23 +117,11 @@ namespace ZAM.System
 
         private void IfNull()
         {
-            enemyTeamName ??= "EnemyTeam";
-            playerPartyName ??= "PlayerParty";
-            enemyListName ??= "EnemyList";
-            playerListName ??= "PlayerList";
-            healthListName ??= "StatusList";
+            battleUI ??= GetNode<CanvasLayer>(ConstTerm.BATTLE_UI);
 
-            battleUIName ??= ConstTerm.BATTLE_UI;
-            healthBarName ??= ConstTerm.HEALTH_DISPLAY;
-
-            cursorAnimatorName ??= ConstTerm.ANIM_PLAYER;
-            cursorSpriteName ??= ConstTerm.SPRITE2D;
-
-            battleUI ??= GetNode<CanvasLayer>(battleUIName);
-
-            commandBar ??= commandPanel.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
-            skillBar ??= skillPanel.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
-            itemBar ??= itemPanel.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
+            // commandBar ??= commandPanel.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
+            // skillBar ??= skillPanel.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
+            // itemBar ??= itemPanel.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
         }
 
         private void SubSignals()
@@ -168,22 +144,25 @@ namespace ZAM.System
             // partyInput.onBattleFinish += OnBattleFinish;
         }
 
-        // private void UnSubSignals()
-        // {
-        //     partyInput.onBattlePhase -= OnBattlePhase;
-        //     partyInput.onTurnCycle -= OnTurnCycle;
-        //     partyInput.onTurnEnd -= OnTurnEnd;
-        //     partyInput.onTargetChange -= OnTargetChange;
-        //     partyInput.onAbilityUse -= OnAbilityUse;
-        //     partyInput.onAbilityStop -= OnAbilityStop;
-        //     partyInput.onItemSelect -= OnItemSelect;
-        //     partyInput.onItemUse -= OnItemUse;
-        // }
+        private void UnSubSignals()
+        {
+            partyInput.onBattlePhase -= OnBattlePhase;
+            partyInput.onTurnCycle -= OnTurnCycle;
+            partyInput.onTurnEnd -= OnTurnEnd;
+            partyInput.onTargetChange -= OnTargetChange;
+            partyInput.onSelectCancel -= OnSelectCancel;
 
-        public void BuildPlayerTeam()
+            partyInput.onAbilitySelect -= OnAbilitySelect;
+            partyInput.onAbilityUse -= OnAbilityUse;
+            partyInput.onAbilityStop -= OnAbilityStop;
+            partyInput.onItemSelect -= OnItemSelect;
+            partyInput.onItemUse -= OnItemUse;
+        }
+
+        public void BuildPlayerTeam() // EDIT: Create cursor target for each member
         {
             playerTeam = new List<Battler>();
-            Node teamNode = GetNode(playerPartyName);
+            Node teamNode = GetNode(ConstTerm.PLAYER + ConstTerm.PARTY);
 
             // CharacterBody2D[] tempTeam = GetPlayerTeam(playerParty);
             // List<CharacterBody2D> tempTeam = playerParty.GetActiveParty();
@@ -192,6 +171,13 @@ namespace ZAM.System
             {
                 CharacterBody2D tempChar = playerParty.SpawnBattleMember(n);
                 tempChar.Position = partyInput.GetPlayerPositions()[n];
+
+                tempChar.GetNode<CollisionShape2D>(ConstTerm.COLLIDER2D).Position = new Vector2(0, 0);
+                tempChar.GetNode<CollisionShape2D>(ConstTerm.COLLIDER2D).Scale = new Vector2(1.5f, 1.5f);
+
+                // Node2D tempCursor = ResourceLoader.Load<PackedScene>(cursorBase.ResourcePath).Instantiate() as Node2D;
+                // tempCursor.Position = tempChar.GetGlobalTransformWithCanvas().Origin - offset;
+                // tempChar.AddChild(tempCursor);
 
                 // partyInput.AddChild(tempTeam[n]);
                 // partyInput.MoveChild(tempTeam[n], n);
@@ -207,12 +193,15 @@ namespace ZAM.System
                 playerTeam[n].onHitEnemy += OnHitEnemy;
                 playerTeam[n].onAbilityHitPlayer += OnAbilityHitPlayer;
                 playerTeam[n].onBattlerLevelUp += OnBattlerLevelUp;
+                int b = n;
+                partyInput.GetChild(n).GetNode<Battler>(ConstTerm.BATTLER).onMouseTarget += (hover) => OnMouseBattlerTarget(hover, ConstTerm.PLAYER, b);
+                // partyInput.GetChild(n).GetNode<Battler>(ConstTerm.BATTLER).onMouseClick += () => OnMouseBattlerClick(ConstTerm.PLAYER);
 
                 // UI Bars \\
-                var tempLine = ResourceLoader.Load<PackedScene>(statusList.ResourcePath).Instantiate();
-                playerList = battleUI.GetNode<VBoxContainer>(playerListName);
+                Node tempLine = ResourceLoader.Load<PackedScene>(statusList.ResourcePath).Instantiate();
+                playerList = battleUI.GetNode<VBoxContainer>(ConstTerm.PLAYER + ConstTerm.LIST);
                 playerList.AddChild(tempLine);
-                playerList.GetChild(n).GetNode<HealthDisplay>(healthBarName).SetBattler(playerTeam[n]);
+                playerList.GetChild(n).GetNode<HealthDisplay>(ConstTerm.HEALTH_DISPLAY).SetBattler(playerTeam[n]);
                 playerList.GetChild(n).GetNode<Label>(ConstTerm.NAME).Text = playerTeam[n].GetNameLabel().Text;
                 playerTeam[n].GetNameLabel().Visible = false;
             }
@@ -224,18 +213,18 @@ namespace ZAM.System
         {
             for (int n = 0; n < playerList.GetChildCount(); n++)
             {
-                playerList.GetChild(n).GetNode<HealthDisplay>(healthBarName).ForceHealthBarUpdate();
+                playerList.GetChild(n).GetNode<HealthDisplay>(ConstTerm.HEALTH_DISPLAY).ForceHealthBarUpdate();
             }
         }
 
-        private void BuildEnemyTeam()
+        private void BuildEnemyTeam() // EDIT: Create cursor target for each member
         {
-            enemyList = battleUI.GetNode<VBoxContainer>(enemyListName);
+            enemyList = battleUI.GetNode<VBoxContainer>(ConstTerm.ENEMY + ConstTerm.LIST);
 
             enemyTeam = [];
-            var encounterTeam = ResourceLoader.Load<PackedScene>(enemyEncounter.ResourcePath).Instantiate();
+            Node encounterTeam = ResourceLoader.Load<PackedScene>(enemyEncounter.ResourcePath).Instantiate();
             AddChild(encounterTeam);
-            BuildTeam(enemyList, enemyTeam, enemyTeamName);
+            BuildTeam(enemyList, enemyTeam, ConstTerm.ENEMY + ConstTerm.TEAM);
 
             partyInput.SetEnemyTeamSize(enemyTeam.Count);
         }
@@ -258,11 +247,14 @@ namespace ZAM.System
             {
                 teamBattlers.Add(teamNode.GetChild<CharacterBody2D>(tempList[n]).GetNode<Battler>(ConstTerm.BATTLER));
                 teamBattlers[n].onHitPlayer += OnHitPlayer;
+                int b = n;
+                teamBattlers[n].onMouseTarget += (hover) => OnMouseBattlerTarget(hover, ConstTerm.ENEMY, b);
+                // teamBattlers[n].onMouseClick += () => OnMouseBattlerClick(ConstTerm.ENEMY);
 
                 string tempName = teamBattlers[n].GetNameLabel().Text;
                 teamBattlers[n].GetNameLabel().Text = tempName;
                 teamBattlers[n].GetNameLabel().Reparent(teamList);
-                teamBattlers[n].GetNode<HealthDisplay>("../" + healthBarName).SetBattler(teamBattlers[n]);
+                teamBattlers[n].GetNode<HealthDisplay>("../" + ConstTerm.HEALTH_DISPLAY).SetBattler(teamBattlers[n]);
             }
         }
 
@@ -308,7 +300,7 @@ namespace ZAM.System
 
         public void UIVisibility()
         {
-            cursorTarget.Visible = partyInput.GetTurnPhase() == ConstTerm.ATTACK || partyInput.GetTurnPhase() == ConstTerm.SKILL + ConstTerm.USE || partyInput.GetTurnPhase() == ConstTerm.ITEM + ConstTerm.USE;
+            // cursorTarget.Visible = partyInput.GetTurnPhase() == ConstTerm.ATTACK || partyInput.GetTurnPhase() == ConstTerm.SKILL + ConstTerm.USE || partyInput.GetTurnPhase() == ConstTerm.ITEM + ConstTerm.USE;
             commandPanel.Visible = partyInput.GetTurnPhase() == ConstTerm.COMMAND;
             skillPanel.Visible   = partyInput.GetTurnPhase() == ConstTerm.SKILL + ConstTerm.SELECT;
             itemPanel.Visible    = partyInput.GetTurnPhase() == ConstTerm.ITEM + ConstTerm.SELECT;
@@ -339,10 +331,13 @@ namespace ZAM.System
             commandPanel.Position = commandOrigin - new Vector2(xOffset, yOffset);
         }
 
-        public void SetCursorPosition()
+        public void SetCursorPosition() // EDIT: Add cursor to each battler target. Toggle Visible if targetted - more effective for AoE
         {
             int target = partyInput.GetTarget();
             List<Battler> targetTeam = enemyTeam;
+            string area = "";
+
+            if (target >= targetTeam.Count || target < 0) { target = 0; }
 
             if (partyInput.GetTurnPhase() == ConstTerm.SKILL + ConstTerm.USE) {
                 switch (activeAbility.TargetType)
@@ -357,9 +352,9 @@ namespace ZAM.System
                         GD.PushError("Invalid SKILL target type!");
                         break;
                 }
+                area = activeAbility.TargetArea;
             }
-
-            if (partyInput.GetTurnPhase() == ConstTerm.ITEM + ConstTerm.USE) {
+            else if (partyInput.GetTurnPhase() == ConstTerm.ITEM + ConstTerm.USE) {
                 switch (activeItem.TargetType)
                 {
                     case ConstTerm.ALLY:
@@ -372,15 +367,56 @@ namespace ZAM.System
                         GD.PushError("Invalid ITEM target type!");
                         break;
                 }
+                area = activeItem.TargetArea;
             }
+            else if (partyInput.GetTurnPhase() == ConstTerm.ATTACK) { area = ConstTerm.SINGLE; } // EDIT: Change target area to match attack parameters
 
-            if (target >= targetTeam.Count || target < 0) { target = 0; }
+            SetActiveCursors(targetTeam, target, area);
 
-            targetOffset = targetTeam[target].GetHeight() / 2;
-            offset = new Vector2(0, targetOffset + cursorOffset);
+            // targetOffset = targetTeam[target].GetHeight() / 2;
+            // offset = new Vector2(0, targetOffset + cursorOffset);
 
-            cursorTarget.Position = targetTeam[target].GetCharBody().GetGlobalTransformWithCanvas().Origin - offset;
+            // cursorTarget.Position = targetTeam[target].GetCharBody().GetGlobalTransformWithCanvas().Origin - offset;
             // GD.Print(target + " " + targetTeam[target].GetCharBody().GetGlobalTransformWithCanvas().Origin + " " + targetTeam[target].GetCharBody().Position);
+        }
+
+        private void SetActiveCursors(List<Battler> targetTeam, int target, string area)
+        {
+            ClearBattlerCursors(targetTeam, target, area);
+            AnimationPlayer cursorAnim;
+
+            if (area == ConstTerm.GROUP) {
+                for (int t = 0; t < targetTeam.Count; t++) {
+                    targetTeam[t].GetBattlerCursor().Visible = true;
+                    cursorAnim = targetTeam[t].GetBattlerCursor().GetNode<Sprite2D>(ConstTerm.SPRITE2D).GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
+                    if (!cursorAnim.IsPlaying()) { cursorAnim.Play(ConstTerm.CURSOR_BOUNCE); }
+                }
+            } else {
+                targetTeam[target].GetBattlerCursor().Visible = true;
+                cursorAnim = targetTeam[target].GetBattlerCursor().GetNode<Sprite2D>(ConstTerm.SPRITE2D).GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
+                if (!cursorAnim.IsPlaying()) { cursorAnim.Play(ConstTerm.CURSOR_BOUNCE); }
+            }
+        }
+
+        private void ClearBattlerCursors(List<Battler> team, int target, string area)
+        {
+            if (area == ConstTerm.GROUP) { return; }
+
+            for (int b = 0; b < team.Count; b++)
+            {
+                if (b == target) { continue; }
+                team[b].GetBattlerCursor().Visible = false;
+                team[b].GetBattlerCursor().GetNode<Sprite2D>(ConstTerm.SPRITE2D).GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER).Stop();
+            }
+        }
+
+        private void ClearAllCursors()
+        {
+            for (int b = 0; b < battler.Count; b++)
+            {
+                battler[b].GetBattlerCursor().Visible = false;
+                battler[b].GetBattlerCursor().GetNode<Sprite2D>(ConstTerm.SPRITE2D).GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER).Stop();
+            }
         }
 
         private void ReturnToPosition(Battler currBattler)
@@ -502,12 +538,11 @@ namespace ZAM.System
             // GD.Print(" - Player Go");
             partyInput.SetActiveMember(playerTeam.IndexOf(battler[0]));
             MoveCommandPanel(battler[0]);
+            itemButton.Disabled = ItemBag.Instance.BagIsEmpty();
 
             turnActive = true;
-            partyInput.SetTurnPhase(ConstTerm.COMMAND);
-            partyInput.SetPlayerTurn(true);
-            partyInput.SetNumColumn();
-            SetCursorPosition();
+            partyInput.PlayerTurnStart();
+            // SetCursorPosition();
             // Wait for player/BattleController
         }
 
@@ -515,17 +550,17 @@ namespace ZAM.System
         // SECTION: Menu UI
         //=============================================================================
 
-        private void SelectChange(ColorRect selectBar)
-        {
-            ColorRect tempBar = selectBar;
+        // private void SelectChange(ColorRect selectBar)
+        // {
+        //     ColorRect tempBar = selectBar;
 
-            float index = partyInput.GetCommand();
-            float numColumns = partyInput.GetNumColumn();
-            float column = index % numColumns;
-            float yPos = (float)(tempBar.Size.Y * Math.Ceiling(index / numColumns - column));
+        //     float index = partyInput.GetCommand();
+        //     float numColumns = partyInput.GetNumColumn();
+        //     float column = index % numColumns;
+        //     float yPos = (float)(tempBar.Size.Y * Math.Ceiling(index / numColumns - column));
 
-            tempBar.Position = new Vector2(column * tempBar.Size.X, yPos); // EDIT - Temporary!
-        }
+        //     tempBar.Position = new Vector2(column * tempBar.Size.X, yPos); // EDIT - Temporary!
+        // }
 
         private void SetupCommandList()
         {
@@ -533,6 +568,10 @@ namespace ZAM.System
             {
                 Label newCommand = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
                 newCommand.Text = partyInput.GetCommandOptions()[i];
+                if (newCommand.Text == ConstTerm.ITEM) { 
+                    itemButton = newCommand.GetNode<Button>(ConstTerm.BUTTON);
+                    itemButton.Disabled = ItemBag.Instance.BagIsEmpty();
+                }
 
                 commandPanel.GetNode(ConstTerm.COMMAND + ConstTerm.LIST).AddChild(newCommand);
             }
@@ -540,8 +579,8 @@ namespace ZAM.System
 
         private void SetupSkillList(Battler player)
         {
-            foreach(Node child in skillPanel.GetNode(ConstTerm.SKILL + ConstTerm.LIST).GetChildren())
-            { child.QueueFree(); }
+            foreach(Node child in skillPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
+            { child.Free(); }
 
             foreach (Ability skill in player.GetSkillList().GetSkills())
             {
@@ -549,15 +588,17 @@ namespace ZAM.System
                 newSkill.Text = skill.AbilityName;
                 newSkill.CustomMinimumSize = new Vector2(partyInput.GetSkillItemWidth(), 0);
 
-                skillPanel.GetNode(ConstTerm.SKILL + ConstTerm.LIST).AddChild(newSkill);
+                skillPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newSkill);
             }
+
+            partyInput.SubLists(partyInput.GetSkillList());
         }
 
         private void SetupItemList()
         {
             if (!CheckHasItems()) { return; };
 
-            foreach(Node child in itemPanel.GetNode(ConstTerm.ITEM + ConstTerm.LIST).GetChildren())
+            foreach(Node child in itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
             { child.QueueFree(); }
 
             foreach (Item item in ItemBag.Instance.GetItemBag())
@@ -566,7 +607,7 @@ namespace ZAM.System
                 newItem.Text = item.ItemName;
                 newItem.CustomMinimumSize = new Vector2(partyInput.GetSkillItemWidth(), 0);
 
-                itemPanel.GetNode(ConstTerm.ITEM + ConstTerm.LIST).AddChild(newItem);
+                itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newItem);
             }
         }
 
@@ -600,6 +641,8 @@ namespace ZAM.System
 
         public void OnHitEnemy(Battler player) // Called from Battler
         {
+            int currTarget = partyInput.GetTarget();
+            CommandDone();
             if (activeAbility != null && activeAbility.TargetArea == ConstTerm.GROUP) {
 
                 List<Battler> killTargets = [];
@@ -627,7 +670,7 @@ namespace ZAM.System
                 }
             }
             else {
-                Battler defender = enemyTeam[partyInput.GetTarget()];
+                Battler defender = enemyTeam[currTarget];
 
                 defender.GetAnimPlayer().Queue(ConstTerm.TAKE_DAMAGE);
                 DamageHandling(player, defender);
@@ -637,7 +680,7 @@ namespace ZAM.System
                     defender.onHitPlayer -= OnHitPlayer;
                     KillTarget(defender, enemyTeam, playerTeam);
 
-                    enemyList.GetChild(partyInput.GetTarget()).QueueFree();
+                    enemyList.GetChild(currTarget).QueueFree();
                     partyInput.SetEnemyTeamSize(enemyTeam.Count);
 
                     // BattleEndCheck();
@@ -737,14 +780,10 @@ namespace ZAM.System
 
                 if (turnActive == false) { battler = SortSpeed(battler); }
 
-                if (battler[0].GetBattlerType() == ConstTerm.ENEMY)
-                {
-                    EnemyTurn();
-                }
-                else
-                {
-                    PlayerTurn();
-                }
+                if (battler[0].GetBattlerType() == ConstTerm.ENEMY) 
+                { EnemyTurn(); }
+                else 
+                { PlayerTurn(); }
             }
             SkipToEnd:
             CheckBattlers();
@@ -772,11 +811,25 @@ namespace ZAM.System
         {
             partyInput.SetTurnPhase(ConstTerm.WAIT);
             partyInput.SetCommand(0);
+            ClearAllCursors();
 
-            commandBar.Position = Vector2.Zero;
-            skillBar.Position = Vector2.Zero;
-            itemBar.Position = Vector2.Zero;
+            // commandBar.Position = Vector2.Zero;
+            // skillBar.Position = Vector2.Zero;
+            // itemBar.Position = Vector2.Zero;
         }
+
+        private void OnMouseBattlerTarget(bool hover, string team, int member)
+        {
+            if (team != partyInput.GetTargetTeam()) { return; }
+
+            partyInput.OnBattlerSelect(hover, team, member);
+        }
+
+        // private void OnMouseBattlerClick(string team)
+        // {
+        //     if (team != partyInput.GetTargetTeam()) { return; }
+        //     partyInput.OnBattlerClick();
+        // }
 
         private void OnTargetChange()
         {
@@ -784,15 +837,15 @@ namespace ZAM.System
             {
                 switch (partyInput.GetTurnPhase())
                 {
-                    case ConstTerm.COMMAND:
-                        SelectChange(commandBar);
-                        break;
-                    case ConstTerm.ITEM + ConstTerm.SELECT:
-                        SelectChange(itemBar);
-                        break;
-                    case ConstTerm.SKILL + ConstTerm.SELECT:
-                        SelectChange(skillBar);
-                        break;
+                    // case ConstTerm.COMMAND:
+                    //     SelectChange(commandBar);
+                    //     break;
+                    // case ConstTerm.ITEM + ConstTerm.SELECT:
+                    //     SelectChange(itemBar);
+                    //     break;
+                    // case ConstTerm.SKILL + ConstTerm.SELECT:
+                    //     SelectChange(skillBar);
+                    //     break;
                     case ConstTerm.ATTACK:
                     case ConstTerm.ITEM + ConstTerm.USE:
                     case ConstTerm.SKILL + ConstTerm.USE:
@@ -806,6 +859,7 @@ namespace ZAM.System
 
         private void OnSelectCancel()
         {
+            ClearAllCursors();
             ClearAbilityItem();
         }
 
@@ -820,7 +874,7 @@ namespace ZAM.System
                 partyInput.ResetActionTarget();
             }
 
-            SetCursorPosition();
+            // SetCursorPosition();
         }
 
         private async void OnAbilityUse(int index)
@@ -832,11 +886,8 @@ namespace ZAM.System
             //     activeAbility = battler[0].GetSkillList().GetSkills()[index];
             // }
 
-            if (activeAbility.AddedState != null) 
-            {
-                
-                if (!battler[0].GetStateList().Contains(activeAbility.AddedState))
-                {
+            if (activeAbility.AddedState != null) {
+                if (!battler[0].GetStateList().Contains(activeAbility.AddedState)) {
                     battler[0].AddState(activeAbility.AddedState);
                 }
                 // GD.Print(" -- Activate - " + battler[0].GetStateList().Last().StateName);
@@ -852,6 +903,8 @@ namespace ZAM.System
 
         private void OnAbilityStop(int index)
         {
+            ClearAllCursors();
+
             Ability newAbility;
             if (index == -1) { newAbility = defendAbility; }
             else
@@ -878,7 +931,7 @@ namespace ZAM.System
                 else { partyInput.SetTargetTeam(ConstTerm.ENEMY); }
                 partyInput.ResetActionTarget();
             }
-            SetCursorPosition();
+            // SetCursorPosition();
         }
 
         private async void OnItemUse(int index)
@@ -888,7 +941,7 @@ namespace ZAM.System
             battler[0].GetAnimPlayer().Queue(activeItem.CallAnimation);
             await ToSignal(battler[0].GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
             ItemBag.Instance.RemoveItemFromBag(index);
-            itemPanel.GetNode(ConstTerm.ITEM + ConstTerm.LIST).GetChild(index).QueueFree();
+            itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).QueueFree();
 
             // partyInput.ResetTarget();
 

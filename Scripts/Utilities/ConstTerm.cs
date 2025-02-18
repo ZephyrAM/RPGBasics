@@ -36,6 +36,8 @@ public class ConstTerm
     public const string LEFT = "Left";
     public const string RIGHT = "Right";
 
+    public const string CLICK = "Click";
+
 
     //=============================================================================
     // SECTION: Signals
@@ -63,6 +65,7 @@ public class ConstTerm
     public const string SAVE_FOLDER = "saves/";
     public const string SAVE_FILE = "saveTest";
     public const string SAVE_TYPE = ".saveGame";
+    public const string CFG_FILE = "config.cfg";
 
     public const string TXT = ".txt";
     public const string TRES = ".tres";
@@ -74,6 +77,7 @@ public class ConstTerm
     public const string BATTLE_SCENE = "res://Scenes/BattleScene.tscn";
     public const string NEWGAME_SCENE = "res://Scenes/MapSysem.tscn"; // EDIT: Change to default scene!!
     public const string MAP_SCENE = "res://Scenes/Maps/";
+    public const string MOUSE_TARGET = "res://Resources/UI/Nodes/mouse_target.tscn";
 
 
     //=============================================================================
@@ -82,9 +86,13 @@ public class ConstTerm
     public const string ALLY = "Ally";
     public const string ENEMY = "Enemy";
     public const string SELF = "Self";
+    public const string EITHER = "Either";
+    public const string ALL = "All";
     
     public const string SINGLE = "Single";
     public const string GROUP = "Group";
+
+    public const string TARGET = "Target";
 
 
     //=============================================================================
@@ -156,6 +164,8 @@ public class ConstTerm
     //=============================================================================
     public const string PLAYER = "Player";
     public const string NPC = "NPC";
+    public const string TEAM = "Team";
+    public const string PARTY = "Party";
 
     public const string USE = "Use";
     public const string SELECT = "Select";
@@ -192,6 +202,7 @@ public class ConstTerm
     public const string NAVAGENT2D = "NavigationAgent2D";
     public const string ANIM_PLAYER = "AnimationPlayer";
     public const string ANIM_TREE = "AnimationTree";
+    public const string CURSOR = "Cursor";
 
     public const string CANVAS_LAYER = "CanvasLayer";
     public const string AREA2D = "Area2D";

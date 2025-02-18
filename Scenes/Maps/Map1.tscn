@@ -19,12 +19,12 @@
 [ext_resource type="PackedScene" uid="uid://bhw8ja7yjcpke" path="res://Resources/UI/Layers/party_menu.tscn" id="17_c8uvi"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_wq6mi"]
-vertices = PackedVector2Array(90.8672, -154, -239.828, -154, -239.156, -193.156, 382.203, -203.82, 392.789, 317.094, 94.1328, 100.078, -441.023, 324.898, -287.102, 96.9219, -441.969, -112.883, -285.094, -111.109)
-polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(0, 3, 4, 5), PackedInt32Array(5, 4, 6, 7), PackedInt32Array(7, 6, 8, 9)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(-452, -123, -451, 335, 403, 327, 392, -214, -249, -203, -250, -144, 81, -144, 84, 90, -277, 87, -275, -121)])
+vertices = PackedVector2Array(392.789, 317.094, -441.07, 324.898, -444.922, -202.023, 382.188, -203.969)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-455, -212, -451, 335, 403, 327, 392, -214)])
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pu2yp"]
-size = Vector2(19, 138)
+size = Vector2(20, 140)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hjwbo"]
 resource_name = "Terrain (ID:1)"
@@ -944,7 +944,6 @@ labelSettings = ExtResource("3_eh4q2")
 eventScript = ExtResource("4_ia6gl")
 
 [node name="PartyManager" type="Node2D" parent="MapSystem" groups=["PartyData"]]
-z_as_relative = false
 y_sort_enabled = true
 position = Vector2(-383, -46)
 script = ExtResource("12_wsyri")
@@ -988,6 +987,7 @@ offset_right = 800.0
 offset_bottom = 300.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 color = Color(0.306116, 0.586933, 0.935857, 1)
 
 [node name="Ground" type="TileMapLayer" parent="MapSystem/Environment"]
@@ -1010,7 +1010,7 @@ playerParty = NodePath("../../PartyManager")
 enemyGroups = [ExtResource("14_r0cwx")]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MapSystem/Environment/Area2D"]
-position = Vector2(150, 93.5)
+position = Vector2(150, 95)
 shape = SubResource("RectangleShape2D_b7hks")
 
 [node name="Events" type="Node2D" parent="MapSystem"]

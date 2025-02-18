@@ -76,6 +76,12 @@ namespace ZAM.System
             // hasLoaded = true;
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            UnSubSignals();
+        }
+
         // public override void _EnterTree()
         // {
         //     // if (hasLoaded) {
@@ -144,22 +150,31 @@ namespace ZAM.System
 
             mapEvents.onEventComplete += OnEventComplete;
 
-            for (int a = 0; a < battleAreas.Length; a++)
-            {
-                battleAreas[a].onBattleTrigger += OnBattleTrigger;
-            }
+            for (int a = 0; a < battleAreas.Length; a++) {
+                battleAreas[a].onBattleTrigger += OnBattleTrigger; }
         }
 
-        // private void UnSubSignals() // Inactive: Mapsystem doesn't run _Ready again after _ExitTree
-        // {
-        //     playerInput.onInteractCheck -= OnInteractCheck;
-        //     playerInput.onSelectChange -= OnSelectChange;
-        //     playerInput.onTextProgress -= OnTextProgress;
-        //     playerInput.onChoiceSelect -= OnChoiceSelect;
-        //     playerInput.onMenuOpen -= OnMenuOpen;
+        private void UnSubSignals() // Inactive: Mapsystem doesn't run _Ready again after _ExitTree
+        {
+            playerInput.onSaveGame -= OnSaveGame;
+            playerInput.onLoadGame -= OnLoadGame;
 
-        //     menuInput.onMenuClose -= OnMenuClose;
-        // }
+            playerInput.onInteractCheck -= OnInteractCheck;
+            playerInput.onSelectChange -= OnSelectChange;
+            playerInput.onTextProgress -= OnTextProgress;
+            playerInput.onChoiceSelect -= OnChoiceSelect;
+            playerInput.onMenuOpen -= OnMenuOpen;
+
+            menuInput.onMenuClose -= OnMenuClose;
+            menuInput.onMenuPhase -= OnMenuPhase;
+            // menuInput.onTargetChange += OnTargetChange;
+            menuInput.onMemberSelect -= OnMemberSelect;
+
+            mapEvents.onEventComplete -= OnEventComplete;
+
+            for (int a = 0; a < battleAreas.Length; a++) {
+                battleAreas[a].onBattleTrigger -= OnBattleTrigger; }
+        }
 
         // public override void _EnterTree()
         // {
@@ -499,7 +514,7 @@ namespace ZAM.System
         private void OnSelectChange()
         {
             int index = playerInput.GetChoice();
-            interactTarget.GetChoiceBox().MoveCursor(index);
+            // interactTarget.GetChoiceBox().MoveCursor(index);
             interactTarget.SetChoiceOption(index);
         }
 
@@ -602,6 +617,7 @@ namespace ZAM.System
             target._Ready();
             target.SetProcess(true);
             target.SetPhysicsProcess(true);
+            target.SetProcessInput(true);
             return target;
             // ... is a blasted mess. \\
         }

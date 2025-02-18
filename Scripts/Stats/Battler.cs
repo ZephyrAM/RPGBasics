@@ -20,6 +20,7 @@ namespace ZAM.Stats
         [Export] private Sprite2D battlerSprite;
         [Export] private Texture2D battlerPortrait;
         [Export] private AnimationPlayer battlerAnim;
+        [Export] private Node2D battlerCursor;
 
         [Export] private Health battlerHealth;
         [Export] private BaseStats battlerStats;
@@ -42,6 +43,10 @@ namespace ZAM.Stats
         public delegate void onAbilityHitPlayerEventHandler(Battler user);
         [Signal]
         public delegate void onBattlerLevelUpEventHandler(Battler battler);
+        [Signal]
+        public delegate void onMouseTargetEventHandler(bool hover);
+        // [Signal]
+        // public delegate void onMouseClickEventHandler();
 
         //=============================================================================
         // SECTION: Base Methods
@@ -57,16 +62,24 @@ namespace ZAM.Stats
             // battlerHealth.SetMaxHP(battlerStats.GetStatValue(Stat.Stamina) * 10); // EDIT: Find better place to load.
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            UnSubSignals();
+        }
+
         //=============================================================================
         // SECTION: OnReady Methods
         //=============================================================================
         private void IfNull()
         {
-            battlerBody ??= GetNode<CharacterBody2D>(ConstTerm.CHARBODY2D);
-            battlerSprite ??= GetNode<Sprite2D>(ConstTerm.SPRITE2D);
-            battlerAnim ??= GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
+            battlerBody ??= GetParent<CharacterBody2D>();
+            battlerSprite ??= battlerBody.GetNode<Sprite2D>(ConstTerm.SPRITE2D);
+            battlerAnim ??= battlerBody.GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
+            battlerName ??= battlerBody.GetNode<Label>(ConstTerm.NAME);
 
-            battlerName ??= GetNode<Label>(ConstTerm.NAME);
+            if (battlerType != ConstTerm.NPC) { battlerCursor ??= battlerBody.GetNode<Node2D>(ConstTerm.CURSOR + ConstTerm.TARGET); }
+
             battlerHealth ??= GetNode<Health>(ConstTerm.HEALTH);
             battlerStats ??= GetNode<BaseStats>(ConstTerm.BASESTATS);
             battlerExp ??= GetNode<Experience>(ConstTerm.EXPERIENCE);
@@ -77,17 +90,23 @@ namespace ZAM.Stats
         private void SubSignals()
         {
             battlerExp.onLevelUp += OnLevelUp;
+            battlerBody.MouseEntered += () => OnMouseOver(true);
+            battlerBody.MouseExited += () => OnMouseOver(false);
+            // battlerBody.Connect(CharacterBody2D.SignalName.MouseEntered, new Callable(this, MethodName.OnMouseOver));
         }
-        
+
         private void UnSubSignals()
         {
             battlerExp.onLevelUp -= OnLevelUp;
+            battlerBody.MouseEntered -= () => OnMouseOver(true);
+            battlerBody.MouseExited -= () => OnMouseOver(false);
         }
 
 
         //=============================================================================
         // SECTION: Set Methods
         //=============================================================================
+
 
         public bool CheckCanUse(Ability skill)
         {
@@ -135,6 +154,11 @@ namespace ZAM.Stats
         public string GetBattlerTitle()
         {
             return battlerTitle;
+        }
+
+        public Node2D GetBattlerCursor()
+        {
+            return battlerCursor;
         }
 
         public Label GetNameLabel()
@@ -221,6 +245,16 @@ namespace ZAM.Stats
             EmitSignal(SignalName.onBattlerLevelUp, this);
             battlerStats.LevelUpStats();
         }
+
+        public void OnMouseOver(bool hover)
+        {
+            EmitSignal(SignalName.onMouseTarget, hover);
+        }
+
+        // public void OnMouseClick(Node viewport, InputEvent @event, long shapeIdx)
+        // {
+        //     if (@event.IsActionPressed(ConstTerm.ACCEPT + ConstTerm.CLICK)) { EmitSignal(SignalName.onMouseClick); }
+        // }
 
         //=============================================================================
         // SECTION: Save System

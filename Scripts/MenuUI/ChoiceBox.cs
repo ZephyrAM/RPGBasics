@@ -9,8 +9,8 @@ namespace ZAM.MenuUI
         [Export] private PackedScene choiceLabel = null;
         [Export] private VBoxContainer vertBox = null;
         
-        [Export] private GridContainer selectList = null;
-        [Export] private ColorRect selectBar = null;
+        // [Export] private GridContainer selectList = null;
+        // [Export] private ColorRect selectBar = null;
 
         private int currentChoice = 0;
 
@@ -24,17 +24,20 @@ namespace ZAM.MenuUI
             HideChoiceBox();
         }
 
-        public override void _Process(double delta)
-        {
-            if (Visible) { selectBar.GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER).Play(ConstTerm.CURSOR_BLINK); }
-        }
+        // public override void _Process(double delta)
+        // {
+        //     if (vertBox.GetChildCount() > 0 && vertBox.GetChild(currentChoice).GetNode<Button>(ConstTerm.BUTTON).HasFocus()) { // EDIT: Option to animate
+        //         vertBox.GetChild(currentChoice).GetNode<Button>(ConstTerm.BUTTON).GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER).Play("focus_blink");
+        //     }
+        //     // if (Visible) { selectBar.GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER).Play(ConstTerm.CURSOR_BLINK); }
+        // }
 
         public void IfNull()
         {
             vertBox ??= GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
 
-            selectList ??= GetNode<MarginContainer>(ConstTerm.SELECT + ConstTerm.CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST);
-            selectBar ??= selectList.GetNode<ColorRect>(ConstTerm.COLOR_RECT);
+            // selectList ??= GetNode<MarginContainer>(ConstTerm.SELECT + ConstTerm.CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST);
+            // selectBar ??= selectList.GetNode<ColorRect>(ConstTerm.COLOR_RECT);
         }
 
         //=============================================================================
@@ -62,10 +65,15 @@ namespace ZAM.MenuUI
             }
         }
 
-        public void MoveCursor(int index)
+        public void SetChoiceOption(int option)
         {
-            selectBar.Position = new Vector2(0, selectBar.Size.Y * index);
+            currentChoice = option;
         }
+
+        // public void MoveCursor(int index)
+        // {
+        //     selectBar.Position = new Vector2(0, selectBar.Size.Y * index);
+        // }
 
         public void RemoveChoices()
         {

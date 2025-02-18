@@ -39,7 +39,7 @@ font_size = 40
 [node name="PartyMenu" type="Node" node_paths=PackedStringArray("commandList", "infoList", "skillPanel", "itemPanel")]
 script = ExtResource("1_a143d")
 commandOptions = PackedStringArray("Item", "Skill")
-skillItemWidth = 280
+containerEdgeBuffer = 2.0
 commandList = NodePath("MenuContainer/HBoxContainer/VBoxContainer/OptionsContainer/PanelContainer/OptionsList")
 infoList = NodePath("MenuContainer/HBoxContainer/InfoContainer/InfoList")
 skillPanel = NodePath("SkillPanel")

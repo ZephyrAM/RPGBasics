@@ -22,17 +22,6 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="SelectList" type="GridContainer" parent="MarginContainer"]
-layout_mode = 2
-columns = 2
-
-[node name="ColorRect" type="ColorRect" parent="MarginContainer/SelectList"]
-visible = false
-modulate = Color(0.615686, 0.615686, 0.615686, 0.537255)
-custom_minimum_size = Vector2(278, 42)
-layout_mode = 2
-size_flags_vertical = 0
-
 [node name="TextList" type="GridContainer" parent="."]
 layout_mode = 2
 columns = 2

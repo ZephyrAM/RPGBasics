@@ -1,13 +1,15 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using ZAM.Interactions;
+using ZAM.System;
 
 // using ZAM.MenuUI;
 // using ZAM.Interactions;
 
 namespace ZAM.Control
 {
-	public partial class CharacterController : CharacterBody2D
+	public partial class CharacterController : CharacterBody2D, IUIFunctions
 	{
 		// Assigned Variables \\
 		[Export] private float baseSpeed = 350f;
@@ -27,10 +29,19 @@ namespace ZAM.Control
 		private PanelContainer textBox = null;
 		private PanelContainer choiceBox = null;
 		private VBoxContainer choiceList = null;
+		private Button activeControl = null;
 
+		private Button mouseFocus = null;
+		private RayCast2D mouseCursor = null;
+		private bool mouseCheck = false;
+		private CharacterBody2D mouseTarget = null;
+
+		private int numColumn = 1;
 		private int choiceCommand = 0;
-		private Vector2 lookDirection = new Vector2(1, 0);
+		private bool signalsDone = false;
+		private string activeInput = ConstTerm.KEY_GAMEPAD;
 
+		private Vector2 lookDirection = new Vector2(1, 0);
 		private Vector2 moveInput;
 		private Vector2 direction;
 		private float moveSpeed;
@@ -95,13 +106,10 @@ namespace ZAM.Control
 			charSize = new Vector2(charSprite.Texture.GetWidth() / charSprite.Hframes, charSprite.Texture.GetHeight() / charSprite.Vframes);
 		}
 
-		public override void _PhysicsProcess(double delta)
-		{
-			if (!isControlActive) { return; }
-			PhaseCheck();
-			// AxisCheck();
-			// InputCheck();
-		}
+        // protected override void Dispose(bool disposing)
+        // {
+        //     base.Dispose(disposing);
+        // }
 
         private void IfNull()
 		{
@@ -115,10 +123,8 @@ namespace ZAM.Control
 			// interactRay ??= GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
 			int rayCount = GetNode(ConstTerm.RAY_CHECK).GetChildren().Count;
 			interactArray = [];
-			for (int r = 0; r <	rayCount; r++)
-			{
-				interactArray.Add((RayCast2D)GetNode(ConstTerm.RAY_CHECK).GetChild(r));
-			}
+			for (int r = 0; r <	rayCount; r++) {
+				interactArray.Add((RayCast2D)GetNode(ConstTerm.RAY_CHECK).GetChild(r)); }
 
 			charSprite ??= GetNode<Sprite2D>(ConstTerm.SPRITE2D);
 			charCollider ??= GetNode<CollisionShape2D>(ConstTerm.COLLIDER2D);
@@ -130,47 +136,85 @@ namespace ZAM.Control
 			colliderWidth = charCollider.Shape.GetRect().Size.X;
 		}
 
+		private void SubLists(Container targetList)
+		{
+			for (int c = 0; c < targetList.GetChildCount(); c++) {
+				Node tempLabel = targetList.GetChild(c);
+				targetList.GetChild(c).GetNode<Button>(ConstTerm.BUTTON).MouseEntered += () => OnMouseEntered(targetList, tempLabel);
+				targetList.GetChild(c).GetNode<Button>(ConstTerm.BUTTON).Pressed += OnMouseClick; }
+		}
+
+		// private void UnSubLists(Container targetList)
+		// {
+		// 	for (int c = 0; c < targetList.GetChildCount(); c++) {
+		// 		Node tempLabel = targetList.GetChild(c);
+		// 		targetList.GetChild(c).GetNode<Button>(ConstTerm.BUTTON).MouseEntered -= () => OnMouseEntered(targetList, tempLabel);
+		// 		targetList.GetChild(c).GetNode<Button>(ConstTerm.BUTTON).Pressed -= OnMouseClick; }
+		// }
+
+		// private void SubInteracts(Container targetList)
+		// {
+		// 	for (int e = 0; e < targetList.GetChildCount(); e++)
+		// 	{
+		// 		CharacterBody2D tempBody = (CharacterBody2D)targetList.GetChild(e);
+		// 		tempBody._InputEvent(GetViewport(), ConstTerm.ACCEPT + ConstTerm.CLICK, 0) += OnMouseClick;
+		// 	}
+		// }
+
 		// public override void _Draw()
 		// {
 		//     DrawRayCast();
 		// }
 
-		// public override void _Input(InputEvent @event)
-		// {
-		// 	GD.Print("Event!");
-		// 	if (@event != null) { GD.Print(@event); }
-		// 	if (@event is InputEventMouseButton eventMouseButton) { GD.Print(eventMouseButton.ButtonIndex); }
+		public override void _Input(InputEvent @event)
+        {
+			if (@event is InputEventMouse && activeInput == ConstTerm.KEY_GAMEPAD) { activeInput = ConstTerm.MOUSE; 
+                Input.MouseMode = Input.MouseModeEnum.Visible; if (mouseFocus != null) { mouseFocus.MouseFilter = Godot.Control.MouseFilterEnum.Stop; } }
+            else if (@event is not InputEventMouse && activeInput == ConstTerm.MOUSE) { activeInput = ConstTerm.KEY_GAMEPAD; 
+                Input.MouseMode = Input.MouseModeEnum.Hidden; if (mouseFocus != null) { mouseFocus.MouseFilter = Godot.Control.MouseFilterEnum.Ignore; } }
+        	// if (@event is InputEventMouseButton eventMouseButton) { GD.Print(eventMouseButton.ButtonIndex); }
 
-		//     if (@event.IsActionPressed(ConstTerm.SAVE))
-		// 	{
-		// 		GD.Print("Saving game!");
-		// 		EmitSignal(SignalName.onSaveGame);
-		// 	}
-		// 	if (@event.IsActionPressed(ConstTerm.LOAD))
-		// 	{
-		// 		GD.Print("Loading Game!");
-		// 		EmitSignal(SignalName.onLoadGame);
-		// 	}
-		// }
+            // if (@event.IsActionPressed(ConstTerm.SAVE))
+        	// {
+        	// 	GD.Print("Saving game!");
+        	// 	EmitSignal(SignalName.onSaveGame);
+        	// }
+        	// if (@event.IsActionPressed(ConstTerm.LOAD))
+        	// {
+        	// 	GD.Print("Loading Game!");
+        	// 	EmitSignal(SignalName.onLoadGame);
+        	// }
 
-		// private void MenuPhase(InputEvent @event)
-		// {
-		// 	switch (inputPhase)
-		// 	{
-		// 		case ConstTerm.COMMAND:
-		// 			break;
-		// 		case ConstTerm.MEMBER:
-		// 			break;
-		// 		case ConstTerm.ITEM:
-		// 			break;
-		// 		case ConstTerm.SKILL:
-		// 			break;
-		// 		case ConstTerm.SAVE:
-		// 			break;
-		// 		default:
-		// 			break;
-		// 	}
-		// }
+			if (@event is InputEventMouseButton eventMouseButton) { if (eventMouseButton.IsActionPressed(ConstTerm.ACCEPT + ConstTerm.CLICK)) 
+			{ MouseRayCheck(); }}
+        }
+
+		public override void _PhysicsProcess(double delta)
+		{
+			if (!isControlActive) { return; }
+			PhaseCheck();
+		}
+
+		private bool MouseRayCheck()
+		{
+			if (mouseCursor == null) {
+                mouseCursor = new() {
+					TargetPosition = new Vector2(0, 1),
+					GlobalPosition = GetGlobalMousePosition(),
+                    HitFromInside = true };
+                mouseCursor.SetCollisionMaskValue(1, false);
+				mouseCursor.SetCollisionMaskValue(3, true);
+				
+				int currentScene = GetTree().Root.GetChildCount() - 1;
+				GetTree().Root.GetChild(currentScene).GetChild(0).AddChild(mouseCursor); 
+			}
+
+			mouseCursor.GlobalPosition = GetGlobalMousePosition();
+			mouseCursor.ForceRaycastUpdate();
+
+			return mouseCursor.IsColliding();
+			// GD.Print(mouseCursor.IsColliding());
+		}
 
 
 		//=============================================================================
@@ -193,7 +237,7 @@ namespace ZAM.Control
 					break;
 				case ConstTerm.CLICK_MOVE:
 					ClickToMoveCheck();
-					if (Input.IsActionJustPressed(ConstTerm.MOVE_TO)) { MoveCheck(); }
+					if (Input.IsActionJustPressed(ConstTerm.ACCEPT + ConstTerm.CLICK)) { MoveCheck(); }
 					break;
 				case ConstTerm.CHOICE:
 					ChoiceCheck();
@@ -230,9 +274,13 @@ namespace ZAM.Control
 			if (Input.IsActionJustPressed(ConstTerm.MENU)) { SetInputPhase(ConstTerm.MENU); return; }
 
 			Vector2 moveToPos;
-			if (Input.IsActionPressed(ConstTerm.MOVE_TO))
+			if (Input.IsActionPressed(ConstTerm.ACCEPT + ConstTerm.CLICK))
 			{
 				moveToPos = GetGlobalMousePosition();
+				mouseCheck = MouseRayCheck();
+				if (mouseCheck) { mouseTarget = mouseCursor.GetCollider() as CharacterBody2D; }
+				// Godot.Collections.Dictionary result = GetWorld2D().DirectSpaceState.IntersectRay(PhysicsRayQueryParameters2D.Create(GlobalPosition, moveToPos));
+
 				navAgent.TargetPosition = moveToPos;
 
 				SetInputPhase(ConstTerm.CLICK_MOVE);
@@ -293,29 +341,36 @@ namespace ZAM.Control
 			SetLookDirection(direction);
 
 			ClickCollisionCheck();
-			MoveAndSlide();
+			bool collide = MoveAndSlide();
+			if (collide) {
+				if (GetSlideCollision(0).GetCollider() == mouseTarget) { UpdateRayCast(); }
+			}
 		}
 
 		public void ChoiceCheck()
 		{
-			if (Input.IsActionJustPressed(ConstTerm.ACCEPT))
-			{
-				EmitSignal(SignalName.onChoiceSelect);
+			if (Input.IsActionJustPressed(ConstTerm.ACCEPT)) {
+				ChoiceAccept();
 			}
-			else if (Input.IsActionJustPressed(ConstTerm.UP))
-			{
-				CommandSelect(-1, choiceList);
+			else if (Input.IsActionJustPressed(ConstTerm.UP)) {
+				CommandSelect(-1, choiceList, ConstTerm.VERT);
 			}
-			else if (Input.IsActionJustPressed(ConstTerm.DOWN))
-			{
-				CommandSelect(1, choiceList);
+			else if (Input.IsActionJustPressed(ConstTerm.DOWN)) {
+				CommandSelect(1, choiceList, ConstTerm.VERT);
 			}
+		}
+
+		private void ChoiceAccept()
+		{
+			mouseFocus = null;
+			EmitSignal(SignalName.onChoiceSelect);
+			activeControl = IUIFunctions.FocusOff(choiceList, choiceCommand);
+			choiceCommand = 0;
 		}
 
 		public void TextCheck()
 		{
-			if (Input.IsActionJustPressed(ConstTerm.ACCEPT))
-			{
+			if (Input.IsActionJustPressed(ConstTerm.ACCEPT) || Input.IsActionJustPressed(ConstTerm.ACCEPT + ConstTerm.CLICK)) {
 				EmitSignal(SignalName.onTextProgress);
 			}
 		}
@@ -335,7 +390,7 @@ namespace ZAM.Control
 
 		public bool TextSpeedCheck()
 		{
-			return Input.IsActionPressed(ConstTerm.ACCEPT);
+			return Input.IsActionPressed(ConstTerm.ACCEPT) || Input.IsActionPressed(ConstTerm.ACCEPT + ConstTerm.CLICK);
 		}
 
 		private void CancelMouseMove(string newPhase)
@@ -349,6 +404,10 @@ namespace ZAM.Control
 		{
 			animPlay.Travel(ConstTerm.IDLE);
 			SetInputPhase(ConstTerm.MOVE);
+
+			if (mouseCheck) { UpdateRayCast(); }
+			mouseCheck = false;
+			mouseTarget = null;
 		}
 
 		//=============================================================================
@@ -411,41 +470,44 @@ namespace ZAM.Control
 
 		private void ClickCollisionCheck()
 		{
-			CreateRayCheck();
-			
-			for (int r = 0; r < interactArray.Count; r++)
-			{
-				interactArray[r].ForceRaycastUpdate();
-				if (interactArray[r].IsColliding())
-				{
-					Node2D nodeTarget = (Node2D)interactArray[r].GetCollider();
-					CollisionShape2D collisionTarget = nodeTarget.GetNode<CollisionShape2D>(ConstTerm.COLLIDER2D);
-
-					Vector2 distance = new(GlobalPosition.X - navAgent.TargetPosition.X, GlobalPosition.Y - navAgent.TargetPosition.Y);
-					Vector2 lookDir = new(Math.Abs(lookDirection.X), Math.Abs(lookDirection.Y));
-					Vector2 targetSize = collisionTarget.Shape.GetRect().Size;
-					// GD.Print(distance + " " + targetSize + " " + lookDir);
-
-					if (lookDir.X > lookDir.Y)
-					{
-						if (Math.Abs(distance.X) < targetSize.X + (charCollider.Shape.GetRect().Size.X / 2))
-						{
-							navAgent.TargetPosition = GlobalPosition;
-							animPlay.Travel(ConstTerm.IDLE);
-							EmitSignal(SignalName.onInteractCheck, lookDirection);
-						}
-					}
-					else
-					{
-						if (Math.Abs(distance.Y) < targetSize.Y + (charCollider.Shape.GetRect().Size.Y / 1.8))
-						{
-							navAgent.TargetPosition = GlobalPosition;
-							animPlay.Travel(ConstTerm.IDLE);
-							EmitSignal(SignalName.onInteractCheck, lookDirection);
-						}
-					}
-				}
+			if (mouseCheck) {
+				navAgent.TargetPosition = mouseTarget.GlobalPosition;
 			}
+			// CreateRayCheck();
+			
+			// for (int r = 0; r < interactArray.Count; r++)
+			// {
+			// 	interactArray[r].ForceRaycastUpdate();
+			// 	if (interactArray[r].IsColliding())
+			// 	{
+			// 		Node2D nodeTarget = (Node2D)interactArray[r].GetCollider();
+			// 		CollisionShape2D collisionTarget = nodeTarget.GetNode<CollisionShape2D>(ConstTerm.COLLIDER2D);
+
+			// 		Vector2 distance = new(GlobalPosition.X - navAgent.TargetPosition.X, GlobalPosition.Y - navAgent.TargetPosition.Y);
+			// 		Vector2 lookDir = new(Math.Abs(lookDirection.X), Math.Abs(lookDirection.Y));
+			// 		Vector2 targetSize = collisionTarget.Shape.GetRect().Size;
+			// 		// GD.Print(distance + " " + targetSize + " " + lookDir);
+
+			// 		if (lookDir.X > lookDir.Y)
+			// 		{
+			// 			if (Math.Abs(distance.X) < targetSize.X + (charCollider.Shape.GetRect().Size.X / 2))
+			// 			{
+			// 				navAgent.TargetPosition = GlobalPosition;
+			// 				animPlay.Travel(ConstTerm.IDLE);
+			// 				EmitSignal(SignalName.onInteractCheck, lookDirection);
+			// 			}
+			// 		}
+			// 		else
+			// 		{
+			// 			if (Math.Abs(distance.Y) < targetSize.Y + (charCollider.Shape.GetRect().Size.Y / 1.8))
+			// 			{
+			// 				navAgent.TargetPosition = GlobalPosition;
+			// 				animPlay.Travel(ConstTerm.IDLE);
+			// 				EmitSignal(SignalName.onInteractCheck, lookDirection);
+			// 			}
+			// 		}
+			// 	}
+			// }
 		}
 
 
@@ -453,20 +515,22 @@ namespace ZAM.Control
 		// SECTION: Selection Handling
 		//=============================================================================
 
-		private void CommandSelect(int change, Container targetList)
-		{
-			// if (direction == ConstTerm.VERT) { change *= numColumn; }
-			choiceCommand = ChangeTarget(change, choiceCommand, GetCommandCount(targetList));
+		private void CommandSelect(int change, Container targetList, string scrollDirection)
+		{			
+			change = IUIFunctions.CheckColumn(change, scrollDirection, numColumn);
+            IUIFunctions.ChangeTarget(change, ref choiceCommand, IUIFunctions.GetCommandCount(targetList));
+
+            activeControl = IUIFunctions.FocusOn(targetList, choiceCommand);
 			EmitSignal(SignalName.onSelectChange);
 		}
 
-		private int ChangeTarget(int change, int target, int listSize)
-		{
-			// if (direction == ConstTerm.HORIZ) { change += change;}
-			if (target + change > listSize - 1) { return 0; }
-			else if (target + change < 0) { return listSize - 1; }
-			else { return target += change; }
-		}
+		// private int ChangeTarget(int change, int target, int listSize)
+		// {
+		// 	// if (direction == ConstTerm.HORIZ) { change += change;}
+		// 	if (target + change > listSize - 1) { return 0; }
+		// 	else if (target + change < 0) { return listSize - 1; }
+		// 	else { return target += change; }
+		// }
 
 
 		//=============================================================================
@@ -508,6 +572,35 @@ namespace ZAM.Control
 
 
 		//=============================================================================
+		// SECTION: Signal Methods
+		//=============================================================================
+
+		private void OnMouseEntered(Container currList, Node currLabel)
+		{
+			if (currList != choiceList) { return; }
+
+			activeControl = IUIFunctions.FocusOff(currList, choiceCommand);
+			choiceCommand = currLabel.GetIndex();
+
+			activeControl = IUIFunctions.FocusOn(currList, choiceCommand);
+			mouseFocus = currLabel.GetNode<Button>(ConstTerm.BUTTON);
+			EmitSignal(SignalName.onSelectChange);
+		}
+
+		private void OnMouseClick()
+		{
+			switch (inputPhase)
+			{
+				case ConstTerm.CHOICE:
+					ChoiceAccept();
+					break;
+				default:
+					break;
+			}
+		}
+
+
+		//=============================================================================
 		// SECTION: External Access
 		//=============================================================================
 
@@ -544,6 +637,10 @@ namespace ZAM.Control
 		public void SetInputPhase(string phase)
 		{
 			inputPhase = phase;
+			if (phase == ConstTerm.CHOICE) {
+				SubLists(choiceList);
+				activeControl = IUIFunctions.FocusOn(choiceList, choiceCommand); 
+			}
 		}
 
 		public void SetInteractToggle(bool active)

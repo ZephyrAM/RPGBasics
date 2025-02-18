@@ -1,30 +1,45 @@
 using Godot;
+using System.Collections.Generic;
 
 using ZAM.Inventory;
 
 namespace ZAM.Control
 {
-    public partial class BattleController : Node
+    public partial class BattleController : Node, IUIFunctions
     {
         [Export] private string[] commandOptions = [];
-        [Export] private int skillItemWidth = 0;
+        [Export] private float containerEdgeBuffer = 0;
 
         [ExportGroup("Lists")]
         [Export] private VBoxContainer commandList;
-        [Export] private GridContainer skillList;
-        [Export] private GridContainer itemList;
+        [Export] private PanelContainer skillPanel = null;
+        [Export] private PanelContainer itemPanel = null;
 
         [ExportGroup("Variables")]
-        [Export] private string animationPlayerName;
         [Export] private Vector2[] playerPositions;
 
         private AnimationPlayer playerAnim;
 
+        private GridContainer skillList;
+        private GridContainer itemList;
+        private float skillItemWidth = 0;
+
+        private Dictionary<string, Container> listDict = [];
+        private bool signalsDone = false;
+
+        private string activeInput = ConstTerm.KEY_GAMEPAD;
+
+        private Container activeList = null;
+        private Button activeControl = null;
+        private Button mouseFocus = null;
+
         private bool playerTurn = false;
         private string turnPhase = ConstTerm.WAIT;
         private string targetTeam = ConstTerm.ENEMY;
+        private List<string> previousPhase = [];
 
         private int currentCommand = 0;
+        private List<int> previousCommand = [];
         private int activeMember = 0;
         private int actionTarget = 0;
         
@@ -34,6 +49,7 @@ namespace ZAM.Control
 
         private bool battleOver = false;
         private bool isControlActive = false;
+        private List<int> isTargetting = [];
 
         // Delegate Events \\
         [Signal]
@@ -76,11 +92,13 @@ namespace ZAM.Control
         public override void _Input(InputEvent @event)
         {
             if (!isControlActive) { return; }
+            if (!signalsDone) { SubSignals(); }
             if (battleOver && @event != null) {
                 if (@event is InputEventMouseMotion) { return; }
                 EmitSignal(SignalName.onBattleFinish);
             }
-            if (playerTurn == true) {
+
+            if (IsPlayerTurn() == true) {
                 PhaseCheck(@event);
                 // Data test commands \\
                 if (Input.IsActionJustPressed(ConstTerm.SAVE)) // EDIT: Temporary for debugging
@@ -103,9 +121,37 @@ namespace ZAM.Control
         //=============================================================================
         private void IfNull()
         {
-            animationPlayerName ??= ConstTerm.ANIM_PLAYER;
+            skillList = skillPanel.GetNode<GridContainer>(ConstTerm.TEXT + ConstTerm.LIST);
+            itemList = itemPanel.GetNode<GridContainer>(ConstTerm.TEXT + ConstTerm.LIST);
 
-            // playerAnim ??= GetChild(0).GetNode<AnimationPlayer>(animationPlayerName);
+            skillItemWidth = skillPanel.GetRect().Size.X / 2 - containerEdgeBuffer;
+
+            // playerAnim ??= GetChild(0).GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
+            SetupListDict();
+        }
+
+        private void SubSignals()
+        {
+            SubLists(commandList);
+            SubLists(itemList);
+            signalsDone = true;
+        }
+
+        public void SubLists(Container targetList)
+        {
+            for (int c = 0; c < targetList.GetChildCount(); c++)
+            {
+                Node tempLabel = targetList.GetChild(c);
+                targetList.GetChild(c).GetNode<Button>(ConstTerm.BUTTON).MouseEntered += () => OnMouseEntered(targetList, tempLabel);
+                targetList.GetChild(c).GetNode<Button>(ConstTerm.BUTTON).Pressed += OnMouseClick;
+            }
+        }
+
+        private void SetupListDict()
+        {
+            listDict.Add(ConstTerm.COMMAND, commandList);
+            listDict.Add(ConstTerm.ITEM + ConstTerm.SELECT, itemList);
+            listDict.Add(ConstTerm.SKILL + ConstTerm.SELECT, skillList);
         }
 
 
@@ -115,6 +161,11 @@ namespace ZAM.Control
 
         private void PhaseCheck(InputEvent @event)
         {
+            if (@event is InputEventMouse && activeInput == ConstTerm.KEY_GAMEPAD) { activeInput = ConstTerm.MOUSE; 
+                Input.MouseMode = Input.MouseModeEnum.Visible; if (mouseFocus != null) { mouseFocus.MouseFilter = Godot.Control.MouseFilterEnum.Stop; } }
+            else if (@event is not InputEventMouse && activeInput == ConstTerm.MOUSE) { activeInput = ConstTerm.KEY_GAMEPAD; 
+                Input.MouseMode = Input.MouseModeEnum.Hidden; if (mouseFocus != null) { mouseFocus.MouseFilter = Godot.Control.MouseFilterEnum.Ignore; } }
+
             switch (turnPhase)
             {
                 case ConstTerm.COMMAND:
@@ -141,12 +192,28 @@ namespace ZAM.Control
                 default:
                     break;
             }
+
+            if (@event is InputEventMouseButton) { 
+                if (@event.IsActionPressed(ConstTerm.CANCEL + ConstTerm.CLICK)) {
+                    CancelCycle(); } 
+                if (@event.IsActionPressed(ConstTerm.ACCEPT + ConstTerm.CLICK)) {
+                    BattlerClick();
+                }
+            }
         }
+
+        private void AcceptInput()
+        {
+            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+            // FocusOff(activeList);
+            previousPhase.Add(turnPhase);
+        }
+
 
         private void CommandPhase(InputEvent @event) // turnPhase == ConstTerm.COMMAND;
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
-                CommandOption(currentCommand);
+                CommandAccept();
             }
             else if (@event.IsActionPressed(ConstTerm.UP)) {
                 CommandSelect(-1, commandList, ConstTerm.VERT);
@@ -156,15 +223,20 @@ namespace ZAM.Control
             }
         }
 
+        private void CommandAccept()
+        {
+            AcceptInput();
+            IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Ignore, out mouseFocus);
+            CommandOption(currentCommand);
+        }
+
         private void AttackPhase(InputEvent @event) // turnPhase == ConstTerm.ATTACK;
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
-                SetControlActive(false);
-                Attack();
-                currentCommand = 0;
+                AttackAccept();
             }
             else if (@event.IsActionPressed(ConstTerm.CANCEL)) {
-                CancelSelect(ConstTerm.COMMAND);
+                CancelCycle();
             }
             else if (@event.IsActionPressed(ConstTerm.UP)) {
                 TargetSelect(-1, ConstTerm.VERT);
@@ -180,8 +252,22 @@ namespace ZAM.Control
             }
         }
 
+        private void AttackAccept()
+        {
+            AcceptInput();
+            SetControlActive(false);
+            Attack();
+            currentCommand = 0;
+        }
+
         private void DefendPhase(InputEvent @event) // turnPhase == ConstTerm.DEFEND;
         {
+            DefendAccept();
+        }
+
+        private void DefendAccept()
+        {
+            AcceptInput();
             SetControlActive(false);
             Defend();
             currentCommand = 0;
@@ -190,12 +276,10 @@ namespace ZAM.Control
         private void SkillSelectPhase(InputEvent @event) // turnPhase == ConstTerm.SKILL_SELECT;
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
-                SetTurnPhase(ConstTerm.SKILL + ConstTerm.USE);
-                EmitSignal(SignalName.onAbilitySelect, currentCommand);
-                currentCommand = 0;
+                SkillSelectAccept();
             }
             else if (@event.IsActionPressed(ConstTerm.CANCEL)) {
-                CancelSelect(ConstTerm.COMMAND);
+                CancelCycle();
             }
             else if (@event.IsActionPressed(ConstTerm.UP)) {
                 CommandSelect(-1, skillList, ConstTerm.VERT);
@@ -211,15 +295,24 @@ namespace ZAM.Control
             }
         }
 
+
+        private void SkillSelectAccept()
+        {
+            if (skillList.GetChild(currentCommand).GetNode<Button>(ConstTerm.BUTTON).Disabled == true) { InvalidOption(); return; }
+            AcceptInput();
+            SetTurnPhase(ConstTerm.SKILL + ConstTerm.USE);
+            EmitSignal(SignalName.onAbilitySelect, currentCommand);
+            SetNewCommand();
+            // EmitSignal(SignalName.onAbilitySelect, currentCommand);
+        }
+
         private void SkillUsePhase(InputEvent @event) // turnPhase == ConstTerm.SKILL_USE;
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
-                SetControlActive(false);
-                SkillOption(currentCommand);
-                currentCommand = 0;
+                SkillUseAccept();
             }
             else if (@event.IsActionPressed(ConstTerm.CANCEL)) {
-                CancelSelect(ConstTerm.SKILL + ConstTerm.SELECT);
+                CancelCycle();
             }
             else if (@event.IsActionPressed(ConstTerm.UP)) {
                 TargetSelect(-1, ConstTerm.VERT);
@@ -235,17 +328,23 @@ namespace ZAM.Control
             }
         }
 
+        private void SkillUseAccept()
+        {
+            AcceptInput();
+            SetControlActive(false);
+            SkillOption(currentCommand);
+            currentCommand = 0;
+        }
+
         private void ItemSelectPhase(InputEvent @event) // turnPhase == ConstTerm.ITEM_SELECT
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT))
             {
-                SetTurnPhase(ConstTerm.ITEM + ConstTerm.USE);
-                EmitSignal(SignalName.onItemSelect, currentCommand);
-                currentCommand = 0;
+                ItemSelectAccept();
             }
             else if (@event.IsActionPressed(ConstTerm.CANCEL))
             {
-                CancelSelect(ConstTerm.COMMAND);
+                CancelCycle();
             }
             else if (@event.IsActionPressed(ConstTerm.UP))
             {
@@ -265,17 +364,25 @@ namespace ZAM.Control
             }
         }
 
+        private void ItemSelectAccept()
+        {
+            if (itemList.GetChild(currentCommand).GetNode<Button>(ConstTerm.BUTTON).Disabled == true) { InvalidOption(); return; }
+            AcceptInput();
+            SetTurnPhase(ConstTerm.ITEM + ConstTerm.USE);
+            EmitSignal(SignalName.onItemSelect, currentCommand);
+            SetNewCommand();
+            // EmitSignal(SignalName.onItemSelect, currentCommand);
+        }
+
         private void ItemUsePhase(InputEvent @event) // turnPhase == ConstTerm.ITEM_USE
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT))
             {
-                SetControlActive(false);
-                ItemOption(currentCommand);
-                currentCommand = 0;
+                ItemUseAccept();
             }
             else if (@event.IsActionPressed(ConstTerm.CANCEL))
             {
-                CancelSelect(ConstTerm.ITEM + ConstTerm.SELECT);
+                CancelCycle();
             }
             else if (@event.IsActionPressed(ConstTerm.UP))
             {
@@ -295,6 +402,38 @@ namespace ZAM.Control
             }
         }
 
+        private void ItemUseAccept()
+        {
+            AcceptInput();
+            SetControlActive(false);
+            ItemOption(currentCommand);
+            currentCommand = 0;
+        }
+
+        public void BattlerClick()
+        {
+            if (isTargetting.Count <= 0) { return; }
+
+            switch (turnPhase)
+            {
+                case ConstTerm.ATTACK:
+                    AttackAccept();
+                    break;
+                case ConstTerm.SKILL + ConstTerm.USE:
+                    SkillUseAccept();
+                    break;
+                case ConstTerm.ITEM + ConstTerm.USE:
+                    ItemUseAccept();
+                    break;
+                case ConstTerm.COMMAND:
+                case ConstTerm.DEFEND:
+                case ConstTerm.SKILL + ConstTerm.SELECT:
+                case ConstTerm.ITEM + ConstTerm.SELECT:
+                default:
+                    break;
+            }
+        }
+
 
         //=============================================================================
         // SECTION: Selection Handling
@@ -302,9 +441,14 @@ namespace ZAM.Control
 
         private void CommandSelect(int change, Container targetList, string direction)
         {
-            if (direction == ConstTerm.VERT) { change *= numColumn; }
-            currentCommand = ChangeTarget(change, currentCommand, GetCommandCount(targetList));
-            EmitSignal(SignalName.onTargetChange);
+            change = IUIFunctions.CheckColumn(change, direction, numColumn);
+            IUIFunctions.ChangeTarget(change, ref currentCommand, IUIFunctions.GetCommandCount(targetList));
+
+            activeControl = IUIFunctions.FocusOn(targetList, currentCommand);
+
+            // if (direction == ConstTerm.VERT) { change *= numColumn; }
+            // currentCommand = ChangeTarget(change, currentCommand, GetCommandCount(targetList));
+            // EmitSignal(SignalName.onTargetChange);
         }
 
         // private void SkillSelect(int change, Container targetList, string direction)
@@ -314,31 +458,56 @@ namespace ZAM.Control
         //     EmitSignal(SignalName.onTargetChange);
         // }
 
-        private void TargetSelect(int change, string direction)
+        private void TargetSelect(int change, string direction) // EDIT: Set way to mouse focus over battler targets
         {
+            change = IUIFunctions.CheckColumn(change, direction, numColumn);
+            IUIFunctions.ChangeTarget(change, ref actionTarget, GetTargetTeamSize());
+
             // if (playerAnim.IsPlaying()) { return; }
-            actionTarget = ChangeTarget(change, actionTarget, GetTargetTeamSize());
+            // actionTarget = ChangeTarget(change, actionTarget, GetTargetTeamSize());
+
             EmitSignal(SignalName.onTargetChange);
         }
 
-        private int ChangeTarget(int change, int target, int listSize)
+        private void TargetSpecify(string team, int target)
         {
-            // if (direction == ConstTerm.HORIZ) { change += change;}
-            if (target + change > listSize - 1) { return 0; }
-            else if (target + change < 0) { return listSize - 1; }
-            else { return target += change; }
+            SetTargetTeam(team);
+            actionTarget = target;
+            EmitSignal(SignalName.onTargetChange);
         }
 
-        private void CancelSelect(string phase)
+        // private int ChangeTarget(int change, int target, int listSize)
+        // {
+        //     // if (direction == ConstTerm.HORIZ) { change += change;}
+        //     if (target + change > listSize - 1) { return 0; }
+        //     else if (target + change < 0) { return listSize - 1; }
+        //     else { return target += change; }
+        // }
+
+        private void CancelCycle()
         {
+            if (turnPhase == ConstTerm.COMMAND) { return;}
+
             EmitSignal(SignalName.onSelectCancel);
 
-            SetTurnPhase(phase);
-            currentCommand = 0;
-            SetTargetTeam(ConstTerm.ENEMY);
-            SetNumColumn();
+            // SetTurnPhase(phase);
+            // currentCommand = 0;
+            // SetTargetTeam(ConstTerm.ENEMY);
+            // SetNumColumn();
 
             // EmitSignal(SignalName.onTargetChange);
+
+            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+            IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Ignore, out mouseFocus);
+
+            string oldPhase = IUIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
+            SetTurnPhase(oldPhase);
+            // SetNumColumn();
+
+            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+            IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Stop, out mouseFocus);
+
+            SetTargetTeam(ConstTerm.ENEMY);
         }
 
 
@@ -364,20 +533,28 @@ namespace ZAM.Control
                     break;
                 case ConstTerm.ITEM:
                     if (!ItemBag.Instance.BagIsEmpty()) { SetTurnPhase(ConstTerm.ITEM + ConstTerm.SELECT); }
-                    else { return; }
+                    else { InvalidOption(); return; }
                     break;
                 default:
                     break;
             }
 
-            SetNumColumn();
-            currentCommand = 0;
+            IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Stop, out mouseFocus);
+            // SetNumColumn();
+            SetNewCommand();
+        }
+
+        private void InvalidOption()
+        {
+            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+            IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Stop, out mouseFocus);
+            // play 'cannot use' sound effect
         }
 
         private async void Attack()
         {
             EmitSignal(SignalName.onAbilityStop, -1);
-            EmitSignal(SignalName.onTargetChange);
+            // EmitSignal(SignalName.onTargetChange);
 
             // turnPhase = ConstTerm.WAIT;
             // currentCommand = 0;
@@ -423,14 +600,76 @@ namespace ZAM.Control
             // currentCommand = 0;
         }
 
+
+        //=============================================================================
+        // SECTION: Signal Methods
+        //=============================================================================
+
+        private void OnMouseEntered(Container currList, Node currLabel)
+        {
+            if (currList != activeList) { return; }
+
+            activeControl = IUIFunctions.FocusOff(currList, currentCommand);
+            currentCommand = currLabel.GetIndex();
+
+            activeControl = IUIFunctions.FocusOn(currList, currentCommand);
+            mouseFocus = currLabel.GetNode<Button>(ConstTerm.BUTTON);
+        }
+
+        private void OnMouseClick()
+        {
+            // activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+
+            switch (turnPhase)
+            {
+                case ConstTerm.COMMAND:
+                    CommandAccept();
+                    break;
+                case ConstTerm.SKILL + ConstTerm.SELECT:
+                    SkillSelectAccept();
+                    break;
+                case ConstTerm.ITEM + ConstTerm.SELECT:
+                    ItemSelectAccept();
+                    break;
+                case ConstTerm.ATTACK:
+                case ConstTerm.DEFEND:
+                case ConstTerm.SKILL + ConstTerm.USE:
+                case ConstTerm.ITEM + ConstTerm.USE:
+                default:
+                    break;
+            }
+        }
+
+        public void OnBattlerSelect(bool hover, string team, int target) // EDIT: Add cursor targetting
+        {
+            if (hover) { isTargetting.Add(target);  }
+            else { isTargetting.Remove(target); return; }            
+
+            switch (turnPhase)
+            {
+                case ConstTerm.ATTACK:
+                case ConstTerm.SKILL + ConstTerm.USE:
+                case ConstTerm.ITEM + ConstTerm.USE:
+                    TargetSpecify(team, target);
+                    break;
+                case ConstTerm.COMMAND:
+                case ConstTerm.DEFEND:
+                case ConstTerm.SKILL + ConstTerm.SELECT:
+                case ConstTerm.ITEM + ConstTerm.SELECT:
+                default:
+                    break;
+            }
+        }
+
+
         //=============================================================================
         // SECTION: Internal Access Methods
         //=============================================================================
 
-        private int GetCommandCount(Container targetList)
-        {
-            return targetList.GetChildCount();
-        }
+        // private int GetCommandCount(Container targetList)
+        // {
+        //     return targetList.GetChildCount();
+        // }
 
         private int GetTargetTeamSize()
         {
@@ -443,12 +682,25 @@ namespace ZAM.Control
         // SECTION: External Access Methods
         //=============================================================================
 
+        public void PlayerTurnStart()
+        {
+            currentCommand = 0;
+
+            Button initialFocus = commandList.GetChild(currentCommand).GetNode<Button>(ConstTerm.BUTTON);
+            initialFocus?.GrabFocus();
+
+            IUIFunctions.ToggleMouseFilter(commandList, Godot.Control.MouseFilterEnum.Stop, out mouseFocus);
+            SetTurnPhase(ConstTerm.COMMAND);
+            SetPlayerTurn(true);
+            SetNumColumn();
+        }
+
         public bool IsPlayerTurn()
         {
             return playerTurn;
         }
 
-        public int GetSkillItemWidth()
+        public float GetSkillItemWidth()
         {
             return skillItemWidth;
         }
@@ -484,6 +736,14 @@ namespace ZAM.Control
             currentCommand = index;
         }
 
+        public void SetNewCommand()
+        {
+            previousCommand.Add(currentCommand);
+            currentCommand = 0;
+
+            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+        }
+
         public string GetTurnPhase()
         {
             return turnPhase;
@@ -492,10 +752,13 @@ namespace ZAM.Control
         public void SetTurnPhase(string phase)
         {
             turnPhase = phase;
+            if (listDict.TryGetValue(phase, out Container value)) { activeList = value; }
+            
             EmitSignal(SignalName.onBattlePhase);
+            SetNumColumn();
         }
 
-        public float GetNumColumn()
+        public int GetNumColumn()
         {
             return numColumn;
         }
@@ -515,7 +778,7 @@ namespace ZAM.Control
         public void SetActiveMember(int member)
         {
             activeMember = member;
-            playerAnim = GetChild(member).GetNode<AnimationPlayer>(animationPlayerName);
+            playerAnim = GetChild(member).GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
         }
 
         public string GetTargetTeam()
@@ -552,6 +815,11 @@ namespace ZAM.Control
         public void SetControlActive(bool active)
         {
             isControlActive = active;
+        }
+
+        public Container GetSkillList()
+        {
+            return skillList;
         }
 
         // public void TakeDamage()

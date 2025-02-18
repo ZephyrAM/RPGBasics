@@ -17,8 +17,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-Fader="*res://Resources/Globals/fader.tscn"
 SaveLoader="*res://Resources/Globals/save_loader.tscn"
+Fader="*res://Resources/Globals/fader.tscn"
 DatabaseManager="*res://Resources/Globals/database.tscn"
 ItemBag="*res://Resources/Globals/item_bag.tscn"
 
@@ -129,9 +129,14 @@ Load={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194336,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
-MoveTo={
+AcceptClick={
 "deadzone": 0.5,
 "events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":1,"canceled":false,"pressed":false,"double_click":false,"script":null)
+]
+}
+CancelClick={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":2,"position":Vector2(80, 24),"global_position":Vector2(89, 70),"factor":1.0,"button_index":2,"canceled":false,"pressed":true,"double_click":false,"script":null)
 ]
 }
 Esc={
@@ -150,6 +155,7 @@ Esc={
 2d_physics/layer_5="collectibles"
 2d_physics/layer_6="encounters"
 2d_physics/layer_7="travel"
+2d_physics/layer_8="mouse_cursor"
 avoidance/layer_1="walls"
 avoidance/layer_2="player"
 avoidance/layer_3="characters"

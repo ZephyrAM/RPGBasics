@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://ylwniho8mxrf"]
+[gd_scene load_steps=10 format=3 uid="uid://ylwniho8mxrf"]
 
 [ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Assets/Font/FFVI Regular.ttf" id="1_hqs7e"]
 
@@ -6,7 +6,7 @@
 font = ExtResource("1_hqs7e")
 font_size = 50
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wdmx1"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6cxpw"]
 bg_color = Color(0.6, 0.6, 0.6, 0.882353)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qe5vm"]
@@ -16,6 +16,42 @@ bg_color = Color(0.6, 0.6, 0.6, 0.882353)
 bg_color = Color(0.45098, 0.580392, 0.941176, 0.882353)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7l33m"]
+
+[sub_resource type="Animation" id="Animation_86bgm"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:self_modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_oadpo"]
+resource_name = "focus_blink"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:self_modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2epyi"]
+_data = {
+"RESET": SubResource("Animation_86bgm"),
+"focus_blink": SubResource("Animation_oadpo")
+}
 
 [node name="Label" type="Label"]
 label_settings = SubResource("LabelSettings_8pyol")
@@ -29,7 +65,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/focus = SubResource("StyleBoxFlat_wdmx1")
+theme_override_styles/focus = SubResource("StyleBoxFlat_6cxpw")
 theme_override_styles/hover = SubResource("StyleBoxFlat_qe5vm")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_hlmsf")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_7l33m")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Button"]
+libraries = {
+"": SubResource("AnimationLibrary_2epyi")
+}

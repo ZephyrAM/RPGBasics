@@ -26,6 +26,12 @@ namespace ZAM.System
             // }
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            UnSubSignals();
+        }
+
         private void IfNull()
         {
             SubSignals();
@@ -34,6 +40,11 @@ namespace ZAM.System
         private void SubSignals()
         {
             BodyEntered += OnBodyEntered;
+        }
+
+        private void UnSubSignals()
+        {
+            BodyEntered -= OnBodyEntered;
         }
 
         public async void MapSceneSwitch(string newScenePath, Node2D oldScene)

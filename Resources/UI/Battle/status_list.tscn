@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://drakoxf8swfix"]
 
-[ext_resource type="PackedScene" uid="uid://g7e8x0srwjid" path="res://Resources/Nodes/health_display.tscn" id="1_luxjg"]
+[ext_resource type="PackedScene" uid="uid://g7e8x0srwjid" path="res://Resources/UI/Nodes/health_display.tscn" id="1_luxjg"]
 [ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="2_77tjk"]
 
 [node name="StatusList" type="HBoxContainer"]

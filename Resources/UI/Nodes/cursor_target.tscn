@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://cxr2jmgq30pcn"]
+
+[ext_resource type="AnimationLibrary" uid="uid://d11gnfe4mn6yp" path="res://Resources/Animations/ui_cursor.res" id="1_ddtdn"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_dvpul"]
+size = Vector2(75, 25)
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_uf2vk"]
+
+[node name="CursorTarget" type="Node2D"]
+visible = false
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.109804, 0.811765, 0.784314, 1)
+texture = SubResource("PlaceholderTexture2D_dvpul")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite2D"]
+libraries = {
+"": SubResource("AnimationLibrary_uf2vk"),
+"ui_cursor": ExtResource("1_ddtdn")
+}

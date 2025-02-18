@@ -56,7 +56,7 @@ namespace ZAM.Managers
         // SECTION: Utility Methods
         //=============================================================================
 
-        private static Node2D SafeScriptAssign(Node2D target, Script scriptAssign) // May shift to shared Utilities script
+        private static Node SafeScriptAssign(Node target, Script scriptAssign) // May shift to shared Utilities script
         {
             // This whole section... \\
             ulong charId = target.GetInstanceId();
@@ -66,6 +66,7 @@ namespace ZAM.Managers
             target._Ready();
             target.SetProcess(true);
             target.SetPhysicsProcess(true);
+            target.SetProcessInput(true);
             return target;
             // ... is a blasted mess. \\
         }
@@ -97,7 +98,7 @@ namespace ZAM.Managers
             AddChild(tempLead);
             activeParty.Add(GetChild(0).GetNode<Battler>(ConstTerm.BATTLER));
 
-            leaderMember = (CharacterBody2D)SafeScriptAssign(tempLead, charController);
+            leaderMember = SafeScriptAssign(tempLead, charController) as CharacterBody2D;
             leaderMember.GetNode<Label>(ConstTerm.NAME).Visible = false;
             LoadParty();
         }

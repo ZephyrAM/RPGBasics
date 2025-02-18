@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://da7fwfcevplrb"]
+[gd_scene load_steps=27 format=3 uid="uid://da7fwfcevplrb"]
 
 [ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="1_cu7be"]
 [ext_resource type="Texture2D" uid="uid://bpljfe63wdftg" path="res://Assets/Graphics/Characters/Char_Move.png" id="1_e8evb"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://Scripts/Stats/Battler.cs" id="2_s831g"]
 [ext_resource type="Script" path="res://Scripts/Stats/Health.cs" id="3_rfmda"]
 [ext_resource type="Script" path="res://Scripts/Stats/BaseStats.cs" id="4_fic8q"]
+[ext_resource type="PackedScene" uid="uid://cxr2jmgq30pcn" path="res://Resources/UI/Nodes/cursor_target.tscn" id="5_jjopu"]
 [ext_resource type="Script" path="res://Scripts/Abilities/SkillList.cs" id="8_q4v62"]
 [ext_resource type="Script" path="res://Scripts/Stats/Experience.cs" id="9_01k6b"]
 
@@ -108,6 +109,7 @@ z_as_relative = false
 y_sort_enabled = true
 collision_layer = 2
 collision_mask = 31
+input_pickable = true
 platform_floor_layers = 4294967040
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
@@ -164,13 +166,18 @@ text = "Test Player"
 label_settings = ExtResource("1_cu7be")
 horizontal_alignment = 2
 
-[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills") groups=["BattlerData"]]
+[node name="CursorTarget" parent="." instance=ExtResource("5_jjopu")]
+z_index = 1
+position = Vector2(0, -75)
+
+[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerCursor", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills") groups=["BattlerData"]]
 script = ExtResource("2_s831g")
 battlerType = "Player"
 battlerName = NodePath("../Name")
 battlerBody = NodePath("..")
 battlerSprite = NodePath("../Sprite2D")
 battlerAnim = NodePath("../AnimationPlayer")
+battlerCursor = NodePath("../CursorTarget")
 battlerHealth = NodePath("Health")
 battlerStats = NodePath("BaseStats")
 battlerExp = NodePath("Experience")

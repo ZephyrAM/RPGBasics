@@ -5,10 +5,10 @@ using ZAM.Inventory;
 
 namespace ZAM.Control
 {
-    public partial class MenuController : Node
+    public partial class MenuController : Node, IUIFunctions
     {
         [Export] private string[] commandOptions = [];
-        [Export] private int skillItemWidth = 0;
+        [Export] private float containerEdgeBuffer = 0;
 
         [ExportGroup("Lists")]
         [Export] private VBoxContainer commandList = null;
@@ -18,6 +18,7 @@ namespace ZAM.Control
 
         private GridContainer skillList;
         private GridContainer itemList;
+        private float skillItemWidth = 0;
 
         private Dictionary<string, Container> listDict = [];
         private bool signalsDone = false;
@@ -65,6 +66,8 @@ namespace ZAM.Control
         {
             skillList = skillPanel.GetNode<GridContainer>(ConstTerm.TEXT + ConstTerm.LIST);
             itemList = itemPanel.GetNode<GridContainer>(ConstTerm.TEXT + ConstTerm.LIST);
+
+            skillItemWidth = skillPanel.GetRect().Size.X / 2 - containerEdgeBuffer;
 
             SetupListDict();
         }
@@ -158,14 +161,15 @@ namespace ZAM.Control
                     break;
             }
 
-            if (@event is InputEventMouseButton eventMouseButton) { 
-                if (eventMouseButton.Pressed && eventMouseButton.ButtonIndex == MouseButton.Right) { 
-                    CancelSelect(); } }
+            if (@event is InputEventMouseButton) { 
+                if (@event.IsActionPressed(ConstTerm.CANCEL + ConstTerm.CLICK)) {
+                    CancelCycle(); } }
         }
 
         private void AcceptInput()
         {
-            FocusOff(activeList);
+            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+            // FocusOff(activeList);
             previousPhase.Add(inputPhase);
         }
 
@@ -179,7 +183,7 @@ namespace ZAM.Control
             }
             else if (@event.IsActionPressed(ConstTerm.CANCEL))
             {
-                CancelSelect();
+                CancelCycle();
             }
             else if (@event.IsActionPressed(ConstTerm.UP))
             {
@@ -194,6 +198,7 @@ namespace ZAM.Control
         private void CommandAccept()
         {
             AcceptInput();
+            IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Ignore, out mouseFocus);
             CommandOption(currentCommand);
         }
 
@@ -205,7 +210,7 @@ namespace ZAM.Control
             }
             else if (@event.IsActionPressed(ConstTerm.CANCEL))
             {
-                CancelSelect();
+                CancelCycle();
             }
             else if (@event.IsActionPressed(ConstTerm.UP))
             {
@@ -220,7 +225,7 @@ namespace ZAM.Control
         private void MemberAccept()
         {
             AcceptInput();
-            ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Ignore);
+            IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Ignore, out mouseFocus);
 
             if (memberOption == ConstTerm.STATUS) { SetMenuPhase(ConstTerm.STATUS_SCREEN); }
             else if (memberOption == ConstTerm.SKILL) { SetMenuPhase(ConstTerm.SKILL + ConstTerm.SELECT); }
@@ -236,7 +241,7 @@ namespace ZAM.Control
             }
             else if (@event.IsActionPressed(ConstTerm.CANCEL))
             {
-                CancelSelect();
+                CancelCycle();
             }
             else if (@event.IsActionPressed(ConstTerm.UP))
             {
@@ -258,6 +263,7 @@ namespace ZAM.Control
 
         private void ItemSelectAccept()
         {
+            if (itemList.GetChild(currentCommand).GetNode<Button>(ConstTerm.BUTTON).Disabled == true) { InvalidOption(); return; }
             AcceptInput();
             SetMenuPhase(ConstTerm.ITEM + ConstTerm.USE);
             SetNewCommand();
@@ -272,7 +278,7 @@ namespace ZAM.Control
             }
             else if (@event.IsActionPressed(ConstTerm.CANCEL))
             {
-                CancelSelect();
+                CancelCycle();
             }
             else if (@event.IsActionPressed(ConstTerm.UP))
             {
@@ -326,7 +332,7 @@ namespace ZAM.Control
             // Show status screen of selected member
             if (@event.IsActionPressed(ConstTerm.CANCEL))
             {
-                CancelSelect();
+                CancelCycle();
             }
         }
 
@@ -340,7 +346,7 @@ namespace ZAM.Control
             // Bring up save menu
             if (@event.IsActionPressed(ConstTerm.CANCEL))
             {
-                CancelSelect();
+                CancelCycle();
             }
         }
 
@@ -355,43 +361,58 @@ namespace ZAM.Control
 
         private void CommandSelect(int change, Container targetList, string direction)
         {
-            if (direction == ConstTerm.VERT) { change *= numColumn; }
-            currentCommand = ChangeTarget(change, currentCommand, GetCommandCount(targetList));
+            change = IUIFunctions.CheckColumn(change, direction, numColumn);
+            IUIFunctions.ChangeTarget(change, ref currentCommand, IUIFunctions.GetCommandCount(targetList));
 
-            FocusOn(targetList);
+            activeControl = IUIFunctions.FocusOn(targetList, currentCommand);
             // EmitSignal(SignalName.onTargetChange);
         }
 
-        private int ChangeTarget(int change, int target, int listSize)
-        {
-            // if (direction == ConstTerm.HORIZ) { change += change;}
-            if (target + change > listSize - 1) { return 0; }
-            else if (target + change < 0) { return listSize - 1; }
-            else { return target += change; }
-        }
+        // private int ChangeTarget(int change, int target, int listSize)
+        // {
+        //     // if (direction == ConstTerm.HORIZ) { change += change;}
+        //     if (target + change > listSize - 1) { return 0; }
+        //     else if (target + change < 0) { return listSize - 1; }
+        //     else { return target += change; }
+        // }
 
-        private void CancelSelect()
+        private void CancelCycle()
         {
             if (inputPhase == ConstTerm.COMMAND) { MenuClose(); return; }
-            
-            FocusOff(activeList);
-            ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Ignore);
 
-            int oldCommand = previousCommand[^1];
-            previousCommand.RemoveAt(previousCommand.Count - 1);
-            currentCommand = oldCommand;
-            
-            string oldPhase = previousPhase[^1];
-            previousPhase.RemoveAt(previousPhase.Count - 1);
+            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+            IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Ignore, out mouseFocus);
 
+            string oldPhase = IUIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
             SetMenuPhase(oldPhase);
-            SetNumColumn();
+            // SetNumColumn();
 
-            ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Stop);
-            FocusOn(activeList);
-
-            // EmitSignal(SignalName.onTargetChange);
+            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+            IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Stop, out mouseFocus);
         }
+
+        // private void CancelSelect()
+        // {
+        //     if (inputPhase == ConstTerm.COMMAND) { MenuClose(); return; }
+            
+        //     FocusOff(activeList);
+        //     ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Ignore);
+
+        //     int oldCommand = previousCommand[^1];
+        //     previousCommand.RemoveAt(previousCommand.Count - 1);
+        //     currentCommand = oldCommand;
+            
+        //     string oldPhase = previousPhase[^1];
+        //     previousPhase.RemoveAt(previousPhase.Count - 1);
+
+        //     SetMenuPhase(oldPhase);
+        //     SetNumColumn();
+
+        //     ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Stop);
+        //     FocusOn(activeList);
+
+        //     // EmitSignal(SignalName.onTargetChange);
+        // }
 
         // private void ChangeFocus(Container targetList)
         // {
@@ -405,23 +426,23 @@ namespace ZAM.Control
         //     }
         // }
 
-        private void FocusOff(Container targetList)
-        {
-            if (targetList.GetChild(currentCommand).GetChildCount() > 0)
-            {
-                Button focusButton = targetList.GetChild(currentCommand).GetNode<Button>(ConstTerm.BUTTON);
-                if (focusButton.HasFocus()) { focusButton.ReleaseFocus(); activeControl = null; }
-            }
-        }
+        // private void FocusOff(Container targetList)
+        // {
+        //     if (targetList.GetChild(currentCommand).GetChildCount() > 0)
+        //     {
+        //         Button focusButton = targetList.GetChild(currentCommand).GetNode<Button>(ConstTerm.BUTTON);
+        //         if (focusButton.HasFocus()) { focusButton.ReleaseFocus(); activeControl = null; }
+        //     }
+        // }
 
-        private void FocusOn(Container targetList)
-        {
-            if (targetList.GetChild(currentCommand).GetChildCount() > 0)
-            {
-                Button focusButton = targetList.GetChild(currentCommand).GetNode<Button>(ConstTerm.BUTTON);
-                if (focusButton != null) { focusButton.GrabFocus(); activeControl = focusButton; }
-            }
-        }
+        // private void FocusOn(Container targetList)
+        // {
+        //     if (targetList.GetChild(currentCommand).GetChildCount() > 0)
+        //     {
+        //         Button focusButton = targetList.GetChild(currentCommand).GetNode<Button>(ConstTerm.BUTTON);
+        //         if (focusButton != null) { focusButton.GrabFocus(); activeControl = focusButton; }
+        //     }
+        // }
 
         //=============================================================================
         // SECTION: Command Options
@@ -429,14 +450,13 @@ namespace ZAM.Control
 
         private void CommandOption(int option)
         {
-            // ResetTarget(); // Reset targetting to correct team by...  reasons. EDIT
-            ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Ignore);
+            // IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Ignore, out mouseFocus);
 
             switch (commandOptions[option])
             {
                 case ConstTerm.ITEM:
                     if(!ItemBag.Instance.BagIsEmpty()) { SetMenuPhase(ConstTerm.ITEM + ConstTerm.SELECT); }
-                    else { InvalidOption(); }
+                    else { InvalidOption(); return; }
                     break;
                 case ConstTerm.SKILL:
                     // inputPhase = ConstTerm.SKILL + ConstTerm.SELECT;
@@ -449,13 +469,14 @@ namespace ZAM.Control
                     break;
             }
             
-            ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Stop);
-            SetNumColumn();
+            IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Stop, out mouseFocus);
+            // SetNumColumn();
             SetNewCommand();
         }
 
         private void InvalidOption()
         {
+            IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Stop, out mouseFocus);
             // play 'cannot use' sound effect
         }
 
@@ -467,15 +488,16 @@ namespace ZAM.Control
         {
             if (currList != activeList) { return; }
 
-            FocusOff(currList);
+            activeControl = IUIFunctions.FocusOff(currList, currentCommand);
             currentCommand = currLabel.GetIndex();
-            FocusOn(currList);
+
+            activeControl = IUIFunctions.FocusOn(currList, currentCommand);
             mouseFocus = currLabel.GetNode<Button>(ConstTerm.BUTTON);
         }
 
         private void OnMouseClick()
         {
-            FocusOff(activeList);
+            // activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
 
             switch (inputPhase)
             {
@@ -512,19 +534,19 @@ namespace ZAM.Control
         // SECTION: Internal Access Methods
         //=============================================================================
 
-        private int GetCommandCount(Container targetList)
-        {
-            return targetList.GetChildCount();
-        }
+        // private int GetCommandCount(Container targetList)
+        // {
+        //     return targetList.GetChildCount();
+        // }
 
-        private void ToggleMouseFilter(Container targetList, Godot.Control.MouseFilterEnum value)
-        {
-            mouseFocus = null;
-            for (int c = 0; c < targetList.GetChildCount(); c++)
-            {
-                targetList.GetChild(c).GetNode<Button>(ConstTerm.BUTTON).MouseFilter = value;
-            }
-        }
+        // private void ToggleMouseFilter(Container targetList, Godot.Control.MouseFilterEnum value)
+        // {
+        //     mouseFocus = null;
+        //     for (int c = 0; c < targetList.GetChildCount(); c++)
+        //     {
+        //         targetList.GetChild(c).GetNode<Button>(ConstTerm.BUTTON).MouseFilter = value;
+        //     }
+        // }
 
         //=============================================================================
         // SECTION: External Access Methods
@@ -532,19 +554,20 @@ namespace ZAM.Control
 
         public void MenuOpen()
         {
-            Button initialFocus = (Button)commandList.GetChild(0).GetNode<Button>(ConstTerm.BUTTON);
+            currentCommand = 0;
+            
+            Button initialFocus = commandList.GetChild(currentCommand).GetNode<Button>(ConstTerm.BUTTON);
             initialFocus?.GrabFocus();
 
-            currentCommand = 0;
             SetMenuPhase(ConstTerm.COMMAND);
             isActive = true;
 
-            ToggleMouseFilter(infoList, Godot.Control.MouseFilterEnum.Ignore);
+            IUIFunctions.ToggleMouseFilter(infoList, Godot.Control.MouseFilterEnum.Ignore, out mouseFocus);
         }
 
         public void MenuClose()
         {
-            ResetMouseInput();
+            IUIFunctions.ResetMouseInput(commandList, out mouseFocus);
             
             currentCommand = 0;
             previousCommand = [];
@@ -555,11 +578,11 @@ namespace ZAM.Control
             EmitSignal(SignalName.onMenuClose);
         }
 
-        private void ResetMouseInput()
-        {
-            Input.MouseMode = Input.MouseModeEnum.Visible;
-            ToggleMouseFilter(commandList, Godot.Control.MouseFilterEnum.Stop);
-        }
+        // private void ResetMouseInput()
+        // {
+        //     Input.MouseMode = Input.MouseModeEnum.Visible;
+        //     IUIFunctions.ToggleMouseFilter(commandList, Godot.Control.MouseFilterEnum.Stop, out mouseFocus);
+        // }
 
         // public void UpdateInfo()
         // {
@@ -576,7 +599,7 @@ namespace ZAM.Control
             previousCommand.Add(currentCommand);
             currentCommand = 0;
 
-            FocusOn(activeList);
+            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
         }
 
         public string[] GetCommandOptions()
@@ -584,7 +607,7 @@ namespace ZAM.Control
             return commandOptions;
         }
 
-        public int GetSkillItemWidth()
+        public float GetSkillItemWidth()
         {
             return skillItemWidth;
         }
@@ -613,6 +636,7 @@ namespace ZAM.Control
             if (listDict.TryGetValue(phase, out Container value)) { activeList = value; }
 
             EmitSignal(SignalName.onMenuPhase);
+            SetNumColumn();
         }
 
         public int GetNumColumn()

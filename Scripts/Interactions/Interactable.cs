@@ -267,6 +267,7 @@ namespace ZAM.Interactions
         public void SetChoiceOption(int index)
         {
             choiceOption = index;
+            choiceBox.SetChoiceOption(choiceOption);
         }
 
         public bool IsPlaying()
