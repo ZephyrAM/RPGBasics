@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://1wxokdt8vdkb"
+path="res://.godot/imported/Cancel 2 (Sine).wav-11d73f99d5fd4dfcec547077f1442e9c.sample"
+
+[deps]
+
+source_file="res://Resources/Audio/Sound/Cancel 2 (Sine).wav"
+dest_files=["res://.godot/imported/Cancel 2 (Sine).wav-11d73f99d5fd4dfcec547077f1442e9c.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

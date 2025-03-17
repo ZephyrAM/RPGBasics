@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://e0e8caop08tx"]
+
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="1_m1t3a"]
+
+[node name="Label" type="Label"]
+text = "Left"
+label_settings = ExtResource("1_m1t3a")

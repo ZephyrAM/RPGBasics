@@ -1,65 +1,95 @@
 using Godot;
-using ZAM.Control;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using ZAM.Controller;
+
+using ZAM.MenuUI;
 
 namespace ZAM.System
 {
     public partial class StartScreen : Node, IUIFunctions
     {
         [Export] private PackedScene newGame = null;
+        [Export] private AudioStream bgm = null;
 
-        [Export] private VBoxContainer optionList = null;
-        // [Export] private ColorRect selectBar = null;
+        [Export] private VBoxContainer commandList = null;
+        [Export] private ConfigController configInput = null;
+
+        // private ScrollContainer commandScroll = null;
 
         private Node2D newGameScene = null;
-        private Button activeControl = null;
-        private Button mouseFocus = null;
+        private ButtonUI mouseFocus = null;
         private Container activeList = null;
+        private ButtonUI activeControl = null;
 
+        private string inputPhase = ConstTerm.WAIT;
+        private List<string> previousPhase = [];
         private int numColumn = 1;
         private int currentCommand = 0;
+        private List<int> previousCommand = [];
 
         private bool signalsDone = false;
         private bool savesExist = false;
         private bool controlActive = true;
         private string activeInput = ConstTerm.KEY_GAMEPAD;
 
+
+        //=============================================================================
+        // SECTION: Base Methods
+        //=============================================================================
+
         public override void _Ready()
         {
+            SaveLoader.Instance.LoadConfig();
+
             IfNull();
             CheckSaves();
             // selectBar.GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER).Play(ConstTerm.CURSOR_BLINK);
+            StartBGM();
+            Startup();
+            // commandScroll.ScrollVertical = 0;
+            // SetResolutionInfo();
         }
 
         private void IfNull()
         {
             newGame ??= ResourceLoader.Load<PackedScene>(ConstTerm.NEWGAME_SCENE);
-            optionList ??= GetNode<CanvasLayer>(ConstTerm.CANVAS_LAYER).GetNode<PanelContainer>(ConstTerm.PANEL + ConstTerm.CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
-            // selectBar ??= GetNode<CanvasLayer>(ConstTerm.CANVAS_LAYER).GetNode<PanelContainer>(ConstTerm.PANEL + ConstTerm.CONTAINER).GetNode<PanelContainer>(ConstTerm.SELECT + ConstTerm.CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
+            commandList ??= GetNode<CanvasLayer>(ConstTerm.CANVAS_LAYER).GetNode<PanelContainer>(ConstTerm.PANEL + ConstTerm.CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
+            // commandScroll = commandList.GetParent<ScrollContainer>();
+
+            // BGMPlayer.Instance.CallDeferred(BGMPlayer.MethodName.FadeInBGM, bgm);
+            // StartBGM();
         }
 
-        public override void _PhysicsProcess(double delta)
+        private void StartBGM()
         {
-            SubLists(optionList);
+            BGMPlayer.Instance.FadeInBGM(bgm);
+        }
+
+        private void SubSignals()
+        {
+            if (!signalsDone) {
+                SubLists(commandList);
+                configInput.onCloseConfigOptions += OnCloseConfigOptions;
+
+                signalsDone = true;
+            }
         }
 
         private void SubLists(Container targetList)
         {
-            if (signalsDone) { return; }
             for (int c = 0; c < targetList.GetChildCount(); c++)
             {
                 Node tempLabel = targetList.GetChild(c);
-                targetList.GetChild(c).GetNode<Button>(ConstTerm.BUTTON).MouseEntered += () => OnMouseEntered(targetList, tempLabel);
-                targetList.GetChild(c).GetNode<Button>(ConstTerm.BUTTON).Pressed += OnMouseClick;
+                targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).MouseEntered += () => OnMouseEntered(targetList, tempLabel);
+                targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Pressed += OnMouseClick;
             }
-
-            Startup();
-            signalsDone = true;
         }
 
-        private void Startup()
+        public override void _PhysicsProcess(double delta)
         {
-            activeList = optionList;
-            CommandSelect(0, activeList, ConstTerm.VERT);
+            SubSignals();
         }
 
         public override void _Input(InputEvent @event)
@@ -69,79 +99,17 @@ namespace ZAM.System
         }
 
         //=============================================================================
-        // SECTION: Phase Handling - Input
+        // SECTION: Setup
         //=============================================================================
 
-        private void PhaseCheck(InputEvent @event)
+        private void Startup()
         {
-            if (@event is InputEventMouse && activeInput == ConstTerm.KEY_GAMEPAD) {
-                activeInput = ConstTerm.MOUSE;
-                Input.MouseMode = Input.MouseModeEnum.Visible; if (mouseFocus != null) { mouseFocus.MouseFilter = Godot.Control.MouseFilterEnum.Stop; } }
-            else if (@event is not InputEventMouse && activeInput == ConstTerm.MOUSE) {
-                activeInput = ConstTerm.KEY_GAMEPAD;
-                Input.MouseMode = Input.MouseModeEnum.Hidden; if (mouseFocus != null) { mouseFocus.MouseFilter = Godot.Control.MouseFilterEnum.Ignore; } }
+            controlActive = true;
+            activeList = commandList;
+            CommandSelect(0, ConstTerm.VERT);
+            inputPhase = ConstTerm.COMMAND;
 
-            if (!controlActive) { return; }
-            if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
-                AcceptInput();
-            }
-            else if (@event.IsActionPressed(ConstTerm.UP)) {
-                CommandSelect(-1, optionList, ConstTerm.VERT);
-            }
-            else if (@event.IsActionPressed(ConstTerm.DOWN)) {
-                CommandSelect(1, optionList, ConstTerm.VERT);
-            }
-        }
-
-        private void AcceptInput()
-        {
-            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
-            // IUIFunctions.ToggleMouseFilter(activeList, Godot.Control.MouseFilterEnum.Ignore, out mouseFocus);
-            SelectOption();
-        }
-
-        //=============================================================================
-        // SECTION: Selection Handling
-        //=============================================================================
-
-        private void CommandSelect(int change, Container targetList, string direction)
-        {
-            change = IUIFunctions.CheckColumn(change, direction, numColumn);
-            IUIFunctions.ChangeTarget(change, ref currentCommand, IUIFunctions.GetCommandCount(targetList));
-
-            activeControl = IUIFunctions.FocusOn(targetList, currentCommand);
-        }
-
-        // private int ChangeTarget(int change, int target, int listSize)
-        // {
-        //     // if (direction == ConstTerm.HORIZ) { change += change;}
-        //     if (target + change > listSize - 1) { return 0; }
-        //     else if (target + change < 0) { return listSize - 1; }
-        //     else { return target += change; }
-        // }
-
-        // public void MoveCursor(int index)
-        // {
-        //     selectBar.Position = new Vector2(0, selectBar.Size.Y * index);
-        // }
-
-        public async void SelectOption()
-        {
-            if (currentCommand == 0)
-            {
-                controlActive = false;
-
-                Fader.Instance.FadeOut();
-                await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
-                // await ToSignal(Fader.Instance, ConstTerm.TRANSITION_FINISHED);
-
-                newGameScene = (Node2D)newGame.Instantiate();
-                GetTree().Root.AddChild(newGameScene);
-
-                Fader.Instance.FadeIn();
-
-                QueueFree();
-            }
+            // configPanel.SetupConfigValues();
         }
 
         private void CheckSaves()
@@ -149,15 +117,180 @@ namespace ZAM.System
             // string[] dirTest = DirAccess.GetFilesAt(SaveLoader.Instance.GetSavePath()); // EDIT: Separate file names array needed?
             var dir = DirAccess.Open(SaveLoader.Instance.GetSavePath());
             if (dir.GetFiles().Length > 0) { savesExist = true; }
-            else { 
-                optionList.GetNode<Label>(ConstTerm.CONTINUE).Modulate = new Color(ConstTerm.GREY);
-                optionList.GetNode<Label>(ConstTerm.CONTINUE).GetNode<Button>(ConstTerm.BUTTON).Disabled = true; 
+            else {
+                commandList.GetNode<Label>(ConstTerm.CONTINUE).GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
+                // commandList.GetNode<Label>(ConstTerm.CONTINUE).Modulate = new Color(ConstTerm.GREY);
+                // commandList.GetNode<Label>(ConstTerm.CONTINUE).GetNode<ButtonUI>(ConstTerm.BUTTON).Disabled = true; 
             }
+        }
+
+        //=============================================================================
+        // SECTION: Phase Handling - Input
+        //=============================================================================
+
+        private void PhaseCheck(InputEvent @event)
+        {
+            if (@event is InputEventMouse && activeInput == ConstTerm.KEY_GAMEPAD) { activeInput = ConstTerm.MOUSE;
+                Input.MouseMode = Input.MouseModeEnum.Visible; if (mouseFocus != null) { mouseFocus.MouseFilter = Control.MouseFilterEnum.Stop; } }
+            else if (@event is not InputEventMouse && activeInput == ConstTerm.MOUSE) { activeInput = ConstTerm.KEY_GAMEPAD;
+                Input.MouseMode = Input.MouseModeEnum.Hidden; if (mouseFocus != null) { mouseFocus.MouseFilter = Control.MouseFilterEnum.Ignore; } }
+
+            if (!controlActive) { return; }
+            switch (inputPhase)
+            {
+                case ConstTerm.COMMAND:
+                    CommandPhase(@event);
+                    break;
+                default:
+                    break;
+            }
+
+            if (@event is InputEventMouseButton) { 
+                if (@event.IsActionPressed(ConstTerm.CANCEL + ConstTerm.CLICK)) {
+                    CancelCycle(); } }
+        }
+
+        private bool AcceptInput()
+        {
+            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+            if (activeControl.OnButtonPressed()) { IUIFunctions.InvalidOption(activeList, currentCommand, ref activeControl, out mouseFocus); return false; }
+            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            return true;
+        }
+
+        private void CommandPhase(InputEvent @event)
+        {
+            if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
+                CommandAccept();
+            }
+            else { PhaseControls(@event); }
+        }
+
+        private void CommandAccept()
+        {
+            if (!AcceptInput()) { return; }
+            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            SelectOption();
+        }
+
+        private void PhaseControls(InputEvent @event)
+        {
+            if (@event.IsActionPressed(ConstTerm.CANCEL)) {
+                CancelCycle();
+            }
+            else if (@event.IsActionPressed(ConstTerm.UP)) {
+                CommandSelect(-1, ConstTerm.VERT);
+            }
+            else if (@event.IsActionPressed(ConstTerm.DOWN)) {
+                CommandSelect(1, ConstTerm.VERT);
+            }
+        }
+
+        //=============================================================================
+        // SECTION: Selection Handling
+        //=============================================================================
+
+        private void CommandSelect(int change, string direction)
+        {
+            change = IUIFunctions.CheckColumn(change, direction, numColumn);
+            IUIFunctions.ChangeTarget(change, ref currentCommand, IUIFunctions.GetCommandCount(activeList));
+
+            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+        }
+
+        public void SetNewCommand()
+        {
+            previousCommand.Add(currentCommand);
+            currentCommand = 0;
+
+            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+        }
+
+        private void CancelCycle()
+        {
+            if (inputPhase == ConstTerm.COMMAND) { return; }
+            // else { SaveLoader.Instance.SaveConfig(); }
+            
+            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+
+            string oldPhase = IUIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
+            inputPhase = oldPhase;
+
+            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+        }
+
+        public async void SelectOption()
+        {
+            if (activeList.GetChild<Label>(currentCommand).GetNode<ButtonUI>(ConstTerm.BUTTON).GetIsDisabled()) { return; }
+
+            switch (currentCommand)
+            {
+                case 0:
+                    await StartNewGame();
+                    break;
+                case 1:
+                    LoadSaveGame();
+                    break;
+                case 2:
+                    OpenConfigOptions();
+                    break;
+                case 3:
+                    GetTree().Quit();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        //=============================================================================
+        // SECTION: Command Handling
+        //=============================================================================
+
+        private async Task StartNewGame()
+        {
+            newGameScene = (Node2D)newGame.Instantiate();
+            controlActive = false;
+
+            await BGMPlayer.Instance.FadeBGMTransition(bgm, newGameScene.GetNode<MapSystem>(ConstTerm.MAPSYSTEM).GetBGM());
+
+            GetTree().Root.AddChild(newGameScene);
+            Fader.Instance.FadeIn();
+            QueueFree();
+
+            return;
+        }
+
+        private void LoadSaveGame()
+        {
+
+        }
+
+        private void OpenConfigOptions()
+        {
+            inputPhase = ConstTerm.WAIT;
+            controlActive = false;
+            configInput.OpenConfigOptions();
+            // configOptions.Visible = true;
+
+            // previousPhase.Add(inputPhase);
+            // inputPhase = ConstTerm.OPTIONS;
+
+            // activeList = configOptionsList;
+            // SetNewCommand();
         }
 
         //=============================================================================
         // SECTION: Signal Methods
         //=============================================================================
+
+        private void OnCloseConfigOptions()
+        {
+            Startup();
+            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+        }
 
         private void OnMouseEntered(Container currList, Node currLabel)
         {
@@ -167,12 +300,19 @@ namespace ZAM.System
             currentCommand = currLabel.GetIndex();
 
             activeControl = IUIFunctions.FocusOn(currList, currentCommand);
-            mouseFocus = currLabel.GetNode<Button>(ConstTerm.BUTTON);
+            mouseFocus = currLabel.GetNode<ButtonUI>(ConstTerm.BUTTON);
         }
 
         private void OnMouseClick()
         {
-            AcceptInput();
+            switch (inputPhase)
+            {
+                case ConstTerm.COMMAND:
+                    CommandAccept();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

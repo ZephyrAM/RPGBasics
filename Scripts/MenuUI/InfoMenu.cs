@@ -14,7 +14,11 @@ namespace ZAM.MenuUI
         [Export] private PanelContainer itemPanel = null;
 
         [ExportGroup("UI Resources")]
-        [Export] private PackedScene labelSettings = null;
+        [Export] private PackedScene buttonLabel = null;
+        [Export] private AudioStream cursorSound = null;
+        [Export] private AudioStream cancelSound = null;
+        [Export] private AudioStream errorSound = null;
+
         // [Export] private ColorRect memberBar = null;
         // [Export] private ColorRect commandBar = null;
         // [Export] private ColorRect skillBar = null;
@@ -35,7 +39,7 @@ namespace ZAM.MenuUI
         {
             for (int i = 0; i < options.Length; i++)
             {
-                Label newCommand = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
+                Label newCommand = (Label)ResourceLoader.Load<PackedScene>(buttonLabel.ResourcePath).Instantiate();
                 newCommand.Text = options[i];
 
                 optionsList.AddChild(newCommand);
@@ -115,22 +119,6 @@ namespace ZAM.MenuUI
         //=============================================================================
         // SECTION: External Access Methods
         //=============================================================================
-
-        public void DisableOption(Label option)
-        {
-            option.Modulate = new Color(ConstTerm.GREY);
-            
-            Button optionButton = option.GetNode<Button>(ConstTerm.BUTTON);
-            optionButton.Disabled = true;
-        }
-
-        public void EnableOption(Label option)
-        {
-            option.Modulate = new Color(ConstTerm.WHITE);
-
-            Button optionButton = option.GetNode<Button>(ConstTerm.BUTTON);
-            optionButton.Disabled = false;
-        }
 
         public VBoxContainer GetCommandList()
         {

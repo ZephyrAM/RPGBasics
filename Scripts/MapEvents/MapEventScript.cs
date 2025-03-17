@@ -1,7 +1,5 @@
 using Godot;
 using Godot.Collections;
-using System;
-using System.Text.Json;
 
 using ZAM.Interactions;
 
@@ -35,7 +33,7 @@ namespace ZAM.MapEvents
         protected void LoadMapText()
         {
             // using FileAccess textFile = FileAccess.Open("./Resources/Data/InteractTextData.json", FileAccess.ModeFlags.Read);
-            string jsonFile = FileAccess.GetFileAsString("res://Resources/Data/InteractTextData.json");
+            string jsonFile = FileAccess.GetFileAsString(SaveLoader.Instance.GetLangFile());
             Json tempJson = new();
             tempJson.Parse(jsonFile);
             mapText = (Dictionary<string, Dictionary<string, string>>)tempJson.Data;

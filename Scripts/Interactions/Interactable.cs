@@ -245,7 +245,7 @@ namespace ZAM.Interactions
             EmitSignal(SignalName.onInteractPhase, ConstTerm.DO_NOTHING);
             SetCurrPosition(GetCurrPosition() + 1);
             // if (GetCurrPosition() >= movePositions.Length) { SetCurrPosition(0); } // Looping. Unneeded for structured events.
-            GD.Print("Move to point - " + GetCurrPosition());
+            // GD.Print("Move to point - " + GetCurrPosition());
             GetMoveAgent().MoveToTarget(movePositions[GetCurrPosition()]); // -> NPCMove
         }
 
@@ -288,7 +288,7 @@ namespace ZAM.Interactions
         public bool StepCheck()
         {
             stepNumber++;
-            GD.Print("Stepcheck = " + stepNumber);
+            // GD.Print("Stepcheck = " + stepNumber);
             bool stepComplete = false;
 
             if (IsEvent()) { stepComplete = stepNumber >= eventStepCount; }

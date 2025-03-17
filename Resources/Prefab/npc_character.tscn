@@ -1,9 +1,10 @@
-[gd_scene load_steps=36 format=3 uid="uid://uqsv1w0qe8uc"]
+[gd_scene load_steps=38 format=3 uid="uid://uqsv1w0qe8uc"]
 
 [ext_resource type="Script" path="res://Scripts/Interactions/Interactable.cs" id="1_1r7ap"]
 [ext_resource type="Texture2D" uid="uid://bpljfe63wdftg" path="res://Assets/Graphics/Characters/Char_Move.png" id="1_m2mkh"]
 [ext_resource type="AnimationLibrary" uid="uid://djlnn8cs542vh" path="res://Resources/Animations/battle_anim.res" id="2_o6csq"]
 [ext_resource type="Script" path="res://Scripts/Interactions/NPCMove.cs" id="3_0wj20"]
+[ext_resource type="Texture2D" uid="uid://cndqfneon2v35" path="res://Assets/Graphics/Characters/Celes_Move_Map.png" id="3_m5lkv"]
 [ext_resource type="AnimationLibrary" uid="uid://fta55tbh4fg5" path="res://Resources/Animations/top_down_move.res" id="3_tasg3"]
 [ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="4_05qh1"]
 [ext_resource type="Script" path="res://Scripts/Stats/Battler.cs" id="5_w0spe"]
@@ -12,7 +13,11 @@
 [ext_resource type="Script" path="res://Scripts/Abilities/SkillList.cs" id="8_k5v1v"]
 [ext_resource type="Script" path="res://Scripts/Stats/Experience.cs" id="9_b5xxm"]
 [ext_resource type="Script" path="res://Scripts/Abilities/Modifier.cs" id="9_jr8w5"]
-[ext_resource type="Script" path="res://Scripts/Control/CharacterController.cs" id="13_ta28v"]
+[ext_resource type="Script" path="res://Scripts/Controller/CharacterController.cs" id="13_ta28v"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_qu6fj"]
+diffuse_texture = ExtResource("1_m2mkh")
+normal_texture = ExtResource("3_m5lkv")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sby8l"]
 size = Vector2(45, 60)
@@ -149,7 +154,7 @@ isRepeatable = true
 [node name="Sprite2D" type="Sprite2D" parent="."]
 z_as_relative = false
 y_sort_enabled = true
-texture = ExtResource("1_m2mkh")
+texture = SubResource("CanvasTexture_qu6fj")
 hframes = 3
 vframes = 3
 
@@ -166,7 +171,7 @@ monitorable = false
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Area2D"]
 rotation = -1.5708
-polygon = PackedVector2Array(0, -20, -200, 400, 0, 500, 200, 400)
+polygon = PackedVector2Array(0, -20, -200, 400, 200, 400)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 avoidance_enabled = true
@@ -197,6 +202,7 @@ collision_mask = 71
 collide_with_areas = true
 
 [node name="ShapeCast2D" type="ShapeCast2D" parent="."]
+visible = false
 position = Vector2(0, 17)
 shape = SubResource("CapsuleShape2D_tfa1i")
 target_position = Vector2(0, 40)
@@ -224,7 +230,7 @@ text = "Test NPC"
 label_settings = ExtResource("4_05qh1")
 horizontal_alignment = 2
 
-[node name="NPCMove" type="Node" parent="." node_paths=PackedStringArray("npcInteract", "charBody", "charSprite", "charCollider", "sightArea", "navAgent", "checkRay", "checkShape", "animTree")]
+[node name="NPCMove" type="Node" parent="." node_paths=PackedStringArray("npcInteract", "charBody", "charSprite", "charCollider", "sightArea", "navAgent", "checkRay", "animTree")]
 script = ExtResource("3_0wj20")
 playerControlTest = ExtResource("13_ta28v")
 baseSpeed = 250.0
@@ -235,7 +241,6 @@ charCollider = NodePath("../CollisionShape2D")
 sightArea = NodePath("../Area2D")
 navAgent = NodePath("../NavigationAgent2D")
 checkRay = NodePath("../RayCast2D")
-checkShape = NodePath("../ShapeCast2D")
 animTree = NodePath("../AnimationTree")
 
 [node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills")]

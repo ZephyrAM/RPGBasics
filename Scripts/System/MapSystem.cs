@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-using ZAM.Control;
+using ZAM.Controller;
 using ZAM.Interactions;
 using ZAM.Abilities;
 using ZAM.Stats;
@@ -21,6 +21,7 @@ namespace ZAM.System
 
         [ExportGroup("Nodes")]
         [Export] private PartyManager playerParty;
+        [Export] private AudioStream bgm = null;
         [Export] private MenuController menuInput = null;
         [Export] private CanvasLayer uiLayer = null;
         [Export] private Node2D transit = null;
@@ -33,6 +34,7 @@ namespace ZAM.System
         [Export] private PackedScene labelSettings = null;
         [Export] private Script eventScript = null;
 
+        private AnimationPlayer bgmPlayer = null;
         private BattleSystem battleNode = null;
         private Node2D eventNode = null;
         private MapEventScript mapEvents = null;
@@ -48,6 +50,7 @@ namespace ZAM.System
         private ChoiceBox choiceBox = null;
 
         private InfoMenu menuScreen = null;
+        private PauseController pauseScreen = null;
 
         private int choiceCommand = 0;
         private int memberSelected = 0;
@@ -108,9 +111,10 @@ namespace ZAM.System
             playerInput ??= playerParty.GetPlayer();
 
             uiLayer ??= GetNode<CanvasLayer>(ConstTerm.CANVAS_LAYER);
-            menuInput ??= uiLayer.GetNode<MenuController>(ConstTerm.MENU_CONTROLLER);
+            menuInput ??= uiLayer.GetNode<MenuController>(ConstTerm.MENU + ConstTerm.CONTROLLER);
             
             menuScreen = menuInput.GetNode<InfoMenu>(ConstTerm.MENU + ConstTerm.CONTAINER);
+            pauseScreen = uiLayer.GetNode<Container>(ConstTerm.PAUSE + ConstTerm.CONTAINER).GetNode<PauseController>(ConstTerm.PAUSE + ConstTerm.CONTROLLER);
 
             Node interactLayer = uiLayer.GetNode(ConstTerm.INTERACT_TEXT);
             textBox = interactLayer.GetNode<TextBox>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
@@ -130,7 +134,16 @@ namespace ZAM.System
                 }
             }
             // GD.Print(mapEvents);
+
+            // StartBGM();
         }
+
+        // private void StartBGM()
+        // {
+        //     bgmPlayer = bgm.GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
+        //     // bgm.Play();
+        //     bgmPlayer.Play(ConstTerm.AUDIO_FADE);
+        // }
 
         private void SubSignals()
         {
@@ -142,6 +155,7 @@ namespace ZAM.System
             playerInput.onTextProgress += OnTextProgress;
             playerInput.onChoiceSelect += OnChoiceSelect;
             playerInput.onMenuOpen += OnMenuOpen;
+            playerInput.onPauseMenu += OnPauseMenu;
 
             menuInput.onMenuClose += OnMenuClose;
             menuInput.onMenuPhase += OnMenuPhase;
@@ -164,6 +178,7 @@ namespace ZAM.System
             playerInput.onTextProgress -= OnTextProgress;
             playerInput.onChoiceSelect -= OnChoiceSelect;
             playerInput.onMenuOpen -= OnMenuOpen;
+            playerInput.onPauseMenu -= OnPauseMenu;
 
             menuInput.onMenuClose -= OnMenuClose;
             menuInput.onMenuPhase -= OnMenuPhase;
@@ -327,9 +342,9 @@ namespace ZAM.System
         private void UIVisibility()
         {
             CheckHasItems();
-            menuScreen.GetSkillPanel().Visible = menuInput.GetMenuPhase() == ConstTerm.SKILL + ConstTerm.SELECT;
-            menuScreen.GetItemPanel().Visible = menuInput.GetMenuPhase() == ConstTerm.ITEM + ConstTerm.SELECT;
-            // menuScreen.GetMemberBar().Visible = menuInput.GetMenuPhase() == ConstTerm.MEMBER + ConstTerm.SELECT;
+            menuScreen.GetSkillPanel().Visible = menuInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.SELECT;
+            menuScreen.GetItemPanel().Visible = menuInput.GetInputPhase() == ConstTerm.ITEM + ConstTerm.SELECT;
+            // menuScreen.GetMemberBar().Visible = menuInput.GetInputPhase() == ConstTerm.MEMBER + ConstTerm.SELECT;
         }
 
         // private void TargetChange(string selectBar)
@@ -353,13 +368,20 @@ namespace ZAM.System
             // }
             // GD.Print(menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).GetChildCount());
 
+            // for (int a = 0; a < player.GetSkillCount(); a++)
+            // {
+            //     Label newSkill = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
+            //     newSkill.Text = player.GetSkillName(a);
+            //     newSkill.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
+            // }
+
             foreach (Ability skill in player.GetSkillList().GetSkills())
             {
                 Label newSkill = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
                 newSkill.Text = skill.AbilityName;
                 newSkill.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
                 if (!player.CheckCanUse(skill)) {
-                    menuScreen.DisableOption(newSkill);
+                    newSkill.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
                 }
 
                 menuScreen.GetSkillPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newSkill);
@@ -393,13 +415,15 @@ namespace ZAM.System
 
             if (ItemBag.Instance.BagIsEmpty())
             {
-                menuScreen.DisableOption(menuScreen.GetCommandList().GetChild<Label>(itemCommand));
+                menuScreen.GetCommandList().GetChild<Label>(itemCommand).GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
+                // IUIFunctions.DisableOption(menuScreen.GetCommandList().GetChild<Label>(itemCommand));
                 // menuScreen.GetCommandList().GetChild<Label>(itemCommand).Modulate = new Color(ConstTerm.GREY);
                 return false;
             }
             else
             {
-                menuScreen.EnableOption(menuScreen.GetCommandList().GetChild<Label>(itemCommand));
+                menuScreen.GetCommandList().GetChild<Label>(itemCommand).GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(false);
+                // IUIFunctions.EnableOption(menuScreen.GetCommandList().GetChild<Label>(itemCommand));
                 // menuScreen.GetCommandList().GetChild<Label>(itemCommand).Modulate = new Color(ConstTerm.WHITE);
                 return true;
             }
@@ -413,21 +437,25 @@ namespace ZAM.System
         public async void LoadBattle(PackedScene randomGroup)
         {
             // EDIT: this(MapSystem) node not found. 'Disposed'
-            GD.Print("Battle loading - save data");
+            // GD.Print("Battle loading - save data");
             SaveLoader.Instance.GatherBattlers();
-            GD.Print("Change player active control");
+            // GD.Print("Change player active control");
             playerParty.ChangePlayerActive(false);
-            GD.Print("Fade Out");
-            Fader.Instance.FadeOut();
-            GD.Print("Instantiate battle scene");
+            // GD.Print("Instantiate battle scene");
             battleNode = (BattleSystem)battleScene.Instantiate();
-            GD.Print("Set battle group");
+            // GD.Print("Set battle group");
             battleNode.SetEnemyGroup(randomGroup);
-            GD.Print("Storing Map scene - ");
-            GD.Print(Name);
+            // GD.Print("Storing Map scene - ");
+            // GD.Print(Name);
             battleNode.StoreMapScene(GetParent<Node2D>());
 
-            await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
+            // GD.Print("Fade Out");
+            await BGMPlayer.Instance.FadeBGMTransition(bgm, battleNode.GetBGM());
+            // AudioStream newBgm = battleNode.GetBGM();
+            // Fader.Instance.FadeOut();
+
+            // BGMPlayer.Instance.TransitionBGM(bgm, newBgm);
+            // await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
 
             GetTree().Root.AddChild(battleNode);
             GetTree().Root.RemoveChild(GetParent());
@@ -441,6 +469,11 @@ namespace ZAM.System
             battleNode.SetBattleControlActive(true);
 
             // QueueFree();
+        }
+
+        public AudioStream GetBGM()
+        {
+            return bgm;
         }
 
         public PartyManager GetPartyManager()
@@ -494,7 +527,7 @@ namespace ZAM.System
 
         private void OnEventComplete()
         {
-            GD.Print("Event complete");
+            // GD.Print("Event complete");
             interactTarget.TurnOffEvent();
             RemoveInteractTarget();
         }
@@ -557,9 +590,14 @@ namespace ZAM.System
             playerInput.SetInputPhase(ConstTerm.MOVE);
         }
 
+        private void OnPauseMenu()
+        {
+            pauseScreen.OpenPauseMenu();
+        }
+
         // private void OnTargetChange()
         // {
-        //     ColorRect tempBar = menuScreen.GetSelectBar(menuInput.GetMenuPhase());
+        //     ColorRect tempBar = menuScreen.GetSelectBar(menuInput.GetInputPhase());
 
         //     float index = menuInput.GetCommand();
         //     float numColumns = menuInput.GetNumColumn();
@@ -568,7 +606,7 @@ namespace ZAM.System
 
         //     tempBar.Position = new Vector2(column * tempBar.Size.X, yPos); // EDIT - Temporary!
 
-        //     // switch (menuInput.GetMenuPhase())
+        //     // switch (menuInput.GetInputPhase())
         //     // {
         //     //     case ConstTerm.COMMAND:
         //     //         TargetChange(ConstTerm.COMMAND);
@@ -587,8 +625,8 @@ namespace ZAM.System
         private void OnMemberSelect()
         {
             memberSelected = menuInput.GetMemberCommand();
-            if (menuInput.GetMenuPhase() == ConstTerm.SKILL + ConstTerm.SELECT) { SetupSkillList(playerParty.GetPlayerParty()[memberSelected]); }
-            else if (menuInput.GetMenuPhase() == ConstTerm.STATUS_SCREEN) { } // EDIT: Create/Assign status screen
+            if (menuInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.SELECT) { SetupSkillList(playerParty.GetPlayerParty()[memberSelected]); }
+            else if (menuInput.GetInputPhase() == ConstTerm.STATUS_SCREEN) { } // EDIT: Create/Assign status screen
 
             menuInput.SetNumColumn();
         }

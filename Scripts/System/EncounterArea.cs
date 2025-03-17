@@ -2,7 +2,7 @@ using Godot;
 using Godot.Collections;
 using System;
 
-using ZAM.Control;
+using ZAM.Controller;
 using ZAM.Managers;
 
 namespace ZAM.System

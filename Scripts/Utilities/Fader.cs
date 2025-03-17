@@ -38,12 +38,18 @@ public partial class Fader : CanvasLayer
 
     public void FadeOut()
     {
+        // AnimationPlayer bgmPlayer = bgm.GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
+        // if (shouldFade) { bgmPlayer.PlayBackwards(ConstTerm.AUDIO_FADE); }
+
         fadeRect.Visible = true;
         animPlayer.Play(ConstTerm.FADE_OUT);
     }
 
     public async void FadeIn()
     {
+        // AnimationPlayer bgmPlayer = bgm.GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
+        // if (shouldFade) { bgmPlayer.Play(ConstTerm.AUDIO_FADE); }
+
         animPlayer.Play(ConstTerm.FADE_IN);
         await ToSignal(animPlayer, ConstTerm.ANIM_FINISHED);
 

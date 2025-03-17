@@ -22,6 +22,8 @@ public class ConstTerm
     public const string WALK = "Walk";
     public const string RUN = "Run";
 
+    public const string AUDIO_FADE = "audio/audio_fade";
+
 
     //=============================================================================
     // SECTION: Input Keys
@@ -29,7 +31,7 @@ public class ConstTerm
     public const string ACCEPT = "Accept";
     public const string CANCEL = "Cancel";
     public const string MENU = "Menu";
-    public const string ESC = "Esc";
+    public const string PAUSE = "Pause";
     
     public const string UP = "Up";
     public const string DOWN = "Down";
@@ -47,6 +49,7 @@ public class ConstTerm
     public const string TRANSITION_FINISHED = "onTransitionFinished";
     public const string NAVIGATION_FINISHED = "navigation_finished";
     public const string FINISHED_SIGNAL = "finished";
+    public const string PROCESS_FRAME = "process_frame";
 
 
     //=============================================================================
@@ -60,12 +63,17 @@ public class ConstTerm
     //=============================================================================
     // SECTION: Paths
     //=============================================================================
-    public const string GAME_FOLDER = "user://";
+    public const string FOLDER = "/";
+    public const string GAME_FOLDER = "./";
     public const string SAVE_PATH = "";
-    public const string SAVE_FOLDER = "saves/";
+
+    public const string LANG_FOLDER = "Lang/";
+    public const string SAVE_FOLDER = "Saves/";
     public const string SAVE_FILE = "saveTest";
     public const string SAVE_TYPE = ".saveGame";
+
     public const string CFG_FILE = "config.cfg";
+    public const string LANG_FILE = "InteractTextData.json";
 
     public const string TXT = ".txt";
     public const string TRES = ".tres";
@@ -132,6 +140,9 @@ public class ConstTerm
 
     public const string MOUSE = "Mouse";
     public const string KEY_GAMEPAD = "KeyboardGamepad";
+    public const string CONFIG = "Config";
+    public const string OPTIONS = "Options";
+    public const string REBIND = "Rebind";
 
 
     //=============================================================================
@@ -146,6 +157,7 @@ public class ConstTerm
     // SECTION: Groups
     //=============================================================================
     public const string SAVEDATA = "SaveData";
+    public const string CONFIGDATA = "ConfigData";
     public const string BATTLERDATA = "BattlerData";
     public const string PARTYDATA = "PartyData";
 
@@ -155,6 +167,8 @@ public class ConstTerm
     //=============================================================================
     public const string ON_SAVEGAME = "OnSaveGame";
     public const string ON_LOADGAME = "OnLoadGame";
+    public const string ON_SAVECONFIG = "OnSaveConfig";
+    public const string ON_LOADCONFIG = "OnLoadConfig";
     public const string TARGETINTERACT = "TargetInteraction";
     public const string UPDATEINTERACT = "UpdateInteraction";
 
@@ -172,8 +186,10 @@ public class ConstTerm
     public const string CONTINUE = "Continue";
 
     public const string LIST = "List";
+    public const string GRID = "Grid";
     public const string PANEL = "Panel";
     public const string CONTAINER = "Container";
+    public const string COLUMNS = "Columns";
 
     public const string TEXTBOX = "TextBox";
     public const string CHOICEBOX = "ChoiceBox";
@@ -181,6 +197,8 @@ public class ConstTerm
 
     public const string HORIZ = "Horizontal";
     public const string VERT = "Vertical";
+
+    public const string CONTROLLER = "Controller";
 
 
     //=============================================================================
@@ -258,6 +276,22 @@ public class ConstTerm
     public const string EVENT = "Event";
     public const string STEP = "Step";
     public const string DIVIDER = ".";
+
+
+    //=============================================================================
+    // SECTION: Config Options
+    //=============================================================================
+    public const string AUDIO = "Audio";
+    public const string MASTER = "Master";
+    public const string BGM = "BGM";
+    public const string SOUND = "Sound";
+    public const string VOICE = "Voice";
+
+    public const string GRAPHICS = "Graphics";
+    public const string BORDERLESS = "Borderless";
+    public const string RESOLUTION = "Resolution";
+
+    public const string KEYBINDS = "Keybinds";
 
 
     //=============================================================================

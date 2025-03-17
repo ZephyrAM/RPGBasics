@@ -1,5 +1,4 @@
 using Godot;
-using System.Collections.Generic;
 
 using ZAM.Managers;
 
@@ -53,13 +52,18 @@ namespace ZAM.System
 
             SaveLoader.Instance.SaveAllData(); // EDIT: Save player team data. Expand on this
 
+            Node2D moveToMap = ResourceLoader.Load<PackedScene>(newScenePath).Instantiate() as Node2D;
+            MapSystem mapSystemNode = moveToMap.GetChild(0) as MapSystem;
+
+            AudioStream newBgm = mapSystemNode.GetBGM();
+            AudioStream oldBgm = oldScene.GetNode<MapSystem>(ConstTerm.MAPSYSTEM).GetBGM();
+
             Fader.Instance.FadeOut();
+            BGMPlayer.Instance.TransitionBGM(oldBgm, newBgm);
             await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
             
             oldScene.QueueFree();
             // PackedScene moveToScene = ResourceLoader.Load<PackedScene>(newScenePath);
-            Node2D moveToMap = ResourceLoader.Load<PackedScene>(newScenePath).Instantiate() as Node2D;
-            MapSystem mapSystemNode = moveToMap.GetChild(0) as MapSystem;
 
             mapSystemNode.GetPartyManager().SetMemberArrays(playerParty.GetPartyArray(), playerParty.GetReserveArray());
 

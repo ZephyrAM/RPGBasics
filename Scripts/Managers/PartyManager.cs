@@ -2,7 +2,7 @@ using Godot;
 using Godot.Collections;
 using System.Collections.Generic;
 
-using ZAM.Control;
+using ZAM.Controller;
 using ZAM.Stats;
 
 namespace ZAM.Managers
@@ -12,9 +12,10 @@ namespace ZAM.Managers
         // Assigned Variables \\
         [Export] private Array<PackedScene> partyMembers = [];
         [Export] private Array<PackedScene> reserveMembers = [];
-        [Export] private Script charController = null;
+        [Export] private Script playerController = null;
 
         // Setup Variables \\
+        private CharacterController characterController = null;
         private CharacterBody2D leaderMember = null;
         private List<Battler> activeParty = [];
 
@@ -32,7 +33,7 @@ namespace ZAM.Managers
         //     partyMembers = oldparty.partyMembers;
         //     reserveMembers = oldparty.reserveMembers;
 
-        //     charController = oldparty.charController;
+        //     playerController = oldparty.playerController;
 
         //     leaderMember = oldparty.leaderMember;
         //     activeParty = oldparty.activeParty;
@@ -51,6 +52,13 @@ namespace ZAM.Managers
                 else { GD.PushError("No party members!"); }
             }
         }
+
+        // public override void _Input(InputEvent @event)
+        // {
+        //     if (@event.IsActionPressed(ConstTerm.PAUSE) && characterController.IsControlActive()) { // EDIT: Pause/System menu. Skip cutscene menu? Make conditional global?
+		// 		GetTree().Paused = !GetTree().Paused;
+		// 	}
+        // }
 
         //=============================================================================
         // SECTION: Utility Methods
@@ -98,8 +106,10 @@ namespace ZAM.Managers
             AddChild(tempLead);
             activeParty.Add(GetChild(0).GetNode<Battler>(ConstTerm.BATTLER));
 
-            leaderMember = SafeScriptAssign(tempLead, charController) as CharacterBody2D;
+            leaderMember = SafeScriptAssign(tempLead, playerController) as CharacterBody2D;
             leaderMember.GetNode<Label>(ConstTerm.NAME).Visible = false;
+            characterController = leaderMember as CharacterController;
+
             LoadParty();
         }
 
@@ -122,7 +132,7 @@ namespace ZAM.Managers
 
             CharacterBody2D tempLead = (CharacterBody2D)GetChild(0);
             activeParty.Add(tempLead.GetNode<Battler>(ConstTerm.BATTLER));
-            leaderMember = (CharacterBody2D)SafeScriptAssign(tempLead, charController);
+            leaderMember = (CharacterBody2D)SafeScriptAssign(tempLead, playerController);
             leaderMember.GetNode<Label>(ConstTerm.NAME).Visible = false;
 
             for (int p = 1; p < GetChildCount(); p++)

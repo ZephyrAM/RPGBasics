@@ -5,9 +5,11 @@ public partial class SaveLoader : Node
     public static SaveLoader Instance { get; private set; }
     public SavedGame gameSession;
 
-    private string textSavePath = ConstTerm.GAME_FOLDER + ConstTerm.SAVE_PATH + ConstTerm.SAVE_FOLDER + ConstTerm.SAVE_FILE + ConstTerm.TXT;
-    private string resourceSavePath = ConstTerm.GAME_FOLDER + ConstTerm.SAVE_PATH + ConstTerm.SAVE_FOLDER + ConstTerm.SAVE_FILE + ConstTerm.TRES;
-    private string savePath = ConstTerm.GAME_FOLDER + ConstTerm.SAVE_PATH + ConstTerm.SAVE_FOLDER + ConstTerm.SAVE_FILE + ConstTerm.SAVE_TYPE;
+    private string saveFolder = ConstTerm.GAME_FOLDER + ConstTerm.SAVE_FOLDER;
+    private string textSavePath;
+    private string resourceSavePath;
+    private string savePath;
+    private string configPath;
 
     //=============================================================================
     // SECTION: Base Methods
@@ -18,14 +20,57 @@ public partial class SaveLoader : Node
         Instance = this;
         Instance.gameSession = new();
 
+        SetupSavePaths();
+    }
+
+    private void SetupSavePaths()
+    {
         DirAccess dir = DirAccess.Open(ConstTerm.GAME_FOLDER);
-        if (!dir.DirExists(ConstTerm.SAVE_PATH + ConstTerm.SAVE_FOLDER)) { dir.MakeDir(ConstTerm.SAVE_PATH + ConstTerm.SAVE_FOLDER); }
+        if (!dir.DirExists(ConstTerm.SAVE_FOLDER)) { dir.MakeDir(ConstTerm.SAVE_FOLDER); }
+
+        textSavePath = saveFolder + ConstTerm.SAVE_FILE + ConstTerm.TXT;
+        resourceSavePath = saveFolder + ConstTerm.SAVE_FILE + ConstTerm.TRES;
+        savePath = saveFolder + ConstTerm.SAVE_FILE + ConstTerm.SAVE_TYPE;
+        configPath = saveFolder + ConstTerm.CFG_FILE;
     }
 
     public string GetSavePath()
     {
-        string folderPath = ConstTerm.GAME_FOLDER + ConstTerm.SAVE_PATH + ConstTerm.SAVE_FOLDER;
-        return folderPath;
+        return saveFolder;
+    }
+
+    //=============================================================================
+    // SECTION: Config Methods
+    //=============================================================================
+
+    public ConfigFile GetConfigFile()
+    {
+        ConfigFile configFile = new();
+        Error checkConfig = configFile.Load(configPath);
+
+        if (checkConfig != Error.Ok) { return new ConfigFile(); }
+        return configFile;
+    }
+
+    public void SaveConfigFile(ConfigFile newConfig)
+    {
+        newConfig.Save(configPath);
+    }
+
+    public void SaveConfig()
+    {
+        GetTree().CallGroup(ConstTerm.CONFIGDATA, ConstTerm.ON_SAVECONFIG, GetConfigFile());
+    }
+
+    public void LoadConfig()
+    {
+        GetTree().CallGroup(ConstTerm.CONFIGDATA, ConstTerm.ON_LOADCONFIG, GetConfigFile());
+    }
+
+    public string GetLangFile()
+    {
+        string language = ConstTerm.EN; // EDIT: Adjust to pull current language.
+        return ConstTerm.GAME_FOLDER + ConstTerm.LANG_FOLDER + language + ConstTerm.FOLDER + ConstTerm.LANG_FILE;
     }
 
     //=============================================================================
@@ -39,7 +84,7 @@ public partial class SaveLoader : Node
         // };
         SaveAllData();
 
-        DirAccess dir = DirAccess.Open(ConstTerm.GAME_FOLDER + ConstTerm.SAVE_PATH);
+        DirAccess dir = DirAccess.Open(ConstTerm.GAME_FOLDER);
         if (!dir.DirExists(ConstTerm.SAVE_FOLDER)) { dir.MakeDir(ConstTerm.SAVE_FOLDER); }
 
         ResourceSaver.Save(Instance.gameSession, resourceSavePath); // Save as Resource (.tres)

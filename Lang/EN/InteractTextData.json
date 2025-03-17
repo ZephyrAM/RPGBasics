@@ -1,0 +1,17 @@
+{
+    "Map1.Event0.Step1": 
+    {
+        "EN": "Testing event text from JSON. \nHello in test!",
+        "JP": "JP not implemented."
+    },
+    "Map1.Event0.Step2":
+    {
+        "EN": "Second JSON test, here and running.",
+        "JP": "JP still not implemented."
+    },
+    "Map1.Interactable0.Step0":
+    {
+        "EN": "Hello there!",
+        "JP": "Konnichiwa!"
+    }
+}

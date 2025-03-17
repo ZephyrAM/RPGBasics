@@ -1,11 +1,14 @@
-[gd_scene load_steps=11 format=3 uid="uid://bhw8ja7yjcpke"]
+[gd_scene load_steps=14 format=3 uid="uid://bhw8ja7yjcpke"]
 
-[ext_resource type="Script" path="res://Scripts/Control/MenuController.cs" id="1_a143d"]
+[ext_resource type="Script" path="res://Scripts/Controller/MenuController.cs" id="1_a143d"]
 [ext_resource type="Script" path="res://Scripts/MenuUI/InfoMenu.cs" id="1_grjns"]
 [ext_resource type="PackedScene" uid="uid://eceb5khigg56" path="res://Resources/UI/Menu/member_info.tscn" id="2_ltrr6"]
 [ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Assets/Font/FFVI Regular.ttf" id="3_e64x6"]
 [ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/UI/Menu/button_label.tscn" id="4_nrhpl"]
-[ext_resource type="PackedScene" uid="uid://iy362h4v47pc" path="res://Resources/UI/Menu/list_panel.tscn" id="6_oeqb3"]
+[ext_resource type="AudioStream" uid="uid://cp6rewnlogf5" path="res://Resources/Audio/Sound/Cursor 2 (Sine).wav" id="5_0bx7s"]
+[ext_resource type="PackedScene" uid="uid://iy362h4v47pc" path="res://Resources/UI/Menu/grid_panel.tscn" id="6_oeqb3"]
+[ext_resource type="AudioStream" uid="uid://1wxokdt8vdkb" path="res://Resources/Audio/Sound/Cancel 2 (Sine).wav" id="6_p0xlc"]
+[ext_resource type="AudioStream" uid="uid://dk3hoq2ssfdns" path="res://Resources/Audio/Sound/Error 1 (Saw).wav" id="7_ljk4x"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_36ajg"]
 content_margin_left = 4.0
@@ -46,6 +49,7 @@ skillPanel = NodePath("SkillPanel")
 itemPanel = NodePath("ItemPanel")
 
 [node name="MenuContainer" type="PanelContainer" parent="." node_paths=PackedStringArray("infoList", "optionsList", "skillPanel", "itemPanel")]
+visible = false
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -64,7 +68,10 @@ infoList = NodePath("HBoxContainer/InfoContainer/InfoList")
 optionsList = NodePath("HBoxContainer/VBoxContainer/OptionsContainer/PanelContainer/OptionsList")
 skillPanel = NodePath("../SkillPanel")
 itemPanel = NodePath("../ItemPanel")
-labelSettings = ExtResource("4_nrhpl")
+buttonLabel = ExtResource("4_nrhpl")
+cursorSound = ExtResource("5_0bx7s")
+cancelSound = ExtResource("6_p0xlc")
+errorSound = ExtResource("7_ljk4x")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MenuContainer"]
 layout_mode = 2
@@ -162,5 +169,27 @@ label_settings = SubResource("LabelSettings_3sgn4")
 horizontal_alignment = 2
 
 [node name="SkillPanel" parent="." instance=ExtResource("6_oeqb3")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -282.0
+offset_top = -185.0
+offset_right = 282.0
+offset_bottom = 185.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="ItemPanel" parent="." instance=ExtResource("6_oeqb3")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -282.0
+offset_top = -185.0
+offset_right = 282.0
+offset_bottom = 185.0
+grow_horizontal = 2
+grow_vertical = 2

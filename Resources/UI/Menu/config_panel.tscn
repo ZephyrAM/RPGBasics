@@ -1,0 +1,269 @@
+[gd_scene load_steps=8 format=3 uid="uid://cir6rp1i0ptt0"]
+
+[ext_resource type="Script" path="res://Scripts/MenuUI/ConfigInfo.cs" id="1_4ketw"]
+[ext_resource type="Script" path="res://Scripts/Controller/ConfigController.cs" id="1_8fv22"]
+[ext_resource type="PackedScene" uid="uid://e0e8caop08tx" path="res://Resources/UI/Menu/label_base.tscn" id="2_mewfc"]
+[ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/UI/Menu/button_label.tscn" id="3_v1rft"]
+[ext_resource type="PackedScene" uid="uid://b0kme88cwhj4i" path="res://Resources/UI/Menu/config_label.tscn" id="5_jrggd"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kaets"]
+bg_color = Color(0.239216, 0.341176, 0.52549, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1fx2g"]
+bg_color = Color(0.239216, 0.341176, 0.52549, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+
+[node name="ConfigMenu" type="Node" node_paths=PackedStringArray("configPanel", "configOptions", "configOptionsList", "scrollContainer") groups=["ConfigData"]]
+script = ExtResource("1_8fv22")
+configPanel = NodePath("ConfigPanel")
+configOptions = NodePath("ConfigOptions")
+configOptionsList = NodePath("ConfigOptions/MarginContainer/ConfigOptionsList")
+scrollContainer = NodePath("ConfigPanel/MarginContainer/ScrollContainer")
+
+[node name="ConfigPanel" type="PanelContainer" parent="." node_paths=PackedStringArray("audioList", "graphicsList", "keybindsList")]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_kaets")
+script = ExtResource("1_4ketw")
+audioList = NodePath("MarginContainer/ScrollContainer/Audio")
+graphicsList = NodePath("MarginContainer/ScrollContainer/Graphics")
+keybindsList = NodePath("MarginContainer/ScrollContainer/Keybinds")
+
+[node name="MarginContainer" type="MarginContainer" parent="ConfigPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ConfigPanel/MarginContainer"]
+layout_mode = 2
+follow_focus = true
+
+[node name="Audio" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+text = "Volume"
+horizontal_alignment = 1
+
+[node name="GridContainer" type="GridContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio"]
+layout_mode = 2
+columns = 2
+
+[node name="CommandList" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Master" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Master"
+
+[node name="BGM" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "BGM"
+
+[node name="Sound" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Sound"
+
+[node name="ValueList" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio/GridContainer"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_constants/separation = 0
+
+[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label2" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label3" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Graphics" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Graphics" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+text = "Graphics"
+horizontal_alignment = 1
+
+[node name="GridContainer" type="GridContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Graphics"]
+layout_mode = 2
+columns = 2
+
+[node name="CommandList" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Graphics/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Borderless" parent="ConfigPanel/MarginContainer/ScrollContainer/Graphics/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Borderless"
+horizontal_alignment = 0
+
+[node name="Resolution" parent="ConfigPanel/MarginContainer/ScrollContainer/Graphics/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Resolution"
+horizontal_alignment = 0
+
+[node name="ValueList" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Graphics/GridContainer"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Graphics/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label2" parent="ConfigPanel/MarginContainer/ScrollContainer/Graphics/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Keybinds" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+text = "Keybinds"
+horizontal_alignment = 1
+
+[node name="GridContainer" type="GridContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds"]
+layout_mode = 2
+columns = 2
+
+[node name="CommandList" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Up" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Up"
+
+[node name="Down" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Down"
+
+[node name="Left" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Left"
+
+[node name="Right" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Right"
+
+[node name="Accept" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Accept"
+
+[node name="Cancel" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Cancel"
+
+[node name="Run" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Run"
+
+[node name="Menu" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Menu"
+
+[node name="ValueList" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_constants/separation = 0
+
+[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label2" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label3" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label4" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label5" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label6" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label7" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label8" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="ConfigOptions" type="PanelContainer" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 300.0
+offset_top = -150.0
+offset_right = 500.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1fx2g")
+
+[node name="MarginContainer" type="MarginContainer" parent="ConfigOptions"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ConfigOptionsList" type="VBoxContainer" parent="ConfigOptions/MarginContainer"]
+layout_mode = 2
+
+[node name="Label" parent="ConfigOptions/MarginContainer/ConfigOptionsList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Audio"
+horizontal_alignment = 0
+
+[node name="Label2" parent="ConfigOptions/MarginContainer/ConfigOptionsList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Graphics"
+horizontal_alignment = 0
+
+[node name="Label3" parent="ConfigOptions/MarginContainer/ConfigOptionsList" instance=ExtResource("3_v1rft")]
+layout_mode = 2
+text = "Keybinds"
+horizontal_alignment = 0

@@ -1,18 +1,8 @@
-[gd_scene load_steps=17 format=3 uid="uid://eceb5khigg56"]
+[gd_scene load_steps=14 format=3 uid="uid://eceb5khigg56"]
 
 [ext_resource type="Script" path="res://Scripts/MenuUI/MemberInfo.cs" id="1_6ewv0"]
 [ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Assets/Font/FFVI Regular.ttf" id="2_atp7f"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nywkg"]
-bg_color = Color(0.6, 0.6, 0.6, 0.882353)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mxm2y"]
-bg_color = Color(0.6, 0.6, 0.6, 0.882353)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hja2c"]
-bg_color = Color(0.45098, 0.580392, 0.941176, 0.882353)
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_axyhl"]
+[ext_resource type="PackedScene" uid="uid://ceex1ny35kacf" path="res://Resources/UI/Menu/button_base.tscn" id="2_ge4r4"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_78mm3"]
 font = ExtResource("2_atp7f")
@@ -70,19 +60,8 @@ mpMax = NodePath("MPLabel/HBoxContainer/MPMax")
 lvlCurrent = NodePath("LevelLabel/LevelCurrent")
 expNext = NodePath("ExpLabel/NextLevel")
 
-[node name="Button" type="Button" parent="."]
-show_behind_parent = true
+[node name="Button" parent="." instance=ExtResource("2_ge4r4")]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = -64.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/focus = SubResource("StyleBoxFlat_nywkg")
-theme_override_styles/hover = SubResource("StyleBoxFlat_mxm2y")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_hja2c")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_axyhl")
 
 [node name="Portrait" type="TextureRect" parent="."]
 layout_mode = 1

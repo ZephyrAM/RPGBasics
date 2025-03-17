@@ -40,7 +40,7 @@ namespace ZAM.MapEvents
                     interactor.AddMoveRoute();
                     break;
                 default:
-                    GD.Print("still going..." + interactor.GetStep());
+                    // GD.Print("still going..." + interactor.GetStep());
                     EmitSignal(SignalName.onEventComplete);
                     break;
             }
@@ -62,7 +62,7 @@ namespace ZAM.MapEvents
 
         public void Event1()
         {
-            GD.Print("Event1 running!");
+            // GD.Print("Event1 running!");
         }
 
         //=============================================================================

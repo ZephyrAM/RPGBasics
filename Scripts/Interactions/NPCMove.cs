@@ -26,7 +26,7 @@ namespace ZAM.Interactions
         [Export] private Area2D sightArea = null;
         [Export] private NavigationAgent2D navAgent = null;
         [Export] private RayCast2D checkRay = null;
-        [Export] private ShapeCast2D checkShape = null;
+        // [Export] private ShapeCast2D checkShape = null;
         [Export] private AnimationTree animTree = null;
 
         private AnimationNodeStateMachinePlayback animPlay = null;
@@ -89,7 +89,7 @@ namespace ZAM.Interactions
             animTree ??= charBody.GetNode<AnimationTree>(ConstTerm.ANIM_TREE);
             navAgent ??= charBody.GetNode<NavigationAgent2D>(ConstTerm.NAVAGENT2D);
             checkRay ??= charBody.GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
-            checkShape ??= charBody.GetNode<ShapeCast2D>(ConstTerm.SHAPECAST2D);
+            // checkShape ??= charBody.GetNode<ShapeCast2D>(ConstTerm.SHAPECAST2D);
 
             animPlay ??= (AnimationNodeStateMachinePlayback)animTree.Get(ConstTerm.PARAM + ConstTerm.PLAYBACK);
 
@@ -195,7 +195,7 @@ namespace ZAM.Interactions
 
         private void ChaseCycle()
         {
-            if (!sightArea.OverlapsBody(GetChaseTarget())) {
+            if (!sightArea.OverlapsBody(GetChaseTarget())) { // EDIT: Create raycast to chase target. Out of sight if broken.
                 chaseTimer++;
                 if (chaseTimer > lostSightTimer) {
                     chaseTimer = 0;
@@ -296,31 +296,31 @@ namespace ZAM.Interactions
             return false;
         }
 
-        private bool UpdateShapeCast()
-        {
-            Vector2 multi = moveDirection;
+        // private bool UpdateShapeCast()
+        // {
+        //     Vector2 multi = moveDirection;
 
-            if (moveDirection.Y != 0)
-            {
-                multi *= charSize.Y / 1.6f;
-            }
-            else if (moveDirection.X != 0)
-            {
-                multi *= charSize.X / 2f;
-            }
+        //     if (moveDirection.Y != 0)
+        //     {
+        //         multi *= charSize.Y / 1.6f;
+        //     }
+        //     else if (moveDirection.X != 0)
+        //     {
+        //         multi *= charSize.X / 2f;
+        //     }
 
-            checkShape.TargetPosition = multi;
+        //     checkShape.TargetPosition = multi;
 
-            checkShape.ForceShapecastUpdate();
-            if (checkShape.IsColliding())
-            { 
-                blockedDirection = moveDirection;
-                // GD.Print(blockedDirection);
-                return true; 
-            }
+        //     checkShape.ForceShapecastUpdate();
+        //     if (checkShape.IsColliding())
+        //     { 
+        //         blockedDirection = moveDirection;
+        //         // GD.Print(blockedDirection);
+        //         return true; 
+        //     }
 
-            return false;
-        }
+        //     return false;
+        // }
 
         // private Vector2 ShiftDirection()
         // {
@@ -454,7 +454,7 @@ namespace ZAM.Interactions
         
         private void OnNavigationFinished()
         {
-            GD.Print("Nav finished");
+            // GD.Print("Nav finished");
             EmitSignal(SignalName.onEndEventStep, npcInteract); // -> MapEventScript
         }
     }

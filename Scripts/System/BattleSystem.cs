@@ -4,11 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ZAM.Controller;
 using ZAM.Abilities;
-using ZAM.Control;
-using ZAM.Inventory;
 using ZAM.Stats;
+
+using ZAM.Inventory;
+using ZAM.MenuUI;
+
 using ZAM.Managers;
+using System.Formats.Tar;
 
 namespace ZAM.System
 {
@@ -19,6 +23,7 @@ namespace ZAM.System
 
         [ExportGroup("Nodes")]
         [Export] private BattleController partyInput = null;
+        [Export] private AudioStream bgm = null;
         [Export] private Camera2D baseCamera = null;
         [Export] private CanvasLayer battleUI = null;
 
@@ -37,16 +42,19 @@ namespace ZAM.System
         private PackedScene enemyEncounter = null;
         private Node2D mapScene;
         private PartyManager playerParty;
+        // private AnimationPlayer bgmPlayer = null;
 
         private Ability defendAbility;
         private Ability activeAbility;
         private Item activeItem;
 
-        private List<Battler> battler = null;
-        private List<Battler> enemyTeam = null;
-        private List<Battler> playerTeam = null;
-        private VBoxContainer enemyList = null;
-        private VBoxContainer playerList = null;
+        private List<Battler> battler, enemyTeam, playerTeam = null;
+        private VBoxContainer enemyList, playerList = null;
+        // private List<Battler> battler = null;
+        // private List<Battler> enemyTeam = null;
+        // private List<Battler> playerTeam = null;
+        // private VBoxContainer enemyList = null;
+        // private VBoxContainer playerList = null;
 
         // private ColorRect commandBar = null;
         // private ColorRect skillBar = null;
@@ -86,7 +94,6 @@ namespace ZAM.System
 
             battler = [];
             CheckBattlers();
-            // SetCursorPosition();
             InitialHealthBars();
             SetupCommandList();
             SetupItemList();
@@ -119,10 +126,15 @@ namespace ZAM.System
         {
             battleUI ??= GetNode<CanvasLayer>(ConstTerm.BATTLE_UI);
 
-            // commandBar ??= commandPanel.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
-            // skillBar ??= skillPanel.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
-            // itemBar ??= itemPanel.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<GridContainer>(ConstTerm.SELECT + ConstTerm.LIST).GetNode<ColorRect>(ConstTerm.COLOR_RECT);
+            // StartBGM();
         }
+
+        // private void StartBGM()
+        // {
+        //     bgmPlayer = bgm.GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
+        //     // bgm.Play();
+        //     bgmPlayer.Play(ConstTerm.AUDIO_FADE);
+        // }
 
         private void SubSignals()
         {
@@ -217,7 +229,7 @@ namespace ZAM.System
             }
         }
 
-        private void BuildEnemyTeam() // EDIT: Create cursor target for each member
+        private void BuildEnemyTeam()
         {
             enemyList = battleUI.GetNode<VBoxContainer>(ConstTerm.ENEMY + ConstTerm.LIST);
 
@@ -265,12 +277,17 @@ namespace ZAM.System
         public async void ReturnMapScene()
         {
             SetBattleControlActive(false);
-            Fader.Instance.FadeOut();
-            await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
+
+            await BGMPlayer.Instance.FadeBGMTransition(bgm, mapScene.GetNode<MapSystem>(ConstTerm.MAPSYSTEM).GetBGM());
+            // AudioStream newBgm = mapScene.GetNode<MapSystem>(ConstTerm.MAPSYSTEM).GetBGM();
+            // Fader.Instance.FadeOut();
+
+            // BGMPlayer.Instance.TransitionBGM(bgm, newBgm);
+            // await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
 
             // mapScene.Reparent(GetTree().Root);
-            GD.Print("Add child - mapScene");
-            GD.Print(mapScene);
+            // GD.Print("Add child - mapScene");
+            // GD.Print(mapScene);
             GetTree().Root.AddChild(mapScene); // Causes error - already has parent? Still functions properly, without indication of error.
             GetTree().Root.RemoveChild(this);
 
@@ -294,16 +311,21 @@ namespace ZAM.System
             enemyEncounter = randomGroup;
         }
 
+        public AudioStream GetBGM()
+        {
+            return bgm;
+        }
+
         //=============================================================================
         // SECTION: Turn Handling
         //=============================================================================
 
         public void UIVisibility()
         {
-            // cursorTarget.Visible = partyInput.GetTurnPhase() == ConstTerm.ATTACK || partyInput.GetTurnPhase() == ConstTerm.SKILL + ConstTerm.USE || partyInput.GetTurnPhase() == ConstTerm.ITEM + ConstTerm.USE;
-            commandPanel.Visible = partyInput.GetTurnPhase() == ConstTerm.COMMAND;
-            skillPanel.Visible   = partyInput.GetTurnPhase() == ConstTerm.SKILL + ConstTerm.SELECT;
-            itemPanel.Visible    = partyInput.GetTurnPhase() == ConstTerm.ITEM + ConstTerm.SELECT;
+            // cursorTarget.Visible = partyInput.GetInputPhase() == ConstTerm.ATTACK || partyInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.USE || partyInput.GetInputPhase() == ConstTerm.ITEM + ConstTerm.USE;
+            commandPanel.Visible = partyInput.GetInputPhase() == ConstTerm.COMMAND;
+            skillPanel.Visible   = partyInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.SELECT;
+            itemPanel.Visible    = partyInput.GetInputPhase() == ConstTerm.ITEM + ConstTerm.SELECT;
         }
 
         public async void CheckBattlers()
@@ -331,45 +353,51 @@ namespace ZAM.System
             commandPanel.Position = commandOrigin - new Vector2(xOffset, yOffset);
         }
 
-        public void SetCursorPosition() // EDIT: Add cursor to each battler target. Toggle Visible if targetted - more effective for AoE
+        public void SetCursorPosition(string area)
         {
             int target = partyInput.GetTarget();
             List<Battler> targetTeam = enemyTeam;
-            string area = "";
+
+            if (partyInput.GetTargetTeam() == ConstTerm.ENEMY) { targetTeam = enemyTeam; }
+            else if (partyInput.GetTargetTeam() == ConstTerm.PLAYER) { targetTeam = playerTeam; }
+            else { GD.PushError("Invalid ACTION target type!"); }
+            // string area = "";
 
             if (target >= targetTeam.Count || target < 0) { target = 0; }
 
-            if (partyInput.GetTurnPhase() == ConstTerm.SKILL + ConstTerm.USE) {
-                switch (activeAbility.TargetType)
-                {
-                    case ConstTerm.ALLY:
-                        targetTeam = playerTeam;
-                        break;
-                    case ConstTerm.ENEMY:
-                        targetTeam = enemyTeam;
-                        break;
-                    default:
-                        GD.PushError("Invalid SKILL target type!");
-                        break;
-                }
-                area = activeAbility.TargetArea;
-            }
-            else if (partyInput.GetTurnPhase() == ConstTerm.ITEM + ConstTerm.USE) {
-                switch (activeItem.TargetType)
-                {
-                    case ConstTerm.ALLY:
-                        targetTeam = playerTeam;
-                        break;
-                    case ConstTerm.ENEMY:
-                        targetTeam = enemyTeam;
-                        break;
-                    default:
-                        GD.PushError("Invalid ITEM target type!");
-                        break;
-                }
-                area = activeItem.TargetArea;
-            }
-            else if (partyInput.GetTurnPhase() == ConstTerm.ATTACK) { area = ConstTerm.SINGLE; } // EDIT: Change target area to match attack parameters
+            // if (partyInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.USE) {
+            //     switch (activeAbility.TargetType)
+            //     {
+            //         case ConstTerm.ALLY:
+            //             targetTeam = playerTeam;
+            //             break;
+            //         case ConstTerm.ENEMY:
+            //             targetTeam = enemyTeam;
+            //             break;
+            //         default:
+            //             GD.PushError("Invalid SKILL target type!");
+            //             break;
+            //     }
+            //     area = activeAbility.TargetArea;
+            // }
+            // else if (partyInput.GetInputPhase() == ConstTerm.ITEM + ConstTerm.USE) {
+            //     switch (activeItem.TargetType)
+            //     {
+            //         case ConstTerm.ALLY:
+            //             targetTeam = playerTeam;
+            //             break;
+            //         case ConstTerm.ENEMY:
+            //             targetTeam = enemyTeam;
+            //             break;
+            //         default:
+            //             GD.PushError("Invalid ITEM target type!");
+            //             break;
+            //     }
+            //     area = activeItem.TargetArea;
+            // }
+            // else if (partyInput.GetInputPhase() == ConstTerm.ATTACK) { area = ConstTerm.SINGLE; } // EDIT: Change target area to match attack parameters
+
+            // target = TargetByDirection(change, target, direction, targetTeam);
 
             SetActiveCursors(targetTeam, target, area);
 
@@ -379,6 +407,81 @@ namespace ZAM.System
             // cursorTarget.Position = targetTeam[target].GetCharBody().GetGlobalTransformWithCanvas().Origin - offset;
             // GD.Print(target + " " + targetTeam[target].GetCharBody().GetGlobalTransformWithCanvas().Origin + " " + targetTeam[target].GetCharBody().Position);
         }
+
+        // private int TargetByDirection(string direction, List<Battler> targetTeam)
+        // {
+        //     if (direction == ConstTerm.LEFT) {
+
+        //     }
+        // }
+
+        // private int TargetByDirection(int change, int target, string direction, List<Battler> targetTeam)
+        // {
+        //     IUIFunctions.ChangeTarget(change, ref target, targetTeam.Count);
+        //     int select = target;
+        //     int highestY = -1;
+        //     int highestX = -1;
+
+        //     for (int t = 0; t < targetTeam.Count; t++) {
+        //         if (direction == ConstTerm.VERT) {
+        //             if (change < 0) {
+        //                 if (targetTeam[t].GetCharBody().Position.Y <= targetTeam[target].GetCharBody().Position.Y) { 
+        //                     if (t > 0) { 
+        //                         if (targetTeam[t].GetCharBody().Position.Y > targetTeam[t - 1].GetCharBody().Position.Y 
+        //                         && targetTeam[t].GetCharBody().Position.Y < targetTeam[target].GetCharBody().Position.Y) { select = t; }
+        //                     } else { select = t; }
+        //                 } else { 
+        //                     if (t > 0) {
+        //                         if (targetTeam[t].GetCharBody().Position.Y > targetTeam[t - 1].GetCharBody().Position.Y) { highestY = t; }
+        //                     } else { highestY = t; }
+        //                 }
+        //             } else {
+        //                 if (targetTeam[t].GetCharBody().Position.Y >= targetTeam[target].GetCharBody().Position.Y) { 
+        //                     if (t > 0) {
+        //                         if (targetTeam[t].GetCharBody().Position.Y < targetTeam[t - 1].GetCharBody().Position.Y
+        //                         && targetTeam[t].GetCharBody().Position.Y > targetTeam[target].GetCharBody().Position.Y) { select = t; }
+        //                     } else { select = t; }
+        //                 } else {
+        //                     if (t > 0) {
+        //                         if (targetTeam[t].GetCharBody().Position.Y < targetTeam[t - 1].GetCharBody().Position.Y) { highestX = t; }
+        //                     } else { highestX = t; }
+        //                 }
+        //             }
+        //         }
+        //         else if (direction == ConstTerm.HORIZ) {
+        //             if (change < 0) {
+        //                 if (targetTeam[t].GetCharBody().Position.Y <= targetTeam[target].GetCharBody().Position.X) { 
+        //                     if (t > 0) { 
+        //                         if (targetTeam[t].GetCharBody().Position.X > targetTeam[t - 1].GetCharBody().Position.X 
+        //                         && targetTeam[t].GetCharBody().Position.X < targetTeam[target].GetCharBody().Position.X) { select = t; }
+        //                     } else { select = t; }
+        //                 } else { 
+        //                     if (t > 0) {
+        //                         if (targetTeam[t].GetCharBody().Position.X > targetTeam[t - 1].GetCharBody().Position.X) { highestX = t; }
+        //                     } else { highestX = t; }
+        //                 }
+        //             } else {
+        //                 if (targetTeam[t].GetCharBody().Position.X >= targetTeam[target].GetCharBody().Position.X) { 
+        //                     if (t > 0) {
+        //                         if (targetTeam[t].GetCharBody().Position.X < targetTeam[t - 1].GetCharBody().Position.X
+        //                         && targetTeam[t].GetCharBody().Position.X > targetTeam[target].GetCharBody().Position.X) { select = t; }
+        //                     } else { select = t; }
+        //                 } else {
+        //                     if (t > 0) {
+        //                         if (targetTeam[t].GetCharBody().Position.X < targetTeam[t - 1].GetCharBody().Position.X) { highestX = t; }
+        //                     } else { highestX = t; }
+        //                 }
+        //             }
+        //         }
+        //     }
+
+        //     if (targetTeam[select] == targetTeam[target]) { 
+        //         if (highestY < 0) { target = highestX; }
+        //         else { target = highestY; }
+        //     } else { target = select; }
+        //     GD.Print(target);
+        //     return target;
+        // }
 
         private void SetActiveCursors(List<Battler> targetTeam, int target, string area)
         {
@@ -510,12 +613,12 @@ namespace ZAM.System
 
         private async void BattleWin()
         {
-            GD.Print("Battle end - save data");
+            // GD.Print("Battle end - save data");
             SaveLoader.Instance.GatherBattlers();
             // GD.Print(SaveLoader.Instance.gameSession.CharData[playerParty.GetPlayerParty()[0].GetCharID()].CurrentHP);
             // GD.Print(playerParty.GetPlayerParty()[0].GetHealth().GetHP());
-            GD.Print(partyInput);
-            partyInput.SetTurnPhase(ConstTerm.WAIT);
+            // GD.Print(partyInput);
+            partyInput.SetInputPhase(ConstTerm.WAIT);
             partyInput.SetBattleOver(true);
             await ToSignal(partyInput, ConstTerm.BATTLE_FINISHED);
             ReturnMapScene();
@@ -542,7 +645,6 @@ namespace ZAM.System
 
             turnActive = true;
             partyInput.PlayerTurnStart();
-            // SetCursorPosition();
             // Wait for player/BattleController
         }
 
@@ -621,10 +723,10 @@ namespace ZAM.System
 
             if (ItemBag.Instance.BagIsEmpty())
             {
-                commandPanel.GetNode<VBoxContainer>(ConstTerm.COMMAND + ConstTerm.LIST).GetChild<Label>(itemCommand).Modulate = new Color(ConstTerm.GREY);
+                commandPanel.GetNode<VBoxContainer>(ConstTerm.COMMAND + ConstTerm.LIST).GetChild<Label>(itemCommand).GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
                 return false;
             } else {
-                commandPanel.GetNode<VBoxContainer>(ConstTerm.COMMAND + ConstTerm.LIST).GetChild<Label>(itemCommand).Modulate = new Color(ConstTerm.WHITE);
+                commandPanel.GetNode<VBoxContainer>(ConstTerm.COMMAND + ConstTerm.LIST).GetChild<Label>(itemCommand).GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(false); ;
                 return true;
             }
         }
@@ -775,7 +877,7 @@ namespace ZAM.System
             {
                 if (battler[0] == null) { goto SkipToEnd; }
                 // GD.Print(battler[0].GetNameLabel().Text + " Turn Start!");
-                partyInput.SetTurnPhase(ConstTerm.WAIT);
+                partyInput.SetInputPhase(ConstTerm.WAIT);
                 ClearAbilityItem();
 
                 if (turnActive == false) { battler = SortSpeed(battler); }
@@ -798,7 +900,7 @@ namespace ZAM.System
             partyInput.SetControlActive(true);
             turnActive = false;
 
-            partyInput.ResetTarget();
+            // partyInput.ActivateTargetting();
             ReturnToPosition(battler[0]);
             battler.RemoveAt(0);
 
@@ -809,7 +911,7 @@ namespace ZAM.System
 
         private void CommandDone()
         {
-            partyInput.SetTurnPhase(ConstTerm.WAIT);
+            partyInput.SetInputPhase(ConstTerm.WAIT);
             partyInput.SetCommand(0);
             ClearAllCursors();
 
@@ -835,7 +937,8 @@ namespace ZAM.System
         {
             if (enemyTeam.Count > 0)
             {
-                switch (partyInput.GetTurnPhase())
+                string area = "";
+                switch (partyInput.GetInputPhase())
                 {
                     // case ConstTerm.COMMAND:
                     //     SelectChange(commandBar);
@@ -847,13 +950,18 @@ namespace ZAM.System
                     //     SelectChange(skillBar);
                     //     break;
                     case ConstTerm.ATTACK:
+                        area = ConstTerm.SINGLE; // EDIT: Link to character specific attack type
+                        break;
                     case ConstTerm.ITEM + ConstTerm.USE:
+                        area = activeItem.TargetArea;
+                        break;
                     case ConstTerm.SKILL + ConstTerm.USE:
-                        SetCursorPosition();
+                        area = activeAbility.TargetArea;
                         break;
                     default:
                         break;
                 }
+                SetCursorPosition(area);
             }
         }
 
@@ -871,10 +979,8 @@ namespace ZAM.System
             {
                 if (activeAbility.TargetType == ConstTerm.ALLY) { partyInput.SetTargetTeam(ConstTerm.PLAYER); }
                 else { partyInput.SetTargetTeam(ConstTerm.ENEMY); }
-                partyInput.ResetActionTarget();
+                partyInput.ActivateTargetting();
             }
-
-            // SetCursorPosition();
         }
 
         private async void OnAbilityUse(int index)
@@ -896,7 +1002,7 @@ namespace ZAM.System
             battler[0].GetAnimPlayer().Queue(activeAbility.CallAnimation);
             await ToSignal(battler[0].GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
 
-            // partyInput.ResetTarget();
+            // partyInput.ActivateTargetting();
 
             OnTurnEnd();
         }
@@ -929,9 +1035,8 @@ namespace ZAM.System
             {
                 if (activeItem.TargetType == ConstTerm.ALLY) { partyInput.SetTargetTeam(ConstTerm.PLAYER); }
                 else { partyInput.SetTargetTeam(ConstTerm.ENEMY); }
-                partyInput.ResetActionTarget();
+                partyInput.ActivateTargetting();
             }
-            // SetCursorPosition();
         }
 
         private async void OnItemUse(int index)
@@ -943,7 +1048,7 @@ namespace ZAM.System
             ItemBag.Instance.RemoveItemFromBag(index);
             itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).QueueFree();
 
-            // partyInput.ResetTarget();
+            // partyInput.ActivateTargetting();
 
             OnTurnEnd();
         }

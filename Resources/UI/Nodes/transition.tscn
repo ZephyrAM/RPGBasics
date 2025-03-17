@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://c34w24y88bml6"]
+
+[ext_resource type="Script" path="res://Scripts/System/Transitions.cs" id="1_4iqw6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pu2yp"]
+size = Vector2(14, 140)
+
+[node name="Travel0" type="Area2D" node_paths=PackedStringArray("currentMap", "playerParty", "spawnPoint")]
+position = Vector2(-510, 65)
+collision_layer = 64
+collision_mask = 14
+input_pickable = false
+script = ExtResource("1_4iqw6")
+currentMap = NodePath("")
+playerParty = NodePath("")
+spawnPoint = NodePath("SpawnPoint")
+destinationMapName = "Map2"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(6, 0)
+shape = SubResource("RectangleShape2D_pu2yp")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+collision_layer = 64
+collision_mask = 12
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(6, 0)
+shape = SubResource("RectangleShape2D_pu2yp")
+
+[node name="SpawnPoint" type="Node2D" parent="."]
+position = Vector2(45, 0)

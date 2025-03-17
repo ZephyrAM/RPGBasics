@@ -1,30 +1,29 @@
-[gd_scene load_steps=23 format=4 uid="uid://cj0v8mojhj4a7"]
+[gd_scene load_steps=26 format=4 uid="uid://cj0v8mojhj4a7"]
 
 [ext_resource type="Script" path="res://Scripts/System/MapSystem.cs" id="1_0i5bc"]
 [ext_resource type="PackedScene" uid="uid://chutyx7868wr6" path="res://Scenes/BattleScene.tscn" id="2_kbl8o"]
 [ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/UI/Menu/button_label.tscn" id="3_eh4q2"]
 [ext_resource type="Script" path="res://Scripts/MapEvents/Map1.cs" id="4_ia6gl"]
-[ext_resource type="Script" path="res://Scripts/System/Transitions.cs" id="5_7xff7"]
+[ext_resource type="AudioStream" uid="uid://dtekp26qwe68u" path="res://Resources/Audio/Music/A Little R & R.ogg" id="5_0hilf"]
 [ext_resource type="PhysicsMaterial" uid="uid://ivvfw5mov3ah" path="res://Resources/UI/Styles/no_friction_material.tres" id="7_dyhpv"]
 [ext_resource type="Texture2D" uid="uid://d00plp23y0m1k" path="res://Assets/Graphics/Tilesets/terrain.png" id="8_70ld1"]
 [ext_resource type="TileSet" uid="uid://8w563qvd783e" path="res://Assets/Graphics/Tilesets/terrain_tileset.tres" id="10_ckmcj"]
+[ext_resource type="PackedScene" uid="uid://c34w24y88bml6" path="res://Resources/UI/Nodes/transition.tscn" id="10_mirxo"]
 [ext_resource type="Script" path="res://Scripts/Managers/PartyManager.cs" id="12_wsyri"]
 [ext_resource type="Script" path="res://Scripts/System/EncounterArea.cs" id="13_enujo"]
 [ext_resource type="PackedScene" uid="uid://bjoehnkxwngcu" path="res://Resources/Prefab/Players/player_1.tscn" id="13_m0t7d"]
 [ext_resource type="PackedScene" uid="uid://csacs6oelr813" path="res://Resources/Prefab/Enemies/Groups/enemy_team_1.tscn" id="14_r0cwx"]
 [ext_resource type="PackedScene" uid="uid://bm6r0ypkntj5r" path="res://Resources/Prefab/Players/player_2.tscn" id="14_w08uj"]
 [ext_resource type="PackedScene" uid="uid://uqsv1w0qe8uc" path="res://Resources/Prefab/npc_character.tscn" id="15_2nx0r"]
-[ext_resource type="Script" path="res://Scripts/Control/CharacterController.cs" id="15_yuk0r"]
+[ext_resource type="Script" path="res://Scripts/Controller/CharacterController.cs" id="15_yuk0r"]
 [ext_resource type="PackedScene" uid="uid://dk8vtbbsa1io8" path="res://Resources/UI/Layers/interaction_layer.tscn" id="16_uwsn8"]
 [ext_resource type="PackedScene" uid="uid://bhw8ja7yjcpke" path="res://Resources/UI/Layers/party_menu.tscn" id="17_c8uvi"]
+[ext_resource type="PackedScene" uid="uid://bgs4oxmd0rgyx" path="res://Resources/UI/Layers/pause_menu.tscn" id="19_i7x2r"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_wq6mi"]
-vertices = PackedVector2Array(392.789, 317.094, -441.07, 324.898, -444.922, -202.023, 382.188, -203.969)
-polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(-455, -212, -451, 335, 403, 327, 392, -214)])
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_pu2yp"]
-size = Vector2(20, 140)
+vertices = PackedVector2Array(-477.328, 121, -579, 121, -579, 11, -480.344, 11, 381.5, 340.977, -455.813, 337.023, -471.078, 306.477, -473.18, -194.594, -441.922, -215.977, 389.344, -213.008, 410.992, -187.352, 410, 318.18)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 5, 6, 0, 3, 7, 8, 9, 10, 11)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-483, -200, -490, 1, -589, 1, -589, 131, -487, 131, -481, 309, -462, 347, 385, 351, 420, 323, 421, -191, 394, -223, -445, -226)])
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hjwbo"]
 resource_name = "Terrain (ID:1)"
@@ -928,6 +927,15 @@ sources/1 = SubResource("TileSetAtlasSource_hjwbo")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b7hks"]
 size = Vector2(278, 151)
 
+[sub_resource type="Gradient" id="Gradient_2prei"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_u7gre"]
+gradient = SubResource("Gradient_2prei")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
 [node name="SceneBase" type="Node2D"]
 
 [node name="MapSystem" type="Node2D" parent="." node_paths=PackedStringArray("playerParty", "menuInput", "uiLayer", "transit", "battleAreas")]
@@ -935,6 +943,7 @@ y_sort_enabled = true
 script = ExtResource("1_0i5bc")
 mapId = 1
 playerParty = NodePath("PartyManager")
+bgm = ExtResource("5_0hilf")
 menuInput = NodePath("CanvasLayer/PartyMenu")
 uiLayer = NodePath("CanvasLayer")
 transit = NodePath("Transitions")
@@ -948,28 +957,16 @@ y_sort_enabled = true
 position = Vector2(-383, -46)
 script = ExtResource("12_wsyri")
 partyMembers = [ExtResource("13_m0t7d"), ExtResource("14_w08uj")]
-charController = ExtResource("15_yuk0r")
+playerController = ExtResource("15_yuk0r")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="MapSystem"]
 navigation_polygon = SubResource("NavigationPolygon_wq6mi")
 
 [node name="Transitions" type="Node2D" parent="MapSystem"]
 
-[node name="Travel0" type="Area2D" parent="MapSystem/Transitions" node_paths=PackedStringArray("currentMap", "playerParty", "spawnPoint")]
-position = Vector2(-510, 65)
-collision_layer = 64
-collision_mask = 2
-script = ExtResource("5_7xff7")
+[node name="Travel0" parent="MapSystem/Transitions" node_paths=PackedStringArray("currentMap", "playerParty") instance=ExtResource("10_mirxo")]
 currentMap = NodePath("../../..")
 playerParty = NodePath("../../PartyManager")
-spawnPoint = NodePath("SpawnPoint")
-destinationMapName = "Map2"
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="MapSystem/Transitions/Travel0"]
-shape = SubResource("RectangleShape2D_pu2yp")
-
-[node name="SpawnPoint" type="Node2D" parent="MapSystem/Transitions/Travel0"]
-position = Vector2(45, 0)
 
 [node name="Environment" type="Node2D" parent="MapSystem"]
 z_index = -1
@@ -983,12 +980,14 @@ scroll_scale = Vector2(0, 0)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 800.0
+offset_left = -800.0
+offset_right = 1600.0
 offset_bottom = 300.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0.306116, 0.586933, 0.935857, 1)
+metadata/_edit_use_anchors_ = true
 
 [node name="Ground" type="TileMapLayer" parent="MapSystem/Environment"]
 tile_map_data = PackedByteArray("AAD5//7/AAACAAEAAAD5////AAACAAEAAAD5/wAAAAACAAEAAAD5/wEAAAACAAEAAAD5/wQAAAACAAEAAAD6////AAACAAEAAAD6/wAAAAACAAEAAAD6/wEAAAACAAEAAAD6/wQAAAACAAEAAAD7//3/AAACAAEAAAD7/wAAAAACAAEAAAD7/wEAAAACAAEAAAD7/wQAAAACAAEAAAD8//3/AAACAAEAAAD8//7/AAAEAAMAAAD8/wAAAAAEAAMAAAD8/wEAAAACAAEAAAD8/wQAAAACAAEAAAD9//3/AAACAAEAAAD9//7/AAAEAAMAAAD9/wEAAAACAAEAAAD9/wQAAAACAAEAAAD+//3/AAACAAEAAAD+//7/AAAEAAMAAAD+////AAAEAAMAAAD+/wQAAAACAAEAAAD///3/AAACAAEAAAD///7/AAAEAAMAAAD/////AAAEAAMAAAD//wAAAAAEAAMAAAAAAP3/AAACAAEAAAAAAP7/AAAEAAMAAAAAAP//AAAEAAMAAAAAAAAAAAAEAAMAAAAAAAMAAAACAAEAAAABAP3/AAACAAEAAAABAP7/AAACAAEAAAABAP//AAACAAEAAAABAAAAAAACAAEAAAABAAEAAAACAAEAAAABAAMAAAACAAEAAAACAP3/AAACAAEAAAACAP7/AAACAAEAAAACAP//AAACAAEAAAACAAAAAAACAAEAAAACAAEAAAACAAEAAAACAAMAAAACAAEAAAADAP3/AAACAAEAAAADAP7/AAACAAEAAAADAP//AAACAAEAAAADAAAAAAACAAEAAAADAAEAAAACAAEAAAADAAMAAAACAAEAAAAEAP3/AAACAAEAAAAEAP7/AAACAAEAAAAEAP//AAACAAEAAAAEAAAAAAACAAEAAAAEAAEAAAACAAEAAAAFAP3/AAACAAEAAAAFAP7/AAACAAEAAAAFAP//AAACAAEAAAAFAAAAAAACAAEAAAAFAAEAAAACAAEAAAAFAAIAAAACAAEAAAD5//3/AAACAAEAAAD6//3/AAACAAEAAAD6//7/AAACAAEAAAD7//7/AAACAAEAAAD7////AAACAAEAAAD8////AAAEAAMAAAD9////AAAEAAMAAAD9/wAAAAAEAAMAAAD+/wAAAAAEAAMAAAD+/wEAAAACAAEAAAD//wEAAAACAAEAAAAAAAEAAAACAAEAAAAAAAIAAAACAAEAAAABAAIAAAACAAEAAAACAAIAAAACAAEAAAADAAIAAAACAAEAAAAEAAIAAAACAAEAAAAEAAMAAAACAAEAAAAFAAMAAAACAAEAAAAFAAQAAAACAAEAAAAEAAQAAAACAAEAAAADAAQAAAACAAEAAAACAAQAAAACAAEAAAABAAQAAAACAAEAAAAAAAQAAAACAAEAAAD//wQAAAACAAEAAAD//wMAAAACAAEAAAD+/wMAAAACAAEAAAD9/wMAAAACAAEAAAD8/wMAAAACAAEAAAD7/wMAAAACAAEAAAD6/wMAAAACAAEAAAD5/wMAAAACAAEAAAD5/wIAAAACAAEAAAD6/wIAAAACAAEAAAD7/wIAAAACAAEAAAD8/wIAAAACAAEAAAD9/wIAAAACAAEAAAD+/wIAAAACAAEAAAD//wIAAAACAAEAAAD4/wAAAAAGAAMAAAD4/wEAAAAGAAMAAAA=")
@@ -1012,6 +1011,31 @@ enemyGroups = [ExtResource("14_r0cwx")]
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MapSystem/Environment/Area2D"]
 position = Vector2(150, 95)
 shape = SubResource("RectangleShape2D_b7hks")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="MapSystem/Environment"]
+visible = false
+color = Color(4.33177e-07, 0.202871, 0.329493, 1)
+
+[node name="PointLight2D" type="PointLight2D" parent="MapSystem/Environment/CanvasModulate"]
+position = Vector2(-358, 79)
+scale = Vector2(3.10938, 2.71875)
+texture = SubResource("GradientTexture2D_u7gre")
+texture_scale = 1.65
+height = 30.0
+
+[node name="PointLight2D2" type="PointLight2D" parent="MapSystem/Environment/CanvasModulate"]
+position = Vector2(293, -68)
+scale = Vector2(3.10938, 2.71875)
+texture = SubResource("GradientTexture2D_u7gre")
+texture_scale = 1.65
+height = 30.0
+
+[node name="PointLight2D3" type="PointLight2D" parent="MapSystem/Environment/CanvasModulate"]
+position = Vector2(81, 298)
+scale = Vector2(3.10938, 2.71875)
+texture = SubResource("GradientTexture2D_u7gre")
+texture_scale = 1.65
+height = 30.0
 
 [node name="Events" type="Node2D" parent="MapSystem"]
 y_sort_enabled = true
@@ -1072,3 +1096,5 @@ layer = 10
 [node name="InteractionText" parent="MapSystem/CanvasLayer" instance=ExtResource("16_uwsn8")]
 
 [node name="PartyMenu" parent="MapSystem/CanvasLayer" instance=ExtResource("17_c8uvi")]
+
+[node name="PauseContainer" parent="MapSystem/CanvasLayer" instance=ExtResource("19_i7x2r")]
