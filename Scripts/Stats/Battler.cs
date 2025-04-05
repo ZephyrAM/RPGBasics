@@ -1,14 +1,14 @@
 using Godot;
-using System;
-using System.Collections.Generic;
+using Godot.Collections;
 
 using ZAM.Abilities;
+using ZAM.Inventory;
 
 namespace ZAM.Stats
 {
     public partial class Battler : Node
     {
-        [Export] private string battlerType;
+        [Export(PropertyHint.Enum, "Player,Enemy,NPC")] private string battlerType;
         [Export] private CharacterID battlerID;
         [Export] private ClassID battlerClass;
         // [Export] private bool hasBattleStats = true; // Implement if needed
@@ -26,8 +26,9 @@ namespace ZAM.Stats
         [Export] private BaseStats battlerStats;
         [Export] private Experience battlerExp;
         [Export] private SkillList battlerSkills;
+        [Export] private EquipList battlerEquipment;
 
-        private List<EffectState> states;
+        private Array<EffectState> states = [];
         private Vector2 basePosition;
 
         public bool IsDead { get; set; } = false;
@@ -54,12 +55,10 @@ namespace ZAM.Stats
         public override void _Ready()
         {
             IfNull();
-            states = [];
             basePosition = new Vector2(GetSprite2D().Position.X, GetSprite2D().Position.Y);
+            if (battlerType != ConstTerm.NPC) { SetupHPMP(); }
 
             SubSignals();
-
-            // battlerHealth.SetMaxHP(battlerStats.GetStatValue(Stat.Stamina) * 10); // EDIT: Find better place to load.
         }
 
         // protected override void Dispose(bool disposing)
@@ -78,13 +77,14 @@ namespace ZAM.Stats
             battlerAnim ??= battlerBody.GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
             battlerName ??= battlerBody.GetNode<Label>(ConstTerm.NAME);
 
-            if (battlerType != ConstTerm.NPC) { battlerCursor ??= battlerBody.GetNode<Node2D>(ConstTerm.CURSOR + ConstTerm.TARGET); }
+            // Check if following nodes exist. Not required for some (ex. NPC's)
+            battlerCursor ??= battlerBody.GetNodeOrNull<Node2D>(ConstTerm.CURSOR + ConstTerm.TARGET);
 
-            battlerHealth ??= GetNode<Health>(ConstTerm.HEALTH);
-            battlerStats ??= GetNode<BaseStats>(ConstTerm.BASESTATS);
-            battlerExp ??= GetNode<Experience>(ConstTerm.EXPERIENCE);
-            battlerSkills ??= GetNode<SkillList>(ConstTerm.SKILL + ConstTerm.LIST);
-            
+            battlerHealth ??= GetNodeOrNull<Health>(ConstTerm.HEALTH);
+            battlerStats ??= GetNodeOrNull<BaseStats>(ConstTerm.BASESTATS);
+            battlerExp ??= GetNodeOrNull<Experience>(ConstTerm.EXPERIENCE);
+            battlerSkills ??= GetNodeOrNull<SkillList>(ConstTerm.SKILL + ConstTerm.LIST);
+            battlerEquipment ??= GetNodeOrNull<EquipList>(ConstTerm.EQUIP + ConstTerm.LIST);            
         }
 
         private void SubSignals()
@@ -102,11 +102,19 @@ namespace ZAM.Stats
         //     battlerBody.MouseExited -= () => OnMouseOver(false);
         // }
 
+        private void SetupHPMP()
+        {
+            battlerHealth.SetMaxHP(battlerStats.GetMaxHP());
+            battlerHealth.SetMaxMP(battlerStats.GetMaxMP());
+
+            battlerHealth.SetHP(battlerHealth.GetMaxHP());
+            battlerHealth.SetMP(battlerHealth.GetMaxMP());
+        }
+
 
         //=============================================================================
-        // SECTION: Set Methods
+        // SECTION: Access Methods
         //=============================================================================
-
 
         public bool CheckCanUse(Ability skill)
         {
@@ -132,34 +140,22 @@ namespace ZAM.Stats
         //=============================================================================
 
         public string GetBattlerType()
-        {
-            return battlerType;
-        }
+        { return battlerType; }
 
         public CharacterID GetCharID()
-        {
-            return battlerID;
-        }
+        { return battlerID; }
 
         public ClassID GetCharClass()
-        {
-            return battlerClass;
-        }
+        { return battlerClass; }
 
         public string GetBattlerName()
-        {
-            return battlerName.Text;
-        }
+        { return battlerName.Text; }
 
         public string GetBattlerTitle()
-        {
-            return battlerTitle;
-        }
+        { return battlerTitle; }
 
         public Node2D GetBattlerCursor()
-        {
-            return battlerCursor;
-        }
+        { return battlerCursor; }
 
         public Label GetNameLabel()
         { return battlerName; }
@@ -171,19 +167,13 @@ namespace ZAM.Stats
         { return battlerSprite; }
 
         public Texture2D GetPortrait()
-        {
-            return battlerPortrait;
-        }
+        { return battlerPortrait; }
 
         public float GetWidth()
-        {
-            return battlerSprite.Texture.GetWidth() / battlerSprite.Hframes;
-        }
+        { return battlerSprite.Texture.GetWidth() / battlerSprite.Hframes; }
 
         public float GetHeight()
-        {
-            return battlerSprite.Texture.GetHeight() / battlerSprite.Vframes;
-        }
+        { return battlerSprite.Texture.GetHeight() / battlerSprite.Vframes; }
 
         public AnimationPlayer GetAnimPlayer()
         { return battlerAnim; }
@@ -198,19 +188,16 @@ namespace ZAM.Stats
         { return battlerExp; }
 
         public SkillList GetSkillList()
-        {
-            return battlerSkills;
-        }
+        { return battlerSkills; }
 
-        public List<EffectState> GetStateList()
-        {
-            return states;
-        }
+        public EquipList GetEquipList()
+        { return battlerEquipment; }
+
+        public Array<EffectState> GetStateList()
+        { return states; }
 
         public Vector2 GetBasePosition()
-        {
-            return basePosition;
-        }
+        { return basePosition; }
 
         //=============================================================================
         // SECTION: Animation Call Methods
@@ -270,10 +257,12 @@ namespace ZAM.Stats
             BattlerData newData = new()
             {
                 CurrentHP = GetHealth().GetHP(),
+                CurrentMP = GetHealth().GetMP(),
                 StatValues = GetStats().SaveAllStats(),
                 CurrentExp = GetExperience().GetTotalExp(),
                 CurrentLevel = GetExperience().GetCurrentLevel(),
-                SkillList = GetSkillList().GetSkills()
+                SkillList = GetSkillList().GetSkills(),
+                EquipList = GetEquipList().GetCharEquipment()
             };
             // GD.Print("Battler " + GetHealth().GetHP());
             // GD.Print("Save - " + " " + GetCharID() + " battler HP at = " + saveData[GetCharID()].CurrentHP + "/" + newData.CurrentHP);
@@ -292,10 +281,12 @@ namespace ZAM.Stats
             // GD.Print("Load - " + " " + GetCharID() + " battler HP at = " + saveData.CurrentHP + "/" + GetHealth().GetHP());
 
             GetHealth().SetHP(saveData.CurrentHP);
+            GetHealth().SetMP(saveData.CurrentMP);
             GetStats().LoadAllStats(saveData.StatValues);
             GetExperience().SetExpTotal(saveData.CurrentExp);
             GetExperience().SetCurrentLevel(saveData.CurrentLevel);
             GetSkillList().SetSkills(saveData.SkillList);
+            GetEquipList().SetCharEquipment(saveData.EquipList);
 
             // GD.Print(GetHealth().GetHP());
         }

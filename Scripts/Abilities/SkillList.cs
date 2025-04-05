@@ -1,5 +1,5 @@
 using Godot;
-using System.Collections.Generic;
+using Godot.Collections;
 
 using ZAM.Managers;
 
@@ -10,7 +10,7 @@ namespace ZAM.Abilities
         // [Export] Resource[] defaultSkills;
         [Export] private string[] defaultSkills;
 
-        private Godot.Collections.Array<Ability> characterSkills = [];
+        private Array<Ability> characterSkills = [];
         private Dictionary<string, Ability> abilityDictionary = [];
 
         public override void _Ready()
@@ -45,12 +45,12 @@ namespace ZAM.Abilities
             characterSkills.Add(skill);
         }
 
-        public Godot.Collections.Array<Ability> GetSkills()
+        public Array<Ability> GetSkills()
         {
             return characterSkills;
         }
         
-        public void SetSkills(Godot.Collections.Array<Ability> list)
+        public void SetSkills(Array<Ability> list)
         {
             characterSkills = list;
             // characterSkills = new();

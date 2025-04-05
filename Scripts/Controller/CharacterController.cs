@@ -1,6 +1,7 @@
 using Godot;
+using Godot.Collections;
 using System;
-using System.Collections.Generic;
+// using System.Collections.Generic;
 
 using ZAM.MenuUI;
 
@@ -14,7 +15,7 @@ namespace ZAM.Controller
 
 		// Setup Variables \\
 		// private RayCast2D interactRay = null;
-		private List<RayCast2D> interactArray = [];
+		private Array<RayCast2D> interactArray = [];
 		private Sprite2D charSprite = null;
 		private CollisionShape2D charCollider = null;
 		private NavigationAgent2D navAgent = null;
@@ -72,10 +73,6 @@ namespace ZAM.Controller
 		public delegate void onMenuOpenEventHandler();
 		[Signal]
 		public delegate void onPauseMenuEventHandler();
-		[Signal]
-		public delegate void onSaveGameEventHandler();
-		[Signal]
-		public delegate void onLoadGameEventHandler();
 
 		//=============================================================================
 		// SECTION: Base Methods
@@ -249,16 +246,16 @@ namespace ZAM.Controller
 
 		private void SaveCheck()
 		{
-			if (Input.IsActionJustPressed(ConstTerm.SAVE))
-			{
-				GD.Print("Saving game!");
-				EmitSignal(SignalName.onSaveGame);
-			}
-			else if (Input.IsActionJustPressed(ConstTerm.LOAD))
-			{
-				GD.Print("Loading Game!");
-				EmitSignal(SignalName.onLoadGame);
-			}
+			// if (Input.IsActionJustPressed(ConstTerm.SAVE))
+			// {
+			// 	GD.Print("Saving game!");
+			// 	SaveLoader.Instance.SaveGame();
+			// }
+			// else if (Input.IsActionJustPressed(ConstTerm.LOAD))
+			// {
+			// 	GD.Print("Loading Game!");
+			// 	SaveLoader.Instance.LoadGame();
+			// }
 		}
 
 		private void MoveCheck()
@@ -612,7 +609,7 @@ namespace ZAM.Controller
 			return inputPhase;
 		}
 
-		public List<RayCast2D> GetInteractArray()
+		public Array<RayCast2D> GetInteractArray()
 		{
 			return interactArray;
 		}
@@ -624,7 +621,7 @@ namespace ZAM.Controller
 
 		public Vector2 GetFaceDirection()
 		{
-			return direction;
+			return lookDirection;
 		}
 
 		public void SetIdleAnim()

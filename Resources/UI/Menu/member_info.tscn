@@ -46,8 +46,8 @@ font_size = 30
 
 [node name="MemberInfo" type="Panel" node_paths=PackedStringArray("portrait", "charName", "charTitle", "hpCurrent", "hpMax", "mpCurrent", "mpMax", "lvlCurrent", "expNext")]
 self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(854, 120)
-offset_right = 854.0
+custom_minimum_size = Vector2(850, 120)
+offset_right = 850.0
 offset_bottom = 120.0
 script = ExtResource("1_6ewv0")
 portrait = NodePath("Portrait")

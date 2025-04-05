@@ -1,7 +1,7 @@
 public enum ClassID
 {
     UNDEFINED = 0,
-    Fighter,
-    Mage,
-    Healer
+    Fighter = 1,
+    Mage = 2,
+    Healer = 3
 }

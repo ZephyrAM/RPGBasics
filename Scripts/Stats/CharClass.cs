@@ -8,13 +8,22 @@ namespace ZAM.Stats
     public partial class CharClass : Node
     {
         [ExportGroup("Details")]
-        [Export] public string ClassName { get; set; }
-        [Export] public string ClassDescription { get; set; }
+        [Export] public string ClassName { get; private set; }
+        [Export] public string ClassDescription { get; private set; }
 
         [ExportGroup("Growth")] // EDIT: Automate this! The Editor is not reliable for this level of data!
-        [Export] public Modifier[] LevelUpValue { get; set; } = new Modifier[Enum.GetValues(typeof(StatID)).Length];
-        [Export] public Modifier[] LevelUpVariance { get; set; } = new Modifier[Enum.GetValues(typeof(StatID)).Length];
+        [Export] public Modifier[] LevelUpValue { get; private set; } = new Modifier[Enum.GetValues(typeof(StatID)).Length];
+        [Export] public Modifier[] LevelUpVariance { get; private set; } = new Modifier[Enum.GetValues(typeof(StatID)).Length];
 
-        [Export] public LearnSkill[] LearnSkills { get; set; }
+        [Export] public LearnSkill[] LearnSkills { get; private set; }
+
+        public int UniqueID { get; private set; } = 0;
+
+        public void SetUniqueID(ref int id)
+        {
+            if (UniqueID != 0) { GD.PushWarning("Attempting to re-declare UniqueID for " + ClassName); return; }
+            UniqueID = id;
+            id++;
+        }
     }
 }

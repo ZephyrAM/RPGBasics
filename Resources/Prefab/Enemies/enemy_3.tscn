@@ -5,27 +5,27 @@
 
 [sub_resource type="Resource" id="Resource_w0n5a"]
 script = ExtResource("2_4d17i")
-Stat = 0
+Stat = 1
 Value = 20.0
 
 [sub_resource type="Resource" id="Resource_88qtc"]
 script = ExtResource("2_4d17i")
-Stat = 1
+Stat = 2
 Value = 10.0
 
 [sub_resource type="Resource" id="Resource_bbl2y"]
 script = ExtResource("2_4d17i")
-Stat = 2
+Stat = 3
 Value = 2.0
 
 [sub_resource type="Resource" id="Resource_a5gsj"]
 script = ExtResource("2_4d17i")
-Stat = 3
+Stat = 4
 Value = 5.0
 
 [sub_resource type="Resource" id="Resource_lu2rd"]
 script = ExtResource("2_4d17i")
-Stat = 4
+Stat = 5
 Value = 6.0
 
 [node name="EnemyCharacter_1" instance=ExtResource("1_1b1qe")]

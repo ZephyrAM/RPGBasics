@@ -5,43 +5,48 @@
 
 [sub_resource type="Resource" id="Resource_lynlm"]
 script = ExtResource("2_1jf01")
-Stat = 0
+Stat = 1
 Value = 40.0
 
 [sub_resource type="Resource" id="Resource_qbtqn"]
 script = ExtResource("2_1jf01")
-Stat = 1
+Stat = 2
 Value = 10.0
 
 [sub_resource type="Resource" id="Resource_oa7rn"]
 script = ExtResource("2_1jf01")
-Stat = 2
+Stat = 3
 Value = 30.0
 
 [sub_resource type="Resource" id="Resource_javyd"]
 script = ExtResource("2_1jf01")
-Stat = 3
+Stat = 4
 Value = 25.0
 
 [sub_resource type="Resource" id="Resource_7vk6j"]
 script = ExtResource("2_1jf01")
-Stat = 4
+Stat = 5
 Value = 10.0
 
 [node name="CharacterBody2D" instance=ExtResource("1_8ij14")]
 
-[node name="AnimationTree" parent="." index="4"]
+[node name="AnimationTree" parent="." index="5"]
 parameters/Idle/blend_position = Vector2(0, 0)
 
-[node name="Name" parent="." index="6"]
+[node name="Name" parent="." index="7"]
 text = "Player 1"
 
-[node name="Battler" parent="." index="7"]
+[node name="Battler" parent="." index="9"]
 battlerID = 1
-battlerClass = 2
+battlerClass = 1
 
 [node name="BaseStats" parent="Battler" index="1"]
 stats = Array[Object]([SubResource("Resource_lynlm"), SubResource("Resource_qbtqn"), SubResource("Resource_oa7rn"), SubResource("Resource_javyd"), SubResource("Resource_7vk6j")])
 
 [node name="SkillList" parent="Battler" index="3"]
 defaultSkills = PackedStringArray("Fire", "Fire Wave")
+
+[node name="EquipList" parent="Battler" index="4"]
+defaultMainHand = "Sword"
+defaultArmor = PackedStringArray("Breastplate", "Helmet")
+defaultAccessories = PackedStringArray("Ring")

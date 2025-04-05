@@ -12,9 +12,12 @@ namespace ZAM.MenuUI
         [Export] private VBoxContainer optionsList = null;
         [Export] private PanelContainer skillPanel = null;
         [Export] private PanelContainer itemPanel = null;
+        [Export] private PanelContainer usePanel = null;
+        [Export] private EquipInfo equipPanel = null;
 
         [ExportGroup("UI Resources")]
         [Export] private PackedScene buttonLabel = null;
+        [Export] private PackedScene equipLabel = null;
         [Export] private AudioStream cursorSound = null;
         [Export] private AudioStream cancelSound = null;
         [Export] private AudioStream errorSound = null;
@@ -133,6 +136,26 @@ namespace ZAM.MenuUI
         public PanelContainer GetItemPanel()
         {
             return itemPanel;
+        }
+
+        public PanelContainer GetUsePanel()
+        {
+            return usePanel;
+        }
+
+        public EquipInfo GetEquipPanel()
+        {
+            return equipPanel;
+        }
+
+        public PackedScene GetButtonLabel()
+        {
+            return buttonLabel;
+        }
+
+        public PackedScene GetEquipLabel()
+        {
+            return equipLabel;
         }
 
         // public ColorRect GetMemberBar()

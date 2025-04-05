@@ -46,6 +46,16 @@ namespace ZAM.Controller
             }
         }
 
+        public virtual void UnSubSignals(Container targetList)
+        {
+            for (int c = 0; c < targetList.GetChildCount(); c++)
+            {
+                Node tempLabel = targetList.GetChild(c);
+                targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).MouseEntered -= () => OnMouseEntered(targetList, tempLabel);
+                targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Pressed -= OnMouseClick;
+            }
+        }
+
         protected virtual void SetupListDict()
         {
 
@@ -62,7 +72,7 @@ namespace ZAM.Controller
             else if (@event is not InputEventMouse && activeInput == ConstTerm.MOUSE) { activeInput = ConstTerm.KEY_GAMEPAD;
                 Input.MouseMode = Input.MouseModeEnum.Hidden; if (mouseFocus != null) { mouseFocus.MouseFilter = Control.MouseFilterEnum.Ignore; } }
 
-            if (!controlActive) { return false; }
+            if (!IsControlActive()) { return false; }
             // switch (inputPhase)
             // {
             //     default:
@@ -96,12 +106,10 @@ namespace ZAM.Controller
             else if (@event.IsActionPressed(ConstTerm.DOWN)) {
                 CommandSelect(1, ConstTerm.VERT);
             }
-            else if (@event.IsActionPressed(ConstTerm.LEFT))
-            {
+            else if (@event.IsActionPressed(ConstTerm.LEFT)) {
                 CommandSelect(-1, ConstTerm.HORIZ);
             }
-            else if (@event.IsActionPressed(ConstTerm.RIGHT))
-            {
+            else if (@event.IsActionPressed(ConstTerm.RIGHT)) {
                 CommandSelect(1, ConstTerm.HORIZ);
             }
         }

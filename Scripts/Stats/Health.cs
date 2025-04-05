@@ -5,23 +5,34 @@ namespace ZAM.Stats
 {
     public partial class Health : Node
     {
-        [Export] private float maxHP = 100;
-
         private bool isDead = false;
 
-        float currHP;
+        float maxHP, maxMP;
+        float currHP, currMP;
 
-        public override void _Ready()
-        {
-            currHP = maxHP;
-        }
+        // public override void _Ready()
+        // {
+        //     currHP = maxHP;
+        //     currMP = maxMP;
+        // }
 
         public void ChangeHP(float value)
         {
-            float newHP = currHP + value;
-            currHP = MathF.Min(newHP, maxHP);
+            float newHP = Mathf.Max(0, currHP + value);
+            currHP = Mathf.Min(newHP, maxHP);
 
             if (currHP <= 0) { isDead = true; }
+        }
+
+        public void ChangeMP(float value)
+        {
+            float newMP = Mathf.Max(0, currMP + value);
+            currMP = Mathf.Min(newMP, maxMP);
+        }
+
+        public bool HasEnoughMP(float value)
+        {
+            return (currMP - value) >= 0;
         }
 
         public bool IsDead()
@@ -35,15 +46,24 @@ namespace ZAM.Stats
             SetHP(value);
         }
 
-        public void SetHP(float value)
-        {
-            float newHP = value;
-            currHP = MathF.Min(newHP, maxHP);
-        }
-
         public float GetHP()
         {
             return currHP;
+        }
+
+        public float GetMP()
+        {
+            return currMP;
+        }
+
+        public void SetHP(float value)
+        {
+            currHP = Mathf.Min(value, maxHP);
+        }
+
+        public void SetMP(float value)
+        {
+            currMP = Mathf.Min(value, maxMP);
         }
 
         public float GetMaxHP()
@@ -51,9 +71,19 @@ namespace ZAM.Stats
             return maxHP;
         }
 
+        public float GetMaxMP()
+        {
+            return maxMP;
+        }
+
         public void SetMaxHP(float value)
         {
             maxHP = value;
+        }
+
+        public void SetMaxMP(float value)
+        {
+            maxMP = value;
         }
     }
 }

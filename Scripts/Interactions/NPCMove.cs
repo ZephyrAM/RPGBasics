@@ -1,6 +1,5 @@
 using Godot;
 using System;
-using System.Collections.Generic;
 
 namespace ZAM.Interactions
 {
@@ -16,7 +15,6 @@ namespace ZAM.Interactions
 
         [ExportGroup("Chase")]
         [Export] private float lostSightTimer = 300;
-        [Export] private PackedScene battleGroup = null;
 
         [ExportGroup("Nodes")]
         [Export] private Interactable npcInteract = null;
@@ -51,7 +49,7 @@ namespace ZAM.Interactions
         [Signal]
         public delegate void onEndEventStepEventHandler(Interactable interactor);
         [Signal]
-        public delegate void onCatchPlayerEventHandler(PackedScene battle);
+        public delegate void onCatchPlayerEventHandler(PackedScene battle, Node toFree);
 
         //=============================================================================
         // SECTION: OnReady Methods
@@ -91,7 +89,7 @@ namespace ZAM.Interactions
             checkRay ??= charBody.GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
             // checkShape ??= charBody.GetNode<ShapeCast2D>(ConstTerm.SHAPECAST2D);
 
-            animPlay ??= (AnimationNodeStateMachinePlayback)animTree.Get(ConstTerm.PARAM + ConstTerm.PLAYBACK);
+            animPlay = (AnimationNodeStateMachinePlayback)animTree.Get(ConstTerm.PARAM + ConstTerm.PLAYBACK);
 
             charSize = new Vector2(charSprite.Texture.GetWidth() / charSprite.Hframes, charSprite.Texture.GetHeight() / charSprite.Vframes);
         }
@@ -206,12 +204,14 @@ namespace ZAM.Interactions
 
             navAgent.TargetPosition = playerParty.GlobalPosition;
 
-            if (charBody.GetLastSlideCollision() != null) { npcInteract.SetInteractPhase(ConstTerm.RETURN); }// GD.Print(charBody.GetLastSlideCollision().GetCollider()); }
-            // if () { // OnCatchCode // EDIT: Switch to collider, not navigation
-            //     GD.Print("Caught player!");
-            //     EmitSignal(SignalName.onCatchPlayer, battleGroup);
-            //     QueueFree();         
-            // }
+            if (charBody.GetLastSlideCollision() != null && charBody.GetLastSlideCollision().GetCollider() == playerParty) { // EDIT: Needs improvement
+                // GD.Print("Caught player!");
+                if (npcInteract.GetBattleGroup() != null) {
+                    npcInteract.SetInteractPhase(ConstTerm.DO_NOTHING);
+                    EmitSignal(SignalName.onCatchPlayer, npcInteract.GetBattleGroup(), GetParent());
+                }
+                else { npcInteract.SetInteractPhase(ConstTerm.RETURN); }
+            }
 
             NavToTarget(baseSpeed * 1.5f);
         }

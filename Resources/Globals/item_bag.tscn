@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" path="res://Scripts/Inventory/ItemBag.cs" id="1_3tgld"]
 
-[node name="ItemBag" type="Node2D"]
+[node name="ItemBag" type="Node2D" groups=["InventoryData"]]
 script = ExtResource("1_3tgld")

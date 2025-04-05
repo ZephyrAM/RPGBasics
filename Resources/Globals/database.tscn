@@ -1,10 +1,11 @@
-[gd_scene load_steps=38 format=3 uid="uid://ca6j0rh7qrlwf"]
+[gd_scene load_steps=40 format=3 uid="uid://ca6j0rh7qrlwf"]
 
 [ext_resource type="Script" path="res://Scripts/Abilities/Ability.cs" id="1_c011n"]
 [ext_resource type="Script" path="res://Scripts/Managers/DatabaseManager.cs" id="1_vh6lm"]
 [ext_resource type="Script" path="res://Scripts/Inventory/Item.cs" id="3_f30r0"]
 [ext_resource type="Script" path="res://Scripts/Abilities/EffectState.cs" id="4_58xhj"]
 [ext_resource type="Script" path="res://Scripts/Abilities/Modifier.cs" id="5_f5u6h"]
+[ext_resource type="Script" path="res://Scripts/Inventory/Equipment.cs" id="6_bblu7"]
 [ext_resource type="Script" path="res://Scripts/Stats/CharClass.cs" id="6_ckdgg"]
 
 [sub_resource type="Resource" id="Resource_15cgh"]
@@ -14,161 +15,170 @@ Value = 50.0
 
 [sub_resource type="Resource" id="Resource_y44d7"]
 script = ExtResource("5_f5u6h")
-Stat = 0
+Stat = 1
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_5xr43"]
 script = ExtResource("5_f5u6h")
-Stat = 1
+Stat = 2
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_cpni4"]
 script = ExtResource("5_f5u6h")
-Stat = 2
+Stat = 3
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_rc876"]
 script = ExtResource("5_f5u6h")
-Stat = 3
+Stat = 4
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_4vcca"]
 script = ExtResource("5_f5u6h")
-Stat = 4
+Stat = 5
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_vbwvx"]
 script = ExtResource("5_f5u6h")
-Stat = 0
+Stat = 1
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_jnvjo"]
 script = ExtResource("5_f5u6h")
-Stat = 1
+Stat = 2
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_1e2uy"]
 script = ExtResource("5_f5u6h")
-Stat = 2
+Stat = 3
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_15jgn"]
 script = ExtResource("5_f5u6h")
-Stat = 3
+Stat = 4
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_ay28o"]
 script = ExtResource("5_f5u6h")
-Stat = 4
+Stat = 5
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_fcavf"]
 script = ExtResource("5_f5u6h")
-Stat = 0
+Stat = 1
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_ur3bi"]
 script = ExtResource("5_f5u6h")
-Stat = 1
+Stat = 2
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_elpyd"]
 script = ExtResource("5_f5u6h")
-Stat = 2
+Stat = 3
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_vln6e"]
 script = ExtResource("5_f5u6h")
-Stat = 3
+Stat = 4
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_1x1gb"]
 script = ExtResource("5_f5u6h")
-Stat = 4
+Stat = 5
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_2verh"]
 script = ExtResource("5_f5u6h")
-Stat = 0
+Stat = 1
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_e33u4"]
 script = ExtResource("5_f5u6h")
-Stat = 1
+Stat = 2
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_n7f5p"]
 script = ExtResource("5_f5u6h")
-Stat = 2
+Stat = 3
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_ribkt"]
 script = ExtResource("5_f5u6h")
-Stat = 3
+Stat = 4
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_sxf1c"]
 script = ExtResource("5_f5u6h")
-Stat = 4
+Stat = 5
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_2l6k2"]
 script = ExtResource("5_f5u6h")
-Stat = 0
+Stat = 1
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_c8qwn"]
 script = ExtResource("5_f5u6h")
-Stat = 1
+Stat = 2
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_lxigv"]
 script = ExtResource("5_f5u6h")
-Stat = 2
+Stat = 3
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_0iav6"]
 script = ExtResource("5_f5u6h")
-Stat = 3
+Stat = 4
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_kdvfb"]
 script = ExtResource("5_f5u6h")
-Stat = 4
+Stat = 5
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_w2jsh"]
 script = ExtResource("5_f5u6h")
-Stat = 0
+Stat = 1
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_2tfu4"]
 script = ExtResource("5_f5u6h")
-Stat = 1
+Stat = 2
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_l4m5p"]
 script = ExtResource("5_f5u6h")
-Stat = 2
+Stat = 3
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_khv88"]
 script = ExtResource("5_f5u6h")
-Stat = 3
+Stat = 4
 Value = 0.0
 
 [sub_resource type="Resource" id="Resource_xfhod"]
 script = ExtResource("5_f5u6h")
-Stat = 4
+Stat = 5
 Value = 0.0
 
-[node name="DataManager" type="Node2D" node_paths=PackedStringArray("abilityList", "stateList", "itemList")]
+[sub_resource type="Resource" id="Resource_drslc"]
+script = ExtResource("5_f5u6h")
+Stat = 1
+Value = 2.0
+
+[node name="DataManager" type="Node2D" node_paths=PackedStringArray("abilityList", "stateList", "classList", "itemList", "weaponList", "armorList", "accessoryList")]
 process_mode = 4
 physics_interpolation_mode = 2
 script = ExtResource("1_vh6lm")
 abilityList = NodePath("AbilityDatabase")
 stateList = NodePath("StateDatabase")
+classList = NodePath("ClassDatabase")
 itemList = NodePath("ItemDatabase")
+weaponList = NodePath("WeaponDatabase")
+armorList = NodePath("ArmorDatabase")
+accessoryList = NodePath("AccessoryDatabase")
 
 [node name="AbilityDatabase" type="Node2D" parent="."]
 
@@ -188,6 +198,7 @@ AbilityDescription = "Blasts one enemy with fire."
 TargetType = "Enemy"
 TargetArea = "Single"
 NumericValue = 30.0
+CostValue = 5.0
 DamageType = "Magical"
 CallAnimation = "battle_anim/spell_cast"
 
@@ -198,6 +209,7 @@ AbilityDescription = "Covers the field in damaging fire."
 TargetType = "Enemy"
 TargetArea = "Group"
 NumericValue = 15.0
+CostValue = 15.0
 DamageType = "Magical"
 CallAnimation = "battle_anim/spell_cast"
 
@@ -208,6 +220,7 @@ AbilityDescription = "Restore life to an ally."
 TargetType = "Ally"
 TargetArea = "Single"
 NumericValue = 30.0
+CostValue = 5.0
 DamageType = "Healing"
 CallAnimation = "battle_anim/heal"
 UseableOutOfBattle = true
@@ -219,6 +232,7 @@ AbilityDescription = "Recover health for full party."
 TargetType = "Ally"
 TargetArea = "Group"
 NumericValue = 20.0
+CostValue = 15.0
 DamageType = "Healing"
 CallAnimation = "battle_anim/heal"
 UseableOutOfBattle = true
@@ -231,19 +245,6 @@ StateName = "Defend"
 StateDescription = "Defensive state cause by Defend."
 AddModifier = Array[Resource]([])
 PercentModifier = Array[Resource]([SubResource("Resource_15cgh")])
-
-[node name="ItemDatabase" type="Node2D" parent="."]
-
-[node name="Healing Item" type="Node" parent="ItemDatabase"]
-script = ExtResource("3_f30r0")
-ItemName = "Potion"
-ItemDescription = "Heals one ally."
-TargetType = "Ally"
-TargetArea = "Single"
-NumericValue = 25.0
-DamageType = "Healing"
-CallAnimation = "battle_anim/heal"
-UseableOutOfBattle = true
 
 [node name="ClassDatabase" type="Node2D" parent="."]
 
@@ -265,3 +266,56 @@ script = ExtResource("6_ckdgg")
 ClassName = "Healer"
 LevelUpValue = [SubResource("Resource_2l6k2"), SubResource("Resource_c8qwn"), SubResource("Resource_lxigv"), SubResource("Resource_0iav6"), SubResource("Resource_kdvfb")]
 LevelUpVariance = [SubResource("Resource_w2jsh"), SubResource("Resource_2tfu4"), SubResource("Resource_l4m5p"), SubResource("Resource_khv88"), SubResource("Resource_xfhod")]
+
+[node name="ItemDatabase" type="Node2D" parent="."]
+
+[node name="Healing Item" type="Node" parent="ItemDatabase"]
+script = ExtResource("3_f30r0")
+ItemType = 1
+ItemName = "Potion"
+ItemDescription = "Heals one ally."
+TargetType = "Ally"
+TargetArea = "Single"
+NumericValue = 25.0
+DamageType = "Healing"
+CallAnimation = "battle_anim/heal"
+UseableInBattle = true
+UseableOutOfBattle = true
+
+[node name="WeaponDatabase" type="Node2D" parent="."]
+
+[node name="Sword" type="Node" parent="WeaponDatabase"]
+script = ExtResource("6_bblu7")
+GearSlot = [1, 2]
+AddModifier = [SubResource("Resource_drslc")]
+ClassEquip = [1]
+ItemType = 2
+ItemName = "Sword"
+ItemDescription = "Basic weapon."
+
+[node name="ArmorDatabase" type="Node2D" parent="."]
+
+[node name="Breastplate" type="Node" parent="ArmorDatabase"]
+script = ExtResource("6_bblu7")
+GearSlot = [4]
+ClassEquip = [1]
+ItemType = 3
+ItemName = "Breastplate"
+ItemDescription = "Metal chest armor."
+
+[node name="Helmet" type="Node" parent="ArmorDatabase"]
+script = ExtResource("6_bblu7")
+GearSlot = [3]
+ClassEquip = [1]
+ItemType = 3
+ItemName = "Helmet"
+ItemDescription = "Metal headgear."
+
+[node name="AccessoryDatabase" type="Node2D" parent="."]
+
+[node name="Ring" type="Node" parent="AccessoryDatabase"]
+script = ExtResource("6_bblu7")
+GearSlot = [5]
+ItemType = 4
+ItemName = "Ring"
+ItemDescription = "A simple ring."

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Godot;
 
 public partial class SaveLoader : Node
@@ -59,12 +60,12 @@ public partial class SaveLoader : Node
 
     public void SaveConfig()
     {
-        GetTree().CallGroup(ConstTerm.CONFIGDATA, ConstTerm.ON_SAVECONFIG, GetConfigFile());
+        GetTree().CallGroup(ConstTerm.CONFIG + ConstTerm.DATA, ConstTerm.ON_SAVECONFIG, GetConfigFile());
     }
 
     public void LoadConfig()
     {
-        GetTree().CallGroup(ConstTerm.CONFIGDATA, ConstTerm.ON_LOADCONFIG, GetConfigFile());
+        GetTree().CallGroup(ConstTerm.CONFIG + ConstTerm.DATA, ConstTerm.ON_LOADCONFIG, GetConfigFile());
     }
 
     public string GetLangFile()
@@ -77,35 +78,44 @@ public partial class SaveLoader : Node
     // SECTION: Save Methods
     //=============================================================================
 
-    public void SaveGame()
+    public async void SaveGame()
     {
         // SavedGame gameSave = new() {
         //     CharData = GatherBattlers()
         // };
-        SaveAllData();
+        await SaveAllData();
 
         DirAccess dir = DirAccess.Open(ConstTerm.GAME_FOLDER);
         if (!dir.DirExists(ConstTerm.SAVE_FOLDER)) { dir.MakeDir(ConstTerm.SAVE_FOLDER); }
 
         ResourceSaver.Save(Instance.gameSession, resourceSavePath); // Save as Resource (.tres)
         using FileAccess readSave = FileAccess.Open(resourceSavePath, FileAccess.ModeFlags.Read);
-        using FileAccess fileSave = FileAccess.OpenEncryptedWithPass(savePath, FileAccess.ModeFlags.Write, "Conduit"); // EDIT: Temp encryption pass
+        using FileAccess fileSave = FileAccess.OpenEncryptedWithPass(savePath, FileAccess.ModeFlags.Write, ConstTerm.ENCRYPT_KEY); // EDIT: Temp encryption pass
         fileSave.StoreString(readSave.GetAsText()); // Save as encrypted file
         fileSave.Close();
         readSave.Close();
         DirAccess.RemoveAbsolute(resourceSavePath); // Remove temporary Resource save
     }
 
-    public void SaveAllData()
+    public Task SaveAllData()
     {
+        GatherSystemData();
         GatherBattlers();
         GatherPartyData();
+        GatherInventoryData();
+
+        return Task.CompletedTask;
+    }
+
+    public void GatherSystemData()
+    {
+        GetTree().CallGroup(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.ON_SAVEGAME, Instance.gameSession);
     }
 
     public void GatherBattlers()
     {
         // Dictionary<CharacterID, BattlerData> allBattlers = [];
-        GetTree().CallGroup(ConstTerm.BATTLERDATA, ConstTerm.ON_SAVEGAME, Instance.gameSession);
+        GetTree().CallGroup(ConstTerm.BATTLER + ConstTerm.DATA, ConstTerm.ON_SAVEGAME, Instance.gameSession);
         // GD.Print("CharData count - " + Instance.gameSession.CharData.Count);
 
         // return Instance.gameSession.CharData;
@@ -113,46 +123,79 @@ public partial class SaveLoader : Node
 
     public void GatherPartyData()
     {
-        GetTree().CallGroup(ConstTerm.PARTYDATA, ConstTerm.ON_SAVEGAME, Instance.gameSession);
+        GetTree().CallGroup(ConstTerm.PARTY + ConstTerm.DATA, ConstTerm.ON_SAVEGAME, Instance.gameSession);
         // GD.Print(Instance.gameSession.PlayerData);
+    }
+
+    public void GatherInventoryData()
+    {
+        GetTree().CallGroup(ConstTerm.INVENTORY + ConstTerm.DATA, ConstTerm.ON_SAVEGAME, Instance.gameSession);
     }
 
     //=============================================================================
     // SECTION: Load Methods
     //=============================================================================
 
-    public void LoadGame()
+    public async void LoadGame()
     {
-        using FileAccess file = FileAccess.OpenEncryptedWithPass(savePath, FileAccess.ModeFlags.Read, "Conduit"); // Load Encrypted save file // EDIT: Temp encryption pass
+        using SavedGame gameSave = LoadGameInfo();
+        if (gameSave == null) { GD.Print("No save data"); return; }
+
+        // if (gameSave == null) { GD.Print("No save file!"); return; }
+
+        await LoadAllData(gameSave);
+    }
+
+    public SavedGame LoadGameInfo()
+    {
+        using FileAccess file = FileAccess.OpenEncryptedWithPass(savePath, FileAccess.ModeFlags.Read, ConstTerm.ENCRYPT_KEY); // Load Encrypted save file // EDIT: Temp encryption pass
+        if (file == null) { GD.Print("No file to load!"); return null; }
+
         using FileAccess fileSave = FileAccess.Open(textSavePath, FileAccess.ModeFlags.Write);
         fileSave.StoreString(file.GetAsText()); // Save as text file
+        file.Close();
         fileSave.Close();
-        
+
         Error dir = DirAccess.RenameAbsolute(textSavePath, resourceSavePath); // Rename .txt to .tres
-        SavedGame gameSave = ResourceLoader.Load(resourceSavePath) as SavedGame; // Load as Resource (.tres)
+        using SavedGame tempSave = ResourceLoader.Load(resourceSavePath) as SavedGame; // Load as Resource (.tres)
         DirAccess.RemoveAbsolute(resourceSavePath); // Remove temporary Resource save
 
-        if (gameSave == null) { GD.Print("No save file!"); return; }
-
-        LoadAllData(gameSave);
+        return tempSave;
     }
 
-    public void LoadAllData(SavedGame gameSave)
+    public async Task LoadAllData(SavedGame gameSave)
     {
         if (gameSave == null) { GD.Print("No save data"); return; }
-        LoadBattlerData(gameSave);
-        LoadPartyData(gameSave);
+        await LoadSystemData(gameSave);
+        await LoadBattlerData(gameSave);
+        await LoadPartyData(gameSave);
+        await LoadInventoryData(gameSave);
+
+        return;
     }
 
-    public void LoadBattlerData(SavedGame gameSave)
+    public Task LoadSystemData(SavedGame gameSave)
     {
-        GetTree().CallGroup(ConstTerm.BATTLERDATA, ConstTerm.ON_LOADGAME, gameSave.CharData);
-        // BattlerGroup(gameSave);
+        GetTree().CallGroup(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.ON_LOADGAME, gameSave.SystemData);
+        return Task.CompletedTask;
     }
 
-    public void LoadPartyData(SavedGame gameSave)
+    public Task LoadBattlerData(SavedGame gameSave)
     {
-        GetTree().CallGroup(ConstTerm.PARTYDATA, ConstTerm.ON_LOADGAME, gameSave.PartyData);
+        GetTree().CallGroup(ConstTerm.BATTLER + ConstTerm.DATA, ConstTerm.ON_LOADGAME, gameSave.CharData);
+        return Task.CompletedTask;
+    }
+
+    public Task LoadPartyData(SavedGame gameSave)
+    {
+        GetTree().CallGroup(ConstTerm.PARTY + ConstTerm.DATA, ConstTerm.ON_LOADGAME, gameSave.PartyData);
+        return Task.CompletedTask;
+    }
+
+    public Task LoadInventoryData(SavedGame gameSave)
+    {
+        GetTree().CallGroup(ConstTerm.INVENTORY + ConstTerm.DATA, ConstTerm.ON_LOADGAME, gameSave.InventoryData);
+        return Task.CompletedTask;
     }
 
     //=============================================================================

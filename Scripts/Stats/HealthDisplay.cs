@@ -6,14 +6,15 @@ namespace ZAM.Stats
     {
         [ExportGroup("Nodes")]
         // [Export] Battler charBattler;
-        [Export] TextureProgressBar healthBar;
+        [Export] private TextureProgressBar resourceBar;
+        [Export(PropertyHint.Enum, "HP, MP")] private string resourceType = "";
 
         [ExportGroup("Variables")]
-        [Export] string battlerName;
-        [Export] string healthBarName;
+        [Export] private string battlerName;
+        [Export] private string healthBarName;
 
-        Battler charBattler;
-        Health battlerHealth;
+        private Battler charBattler;
+        private Health battlerHealth;
 
         // Basic Methods \\
         public override void _Ready()
@@ -28,42 +29,68 @@ namespace ZAM.Stats
             healthBarName ??= ConstTerm.HEALTH_BAR;
 
             // charBattler ??= GetNode<Battler>("../" + battlerName);
-            healthBar ??= GetNode<TextureProgressBar>(healthBarName);
+            resourceBar ??= GetNode<TextureProgressBar>(healthBarName);
         }
 
-        private void SetupHealthBar()
-        {
-            battlerHealth = charBattler.GetHealth();
-            healthBar.MaxValue = battlerHealth.GetMaxHP();
-        }
+        // private void SetupHealthBar()
+        // {
+        //     resourceBar.MaxValue = battlerHealth.GetMaxHP();
+        // }
+
+        // private void SetupResourceBar()
+        // {
+        //     resourceBar.MaxValue = battlerHealth.GetMaxMP();
+        // }
 
         public override void _Process(double delta)
         {
             // GlobalRotation = 0;
-            UpdateHealthBar();
+            if (resourceType == ConstTerm.HP) { UpdateHealthBar(); }
+            else { UpdateResourceBar(); }
         }
 
         public void SetBattler(Battler setBattler)
         {
             charBattler = setBattler;
-            SetupHealthBar();
+            battlerHealth = charBattler.GetHealth();
+
+            if (resourceType == ConstTerm.HP) { resourceBar.MaxValue = battlerHealth.GetMaxHP(); }
+            else { resourceBar.MaxValue = battlerHealth.GetMaxMP(); }
         }
 
         public void ForceHealthBarUpdate()
         {
-            healthBar.Value = battlerHealth.GetHP();
+            resourceBar.Value = battlerHealth.GetHP();
+        }
+
+        public void ForceResourceBarUpdate()
+        {
+            resourceBar.Value = battlerHealth.GetMP();
         }
 
         public void UpdateHealthBar()
         {
             float currHP = battlerHealth.GetHP();
 
-            if (healthBar.Value != currHP)
+            if (resourceBar.Value != currHP)
             {
-                if (healthBar.Value > currHP)
-                { healthBar.Value -= 0.5; }
-                else if (healthBar.Value < currHP) 
-                { healthBar.Value += 0.5; }
+                if (resourceBar.Value > currHP)
+                { resourceBar.Value -= 0.5; }
+                else if (resourceBar.Value < currHP) 
+                { resourceBar.Value += 0.5; }
+            }
+        }
+
+        public void UpdateResourceBar()
+        {
+            float currMP = battlerHealth.GetMP();
+
+            if (resourceBar.Value != currMP)
+            {
+                if (resourceBar.Value > currMP)
+                { resourceBar.Value -= 0.5; }
+                else if (resourceBar.Value < currMP)
+                { resourceBar.Value += 0.5; }
             }
         }
     }

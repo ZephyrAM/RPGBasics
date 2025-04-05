@@ -40,6 +40,8 @@ project/assembly_name="RPGBasics"
 BattlerData=""
 PartyData=""
 ConfigData=""
+SystemData=""
+InventoryData=""
 
 [input]
 

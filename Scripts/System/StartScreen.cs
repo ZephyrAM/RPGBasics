@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ZAM.Controller;
 
@@ -116,7 +117,11 @@ namespace ZAM.System
         {
             // string[] dirTest = DirAccess.GetFilesAt(SaveLoader.Instance.GetSavePath()); // EDIT: Separate file names array needed?
             var dir = DirAccess.Open(SaveLoader.Instance.GetSavePath());
-            if (dir.GetFiles().Length > 0) { savesExist = true; }
+
+            int fileCount = dir.GetFiles().Length;
+            if (dir.GetFiles().Contains(ConstTerm.CFG_FILE)) { fileCount--; }
+
+            if (fileCount > 0) { savesExist = true; }
             else {
                 commandList.GetNode<Label>(ConstTerm.CONTINUE).GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
                 // commandList.GetNode<Label>(ConstTerm.CONTINUE).Modulate = new Color(ConstTerm.GREY);
@@ -264,7 +269,10 @@ namespace ZAM.System
 
         private void LoadSaveGame()
         {
+            Transitions moveToScene = new();
+            moveToScene.LoadSavedScene(GetTree(), this);
 
+            controlActive = false;
         }
 
         private void OpenConfigOptions()

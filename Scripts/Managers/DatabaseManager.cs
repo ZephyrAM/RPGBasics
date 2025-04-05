@@ -1,6 +1,5 @@
 using Godot;
-
-using System.Collections.Generic;
+using Godot.Collections;
 
 using ZAM.Abilities;
 using ZAM.Inventory;
@@ -13,13 +12,23 @@ namespace ZAM.Managers
     {
         [Export] private Node abilityList = null;
         [Export] private Node stateList = null;
-        [Export] private Node itemList = null;
         [Export] private Node classList = null;
 
-        public Dictionary<string, Ability> abilityDatabase = [];
-        public Dictionary<string, EffectState> stateDatabase = [];
-        public Dictionary<string, Item> itemDatabase = [];
-        public Dictionary<string, CharClass> classDatabase = [];
+        [Export] private Node itemList = null;
+        [Export] private Node weaponList = null;
+        [Export] private Node armorList = null;
+        [Export] private Node accessoryList = null;
+
+        private Dictionary<string, Ability> abilityDatabase = [];
+        private Dictionary<string, EffectState> stateDatabase = [];
+        private Dictionary<string, CharClass> classDatabase = [];
+
+        private Dictionary<string, Item> itemDatabase = [];
+        private Dictionary<string, Equipment> weaponDatabase = [];
+        private Dictionary<string, Equipment> armorDatabase = [];
+        private Dictionary<string, Equipment> accessoryDatabase = [];
+
+        private int uniqueIDCounter = 1;
 
         public static DatabaseManager Instance { get; private set; }
 
@@ -32,67 +41,90 @@ namespace ZAM.Managers
 
         private void IfNull()
         {
-            abilityList ??= GetNode(ConstTerm.ABILITYDATABASE);
-            stateList ??= GetNode(ConstTerm.STATEDATABASE);
-            itemList ??= GetNode(ConstTerm.ITEMDATABASE);
-            classList ??= GetNode(ConstTerm.CLASSDATABASE);
+            abilityList ??= GetNode(ConstTerm.ABILITY + ConstTerm.DATABASE);
+            stateList ??= GetNode(ConstTerm.STATE + ConstTerm.DATABASE);
+            classList ??= GetNode(ConstTerm.CLASS + ConstTerm.DATABASE);
+
+            itemList ??= GetNode(ConstTerm.ITEM + ConstTerm.DATABASE);
+            weaponList ??= GetNode(ConstTerm.WEAPON + ConstTerm.DATABASE);
+            armorList ??= GetNode(ConstTerm.ARMOR + ConstTerm.DATABASE);
+            accessoryList ??= GetNode(ConstTerm.ACCESSORY + ConstTerm.DATABASE);
         }
 
         private void CreateDatabase()
         {
-            for (int a = 0; a < abilityList.GetChildCount(); a++)
-            {
+            for (int a = 0; a < abilityList.GetChildCount(); a++) {
                 Ability tempAbility = (Ability)abilityList.GetChild(a);
+                tempAbility.SetUniqueID(ref uniqueIDCounter);
                 abilityDatabase[tempAbility.AbilityName] = tempAbility;
             }
 
-            for (int s = 0; s < stateList.GetChildCount(); s++)
-            {
+            for (int s = 0; s < stateList.GetChildCount(); s++) {
                 EffectState tempState = (EffectState)stateList.GetChild(s);
+                tempState.SetUniqueID(ref uniqueIDCounter);
                 stateDatabase[tempState.StateName] = tempState;
             }
 
-            for (int i = 0; i < itemList.GetChildCount(); i++)
-            {
+            for (int c = 0; c < classList.GetChildCount(); c++) {
+                CharClass tempClass = (CharClass)classList.GetChild(c);
+                tempClass.SetUniqueID(ref uniqueIDCounter);
+                classDatabase[tempClass.ClassName] = tempClass;
+            }
+
+            for (int i = 0; i < itemList.GetChildCount(); i++) {
                 Item tempItem = (Item)itemList.GetChild(i);
+                tempItem.SetUniqueID(ref uniqueIDCounter);
                 itemDatabase[tempItem.ItemName] = tempItem;
             }
 
-            for (int c = 0; c < classList.GetChildCount(); c++)
-            {
-                CharClass tempClass = (CharClass)classList.GetChild(c);
-                classDatabase[tempClass.ClassName] = tempClass;
+            for (int i = 0; i < weaponList.GetChildCount(); i++) {
+                Equipment tempWeapon = (Equipment)weaponList.GetChild(i);
+                tempWeapon.SetUniqueID(ref uniqueIDCounter);
+                weaponDatabase[tempWeapon.ItemName] = tempWeapon;
+            }
+
+            for (int i = 0; i < armorList.GetChildCount(); i++) {
+                Equipment tempArmor = (Equipment)armorList.GetChild(i);
+                tempArmor.SetUniqueID(ref uniqueIDCounter);
+                armorDatabase[tempArmor.ItemName] = tempArmor;
+            }
+
+            for (int i = 0; i < accessoryList.GetChildCount(); i++) {
+                Equipment tempAccessory = (Equipment)accessoryList.GetChild(i);
+                tempAccessory.SetUniqueID(ref uniqueIDCounter);
+                accessoryDatabase[tempAccessory.ItemName] = tempAccessory;
             }
         }
 
-        public Dictionary<string, Ability> GetAbilityDatabase()
-        {
-            return abilityDatabase;
-        }
-
-        public Dictionary<string, EffectState> GetStateDatabase()
-        {
-            return stateDatabase;
-        }
-
-        public Dictionary<string, Item> GetItemDatabase()
-        {
-            return itemDatabase;
-        }
-
-        public Dictionary<string, CharClass> GetClassDatabase()
-        {
-            return classDatabase;
-        }
+        //=============================================================================
+        // SECTION: External Access Methods
+        //=============================================================================
 
         public Ability GetDefend()
-        {
-            return abilityDatabase[ConstTerm.DEFEND];
-        }
+        { return abilityDatabase[ConstTerm.DEFEND]; }
 
         public EffectState GetDefendState()
-        {
-            return stateDatabase[ConstTerm.DEFEND];
-        }
+        { return stateDatabase[ConstTerm.DEFEND]; }
+
+        public Dictionary<string, Ability> GetAbilityDatabase()
+        { return abilityDatabase; }
+
+        public Dictionary<string, EffectState> GetStateDatabase()
+        { return stateDatabase; }
+
+        public Dictionary<string, CharClass> GetClassDatabase()
+        { return classDatabase; }
+
+        public Dictionary<string, Item> GetItemDatabase()
+        { return itemDatabase; }
+
+        public Dictionary<string, Equipment> GetWeaponDatabase()
+        { return weaponDatabase; }
+
+        public Dictionary<string, Equipment> GetArmorDatabase()
+        { return armorDatabase; }
+
+        public Dictionary<string, Equipment> GetAccessoryDatabase()
+        { return accessoryDatabase; }
     }
 }

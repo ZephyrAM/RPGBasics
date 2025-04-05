@@ -24,6 +24,12 @@ namespace ZAM.Controller
         // private bool controlActive = true;
         // private string activeInput = ConstTerm.KEY_GAMEPAD;
 
+        // Delegate Events \\
+        [Signal]
+        public delegate void onSaveMenuEventHandler();
+        [Signal]
+        public delegate void onLoadMenuEventHandler();
+
         //=============================================================================
         // SECTION: Base Methods
         //=============================================================================
@@ -55,8 +61,8 @@ namespace ZAM.Controller
         public override void _Input(InputEvent @event)
         {
             if (!signalsDone) { return; }
-             if (!PhaseCheck(@event)) { return; };
-
+            if (!PhaseCheck(@event)) { return; };
+            
             if (@event.IsActionPressed(ConstTerm.PAUSE)) { ClosePauseMenu(); }
         }
 
@@ -117,6 +123,12 @@ namespace ZAM.Controller
                     break;
                 case 1:
                     GetTree().Quit();
+                    break;
+                case 2:
+                    EmitSignal(SignalName.onSaveMenu);
+                    break;
+                case 3:
+                    EmitSignal(SignalName.onLoadMenu);
                     break;
                 default:
                     break;

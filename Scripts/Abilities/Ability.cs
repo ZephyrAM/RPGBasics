@@ -5,22 +5,32 @@ namespace ZAM.Abilities
     public partial class Ability : Node
     {
         [ExportGroup("Details")]
-        [Export] public string AbilityName { get; set; }
-        [Export] public string AbilityDescription { get; set; }
+        [Export] public string AbilityName { get; private set; }
+        [Export] public string AbilityDescription { get; private set; }
 
-        [Export] public string TargetType { get; set; } // Ally or Enemy
-        [Export] public string TargetArea { get; set; } // Single or Group
+        [Export] public string TargetType { get; private set; } // Ally or Enemy
+        [Export] public string TargetArea { get; private set; } // Single or Group
 
-        [Export] public float NumericValue { get; set; }
+        [Export] public float NumericValue { get; private set; }
+        [Export] public float CostValue { get; private set; }
 
         [ExportGroup("Mechanics")]
-        [Export] public string DamageType { get; set; }
-        [Export] public string CallAnimation { get; set; }
+        [Export] public string DamageType { get; private set; }
+        [Export] public string CallAnimation { get; private set; }
 
-        [Export] public EffectState AddedState { get; set; }
+        [Export] public EffectState AddedState { get; private set; }
 
         [ExportGroup("Restrictions")]
-        [Export] public bool UseableOutOfBattle { get; set; }
-        [Export] public bool UseableOnDead { get; set; }
+        [Export] public bool UseableOutOfBattle { get; private set; }
+        [Export] public bool UseableOnDead { get; private set; }
+
+        public int UniqueID { get; private set; } = 0;
+
+        public void SetUniqueID(ref int id)
+        { 
+            if (UniqueID != 0) { GD.PushWarning("Attempting to re-declare UniqueID for " + AbilityName); return; }
+            UniqueID = id;
+            id++;
+        }
     }
 }

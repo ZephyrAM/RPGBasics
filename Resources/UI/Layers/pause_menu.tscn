@@ -17,8 +17,14 @@ shadow_size = 5
 shadow_color = Color(0, 0, 0, 0.392157)
 shadow_offset = Vector2(1, 3)
 
-[node name="PauseContainer" type="PanelContainer"]
+[node name="PauseMenu" type="Node" node_paths=PackedStringArray("commandList", "configInput", "pauseScreen")]
 process_mode = 3
+script = ExtResource("1_qv5wu")
+commandList = NodePath("PauseContainer/CommandList")
+configInput = NodePath("PauseContainer/ConfigMenu")
+pauseScreen = NodePath("PauseContainer")
+
+[node name="PauseContainer" type="PanelContainer" parent="."]
 visible = false
 anchors_preset = 8
 anchor_left = 0.5
@@ -33,26 +39,30 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_eofk4")
 
-[node name="PauseController" type="Node" parent="." node_paths=PackedStringArray("commandList", "configInput", "pauseScreen")]
-script = ExtResource("1_qv5wu")
-commandList = NodePath("../CommandList")
-configInput = NodePath("../ConfigMenu")
-pauseScreen = NodePath("..")
-
-[node name="CommandList" type="VBoxContainer" parent="."]
+[node name="CommandList" type="VBoxContainer" parent="PauseContainer"]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = -2
 
-[node name="Config" parent="CommandList" instance=ExtResource("2_kmcq6")]
+[node name="Config" parent="PauseContainer/CommandList" instance=ExtResource("2_kmcq6")]
 layout_mode = 2
 text = "Config"
 label_settings = SubResource("LabelSettings_5a6ch")
 
-[node name="Exit" parent="CommandList" instance=ExtResource("2_kmcq6")]
+[node name="Exit" parent="PauseContainer/CommandList" instance=ExtResource("2_kmcq6")]
 layout_mode = 2
 text = "Exit Game"
 label_settings = SubResource("LabelSettings_5a6ch")
 
-[node name="ConfigMenu" parent="." instance=ExtResource("3_7r0s2")]
+[node name="Save" parent="PauseContainer/CommandList" instance=ExtResource("2_kmcq6")]
+layout_mode = 2
+text = "Save Game"
+label_settings = SubResource("LabelSettings_5a6ch")
+
+[node name="Load" parent="PauseContainer/CommandList" instance=ExtResource("2_kmcq6")]
+layout_mode = 2
+text = "Load Game"
+label_settings = SubResource("LabelSettings_5a6ch")
+
+[node name="ConfigMenu" parent="PauseContainer" instance=ExtResource("3_7r0s2")]

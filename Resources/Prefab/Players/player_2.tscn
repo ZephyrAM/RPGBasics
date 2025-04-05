@@ -5,35 +5,35 @@
 
 [sub_resource type="Resource" id="Resource_3g8m3"]
 script = ExtResource("2_r1de6")
-Stat = 0
+Stat = 1
 Value = 30.0
 
 [sub_resource type="Resource" id="Resource_af3fc"]
 script = ExtResource("2_r1de6")
-Stat = 1
+Stat = 2
 Value = 10.0
 
 [sub_resource type="Resource" id="Resource_e4ndq"]
 script = ExtResource("2_r1de6")
-Stat = 2
+Stat = 3
 Value = 50.0
 
 [sub_resource type="Resource" id="Resource_ci123"]
 script = ExtResource("2_r1de6")
-Stat = 3
+Stat = 4
 Value = 35.0
 
 [sub_resource type="Resource" id="Resource_xxo0j"]
 script = ExtResource("2_r1de6")
-Stat = 4
+Stat = 5
 Value = 12.0
 
 [node name="CharacterBody2D" instance=ExtResource("1_8ux1a")]
 
-[node name="Name" parent="." index="6"]
+[node name="Name" parent="." index="7"]
 text = "Player 2"
 
-[node name="Battler" parent="." index="7"]
+[node name="Battler" parent="." index="9"]
 battlerID = 2
 battlerClass = 3
 

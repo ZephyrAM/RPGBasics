@@ -1,9 +1,10 @@
 public enum StatID
 {
     // Attributes
-    Strength = 0,
-    Stamina = 1,
-    Magic = 2,
-    Spirit = 3,
-    Agility = 4,
+    UNDEFINED = 0,
+    Strength = 1,
+    Stamina = 2,
+    Magic = 3,
+    Spirit = 4,
+    Agility = 5
 }

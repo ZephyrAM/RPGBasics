@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://da7fwfcevplrb"]
+[gd_scene load_steps=32 format=3 uid="uid://da7fwfcevplrb"]
 
 [ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="1_cu7be"]
 [ext_resource type="Texture2D" uid="uid://bpljfe63wdftg" path="res://Assets/Graphics/Characters/Char_Move.png" id="1_e8evb"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://cxr2jmgq30pcn" path="res://Resources/UI/Nodes/cursor_target.tscn" id="5_jjopu"]
 [ext_resource type="Script" path="res://Scripts/Abilities/SkillList.cs" id="8_q4v62"]
 [ext_resource type="Script" path="res://Scripts/Stats/Experience.cs" id="9_01k6b"]
+[ext_resource type="Script" path="res://Scripts/Inventory/EquipList.cs" id="12_gk0ao"]
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_qxbvh"]
 diffuse_texture = ExtResource("1_e8evb")
@@ -193,7 +194,7 @@ horizontal_alignment = 2
 z_index = 1
 position = Vector2(0, -75)
 
-[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerCursor", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills") groups=["BattlerData"]]
+[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerCursor", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills", "battlerEquipment") groups=["BattlerData"]]
 script = ExtResource("2_s831g")
 battlerType = "Player"
 battlerName = NodePath("../Name")
@@ -205,6 +206,7 @@ battlerHealth = NodePath("Health")
 battlerStats = NodePath("BaseStats")
 battlerExp = NodePath("Experience")
 battlerSkills = NodePath("SkillList")
+battlerEquipment = NodePath("EquipList")
 
 [node name="Health" type="Node" parent="Battler"]
 script = ExtResource("3_rfmda")
@@ -218,3 +220,6 @@ script = ExtResource("9_01k6b")
 
 [node name="SkillList" type="Node" parent="Battler"]
 script = ExtResource("8_q4v62")
+
+[node name="EquipList" type="Node" parent="Battler"]
+script = ExtResource("12_gk0ao")

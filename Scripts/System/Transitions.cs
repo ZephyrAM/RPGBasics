@@ -1,3 +1,4 @@
+using System;
 using Godot;
 
 using ZAM.Managers;
@@ -9,7 +10,8 @@ namespace ZAM.System
         [Export] private Node2D currentMap = null;
         [Export] private PartyManager playerParty = null;
         [Export] private Node2D spawnPoint = null;
-        [Export] private string destinationMapName = null;
+        [Export] private MapID destinationMapName = MapID.UNDEFINED;
+        [Export] private int destinationID = 0;
 
         // private List<Area2D> moveZone = [];
 
@@ -46,11 +48,36 @@ namespace ZAM.System
         //     BodyEntered -= OnBodyEntered;
         // }
 
+        public async void LoadSavedScene(SceneTree sceneTree, Node oldScene)
+        {
+            SavedGame gameInfo = SaveLoader.Instance.LoadGameInfo();
+            GD.Print(gameInfo.PartyData.FaceDirection);
+            string newScenePath = ConstTerm.MAP_SCENE + gameInfo.SystemData.SceneName + ConstTerm.TSCN;
+
+            Node moveToMap = ResourceLoader.Load<PackedScene>(newScenePath).Instantiate();
+            MapSystem mapSystemNode = moveToMap.GetNode<MapSystem>(ConstTerm.MAPSYSTEM);
+
+            Fader.Instance.FadeOut();
+            BGMPlayer.Instance.FadeInBGM(mapSystemNode.GetBGM());
+            await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
+
+            oldScene.QueueFree();
+            mapSystemNode.GetPartyManager().SetMemberArrays(gameInfo.PartyData.PartyMembers, gameInfo.PartyData.ReserveMembers);
+
+            sceneTree.Root.AddChild(moveToMap);
+            await SaveLoader.Instance.LoadAllData(gameInfo);
+
+            Fader.Instance.FadeIn();
+            await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
+
+            mapSystemNode.GetPartyManager().ChangePlayerActive(true);
+        }
+
         public async void MapSceneSwitch(string newScenePath, Node2D oldScene)
         {
             playerParty.ChangePlayerActive(false);
 
-            SaveLoader.Instance.SaveAllData(); // EDIT: Save player team data. Expand on this
+            await SaveLoader.Instance.SaveAllData(); // EDIT: Save player team data. Expand on this
 
             Node2D moveToMap = ResourceLoader.Load<PackedScene>(newScenePath).Instantiate() as Node2D;
             MapSystem mapSystemNode = moveToMap.GetChild(0) as MapSystem;
@@ -62,20 +89,21 @@ namespace ZAM.System
             BGMPlayer.Instance.TransitionBGM(oldBgm, newBgm);
             await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
             
-            oldScene.QueueFree();
             // PackedScene moveToScene = ResourceLoader.Load<PackedScene>(newScenePath);
 
             mapSystemNode.GetPartyManager().SetMemberArrays(playerParty.GetPartyArray(), playerParty.GetReserveArray());
 
             GetTree().Root.AddChild(moveToMap);
-            // GetTree().Root.RemoveChild(oldScene);
+            GetTree().Root.RemoveChild(oldScene);
 
-            SaveLoader.Instance.LoadAllData(SaveLoader.Instance.gameSession);
+            await SaveLoader.Instance.LoadAllData(SaveLoader.Instance.gameSession);
 
-            mapSystemNode.GetPartyManager().GetPlayer().GlobalPosition = mapSystemNode.GetTransitions()[0].GetSpawnPoint().GlobalPosition;
+            mapSystemNode.GetPartyManager().GetPlayer().GlobalPosition = mapSystemNode.GetTransitions()[destinationID].GetSpawnPoint().GlobalPosition;
 
             Fader.Instance.FadeIn();
             await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
+            oldScene.QueueFree();
+
             mapSystemNode.GetPartyManager().ChangePlayerActive(true);
         }
 
@@ -87,7 +115,7 @@ namespace ZAM.System
         private void OnBodyEntered(Node2D body)
         {
             if (body == playerParty.GetPlayer())
-            { MapSceneSwitch(ConstTerm.MAP_SCENE + destinationMapName + ConstTerm.TSCN, currentMap); }
+            { MapSceneSwitch(ConstTerm.MAP_SCENE + destinationMapName.ToString() + ConstTerm.TSCN, currentMap); }
         }
     }
 }

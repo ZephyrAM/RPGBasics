@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://blox2rfxsjm64"]
+[gd_scene load_steps=16 format=3 uid="uid://blox2rfxsjm64"]
 
 [ext_resource type="AnimationLibrary" uid="uid://djlnn8cs542vh" path="res://Resources/Animations/battle_anim.res" id="1_obl04"]
 [ext_resource type="PackedScene" uid="uid://g7e8x0srwjid" path="res://Resources/UI/Nodes/health_display.tscn" id="1_q22yd"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://cxr2jmgq30pcn" path="res://Resources/UI/Nodes/cursor_target.tscn" id="5_rtvvc"]
 [ext_resource type="Script" path="res://Scripts/Abilities/SkillList.cs" id="8_rop6n"]
 [ext_resource type="Script" path="res://Scripts/Stats/Experience.cs" id="9_mvfr5"]
+[ext_resource type="Script" path="res://Scripts/Inventory/EquipList.cs" id="11_w53bj"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_olfkb"]
 size = Vector2(100, 100)
@@ -80,7 +81,7 @@ label_settings = ExtResource("2_cwgqe")
 z_index = 1
 position = Vector2(0, -75)
 
-[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerCursor", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills")]
+[node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerCursor", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills", "battlerEquipment")]
 script = ExtResource("1_s2dv8")
 battlerType = "Enemy"
 battlerName = NodePath("../Name")
@@ -92,6 +93,7 @@ battlerHealth = NodePath("Health")
 battlerStats = NodePath("BaseStats")
 battlerExp = NodePath("Experience")
 battlerSkills = NodePath("SkillList")
+battlerEquipment = NodePath("EquipList")
 
 [node name="Health" type="Node" parent="Battler"]
 script = ExtResource("1_x77f6")
@@ -106,3 +108,6 @@ expOnKill = 80.0
 
 [node name="SkillList" type="Node" parent="Battler"]
 script = ExtResource("8_rop6n")
+
+[node name="EquipList" type="Node" parent="Battler"]
+script = ExtResource("11_w53bj")

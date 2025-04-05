@@ -1,6 +1,7 @@
 using Godot;
+using Godot.Collections;
 using System;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using ZAM.Controller;
 using ZAM.Interactions;
@@ -12,6 +13,7 @@ using ZAM.MenuUI;
 
 using ZAM.Managers;
 using ZAM.MapEvents;
+using System.Linq;
 
 namespace ZAM.System
 {
@@ -31,7 +33,7 @@ namespace ZAM.System
         [Export] private EncounterArea[] battleAreas;
 
         [ExportGroup("Resources")]
-        [Export] private PackedScene labelSettings = null;
+        // [Export] private PackedScene labelSettings = null;
         [Export] private Script eventScript = null;
 
         private AnimationPlayer bgmPlayer = null;
@@ -40,17 +42,25 @@ namespace ZAM.System
         private MapEventScript mapEvents = null;
 
         private CharacterController playerInput = null;
-        private List<RayCast2D> interactArray = [];
+        private Array<RayCast2D> interactArray = [];
         private RayCast2D mouseRay = null;
         private Interactable interactTarget;
 
-        private List<Transitions> travelList = [];
+        private Array<Transitions> travelList = [];
+        private Array<Interactable> chaseList = [];
 
         private TextBox textBox = null;
         private ChoiceBox choiceBox = null;
 
         private InfoMenu menuScreen = null;
         private PauseController pauseScreen = null;
+
+        private Ability activeAbility;
+        private Item activeItem;
+        
+        private Array<Item> itemList = [];
+        private Array<Equipment> equipList = [];
+        private int currentGearSlot = 0;
 
         private int choiceCommand = 0;
         private int memberSelected = 0;
@@ -72,6 +82,7 @@ namespace ZAM.System
             menuScreen.SetupParty(playerParty.GetPartySize());
             menuScreen.SetupCommandList(menuInput.GetCommandOptions());
             SetupItemList();
+            SetupUseList();
             UpdateMenuInfo();
 
             // // GD.Print("Map ready - save data");
@@ -79,11 +90,11 @@ namespace ZAM.System
             // hasLoaded = true;
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            UnSubSignals();
-        }
+        // protected override void Dispose(bool disposing)
+        // {
+        //     base.Dispose(disposing);
+        //     UnSubSignals();
+        // }
 
         // public override void _EnterTree()
         // {
@@ -114,7 +125,7 @@ namespace ZAM.System
             menuInput ??= uiLayer.GetNode<MenuController>(ConstTerm.MENU + ConstTerm.CONTROLLER);
             
             menuScreen = menuInput.GetNode<InfoMenu>(ConstTerm.MENU + ConstTerm.CONTAINER);
-            pauseScreen = uiLayer.GetNode<Container>(ConstTerm.PAUSE + ConstTerm.CONTAINER).GetNode<PauseController>(ConstTerm.PAUSE + ConstTerm.CONTROLLER);
+            pauseScreen = uiLayer.GetNode<PauseController>(ConstTerm.PAUSE + ConstTerm.MENU);
 
             Node interactLayer = uiLayer.GetNode(ConstTerm.INTERACT_TEXT);
             textBox = interactLayer.GetNode<TextBox>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
@@ -125,7 +136,7 @@ namespace ZAM.System
             eventNode = GetNode<Node2D>(ConstTerm.EVENTS);
             mapEvents = SafeScriptAssign(eventNode, eventScript) as MapEventScript;
 
-            if (travelList.Count <= 0) { // Populate transition list
+            if (travelList.Count <= 0) { // Populate transition Array
                 travelList = [];
                 for (int n = 0; n < transit.GetChildCount(); n++)
                 { 
@@ -147,9 +158,6 @@ namespace ZAM.System
 
         private void SubSignals()
         {
-            playerInput.onSaveGame += OnSaveGame;
-            playerInput.onLoadGame += OnLoadGame;
-
             playerInput.onInteractCheck += OnInteractCheck;
             playerInput.onSelectChange += OnSelectChange;
             playerInput.onTextProgress += OnTextProgress;
@@ -161,35 +169,56 @@ namespace ZAM.System
             menuInput.onMenuPhase += OnMenuPhase;
             // menuInput.onTargetChange += OnTargetChange;
             menuInput.onMemberSelect += OnMemberSelect;
+            menuInput.onEquipSlot += OnEquipSlot;
+            menuInput.onGearEquip += OnGearEquip;
+            menuInput.onGearCompare += OnGearCompare;
+
+            pauseScreen.onSaveMenu += OnSaveMenu;
+            pauseScreen.onLoadMenu += OnLoadMenu;
 
             mapEvents.onEventComplete += OnEventComplete;
 
             for (int a = 0; a < battleAreas.Length; a++) {
                 battleAreas[a].onBattleTrigger += OnBattleTrigger; }
+
+                chaseList = [];
+            for (int i = 0; i < mapEvents.GetChildCount(); i++) {
+                Interactable tempActor = (Interactable)mapEvents.GetChild(i);
+                if (tempActor.GetShouldChase()) { 
+                    tempActor.GetMoveAgent().onCatchPlayer += async (battleGroup, toFree) => await OnCatchPlayer(battleGroup, toFree);
+                    chaseList.Add(tempActor);
+                }
+            }
         }
 
-        private void UnSubSignals() // Inactive: Mapsystem doesn't run _Ready again after _ExitTree
-        {
-            playerInput.onSaveGame -= OnSaveGame;
-            playerInput.onLoadGame -= OnLoadGame;
+        // private void UnSubSignals() // EDIT: Necessary? 
+        // {
+        //     playerInput.onInteractCheck -= OnInteractCheck;
+        //     playerInput.onSelectChange -= OnSelectChange;
+        //     playerInput.onTextProgress -= OnTextProgress;
+        //     playerInput.onChoiceSelect -= OnChoiceSelect;
+        //     playerInput.onMenuOpen -= OnMenuOpen;
+        //     playerInput.onPauseMenu -= OnPauseMenu;
 
-            playerInput.onInteractCheck -= OnInteractCheck;
-            playerInput.onSelectChange -= OnSelectChange;
-            playerInput.onTextProgress -= OnTextProgress;
-            playerInput.onChoiceSelect -= OnChoiceSelect;
-            playerInput.onMenuOpen -= OnMenuOpen;
-            playerInput.onPauseMenu -= OnPauseMenu;
+        //     menuInput.onMenuClose -= OnMenuClose;
+        //     menuInput.onMenuPhase -= OnMenuPhase;
+        //     // menuInput.onTargetChange += OnTargetChange;
+        //     menuInput.onMemberSelect -= OnMemberSelect;
+        //     menuInput.onEquipSlot -= OnEquipSlot;
+        //     menuInput.onGearEquip -= OnGearEquip;
+        //     menuInput.onGearCompare -= OnGearCompare;
 
-            menuInput.onMenuClose -= OnMenuClose;
-            menuInput.onMenuPhase -= OnMenuPhase;
-            // menuInput.onTargetChange += OnTargetChange;
-            menuInput.onMemberSelect -= OnMemberSelect;
+        //     pauseScreen.onSaveMenu -= OnSaveMenu;
+        //     pauseScreen.onLoadMenu -= OnLoadMenu;
 
-            mapEvents.onEventComplete -= OnEventComplete;
+        //     mapEvents.onEventComplete -= OnEventComplete;
 
-            for (int a = 0; a < battleAreas.Length; a++) {
-                battleAreas[a].onBattleTrigger -= OnBattleTrigger; }
-        }
+        //     for (int a = 0; a < battleAreas.Length; a++) {
+        //         battleAreas[a].onBattleTrigger -= OnBattleTrigger; }
+
+        //     for (int i = 0; i < chaseList.Count; i++) {
+        //         chaseList[i].GetMoveAgent().onCatchPlayer -= async (battleGroup, toFree) => await OnCatchPlayer(battleGroup, toFree); }
+        // }
 
         // public override void _EnterTree()
         // {
@@ -317,6 +346,14 @@ namespace ZAM.System
         // SECTION: Menu Handling
         //=============================================================================
 
+        private void UIVisibility()
+        {
+            CheckHasItems();
+            menuScreen.GetSkillPanel().Visible = menuInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.SELECT || menuInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.USE;
+            menuScreen.GetItemPanel().Visible = menuInput.GetInputPhase() == ConstTerm.ITEM + ConstTerm.SELECT || menuInput.GetInputPhase() == ConstTerm.ITEM + ConstTerm.USE;
+            menuScreen.GetUsePanel().Visible = menuInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.USE || menuInput.GetInputPhase() == ConstTerm.ITEM + ConstTerm.USE;
+            menuScreen.GetEquipPanel().Visible = menuInput.GetInputPhase() == ConstTerm.EQUIP + ConstTerm.SELECT || menuInput.GetInputPhase() == ConstTerm.EQUIP + ConstTerm.USE;
+        }
 
         private void UpdateMenuInfo()
         {
@@ -328,8 +365,8 @@ namespace ZAM.System
                 tempInfo.SetCharTitle(playerParty.GetPlayerParty()[i].GetBattlerTitle());
                 tempInfo.SetHPCurrent(playerParty.GetPlayerParty()[i].GetHealth().GetHP());
                 tempInfo.SetHPMax(playerParty.GetPlayerParty()[i].GetHealth().GetMaxHP());
-                // tempInfo.SetMPCurrent(playerParty.GetPlayerParty()[i].Get???().GetMP());
-                // tempInfo.SetMPMax(playerParty.GetPlayerParty()[i].Get???().GetMaxMP());
+                tempInfo.SetMPCurrent(playerParty.GetPlayerParty()[i].GetHealth().GetMP());
+                tempInfo.SetMPMax(playerParty.GetPlayerParty()[i].GetHealth().GetMaxMP());
                 tempInfo.SetCurrentLevel(playerParty.GetPlayerParty()[i].GetExperience().GetCurrentLevel());
                 tempInfo.SetNextLevel(playerParty.GetPlayerParty()[i].GetExperience().GetExpToLevel());
 
@@ -339,13 +376,35 @@ namespace ZAM.System
             SetupItemList();
         }
 
-        private void UIVisibility()
+        private void UpdateEquipInfo()
         {
-            CheckHasItems();
-            menuScreen.GetSkillPanel().Visible = menuInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.SELECT;
-            menuScreen.GetItemPanel().Visible = menuInput.GetInputPhase() == ConstTerm.ITEM + ConstTerm.SELECT;
-            // menuScreen.GetMemberBar().Visible = menuInput.GetInputPhase() == ConstTerm.MEMBER + ConstTerm.SELECT;
+            Battler currBattler = playerParty.GetPlayerParty()[menuInput.GetMemberCommand()];
+            menuScreen.GetEquipPanel().SetEquipValues(currBattler.GetEquipList().GetCharEquipment());
+            menuScreen.GetEquipPanel().SetStatValues(currBattler.GetStats().GetModifiedStatSheet());
         }
+
+        private void SetupCharInfo()
+        {
+            Battler currentChar = playerParty.GetPlayerParty()[menuInput.GetMemberCommand()];
+            menuScreen.GetEquipPanel().SetCharInfo(currentChar.GetPortrait(), currentChar.GetNameLabel().Text);
+        }
+
+        // private void SetupEquipList()
+        // {
+        //     foreach(Node child in menuScreen.GetEquipPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
+        //     { child.QueueFree(); }
+
+        //     foreach (Equipment gear in ItemBag.Instance.GetEquipBag())
+        //     {
+        //         if (gear.GearSlot[0] != menuScreen.GetEquipPanel().GetSlotID(menuInput.GetCommand())) { continue; } // EDIT: Update to check multiple slot types.
+
+        //         Label newGear = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetButtonLabel().ResourcePath).Instantiate();
+        //         newGear.Text = gear.ItemName;
+        //         newGear.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
+                
+        //         menuScreen.GetEquipPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newGear);
+        //     }
+        // }
 
         // private void TargetChange(string selectBar)
         // {
@@ -358,7 +417,7 @@ namespace ZAM.System
         private void SetupSkillList(Battler player)
         {
             foreach (Node child in menuScreen.GetSkillPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
-            { menuScreen.GetSkillPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).RemoveChild(child); child.QueueFree(); }
+            { child.QueueFree(); }
 
             // for (int c = 0; c < menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).GetChildCount(); c++)
             // {
@@ -370,14 +429,14 @@ namespace ZAM.System
 
             // for (int a = 0; a < player.GetSkillCount(); a++)
             // {
-            //     Label newSkill = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
+            //     Label newSkill = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetButtonLabel().ResourcePath).Instantiate();
             //     newSkill.Text = player.GetSkillName(a);
             //     newSkill.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
             // }
 
             foreach (Ability skill in player.GetSkillList().GetSkills())
             {
-                Label newSkill = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
+                Label newSkill = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetButtonLabel().ResourcePath).Instantiate();
                 newSkill.Text = skill.AbilityName;
                 newSkill.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
                 if (!player.CheckCanUse(skill)) {
@@ -394,15 +453,102 @@ namespace ZAM.System
 
             foreach (Node child in menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
             { child.QueueFree(); }
+            itemList = [];
 
-            foreach (Item item in ItemBag.Instance.GetItemBag())
-            {
-                Label newItem = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
+            foreach (Item item in ItemBag.Instance.GetItemBag()) {
+                // if (!item.UseableOutOfBattle) { continue; }
+                itemList.Add(item);
+                
+                Label newItem = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetEquipLabel().ResourcePath).Instantiate();
                 newItem.Text = item.ItemName;
                 newItem.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
+                if (!item.UseableOutOfBattle) {
+                    newItem.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
+                }
 
                 menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newItem);
             }
+            foreach (Equipment equip in ItemBag.Instance.GetEquipBag()) {
+                itemList.Add(equip);
+
+                Label newEquip = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetEquipLabel().ResourcePath).Instantiate();
+                newEquip.Text = equip.ItemName;
+                newEquip.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
+                if (!equip.UseableOutOfBattle) {
+                    newEquip.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
+                }
+                newEquip.GetNode<Label>(ConstTerm.LABEL).Visible = equip.GetIsEquipped();
+
+                menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newEquip);
+            }
+        }
+
+        private void SetupUseList()
+        {
+            foreach (Node child in menuScreen.GetUsePanel().GetNode(ConstTerm.USE + ConstTerm.LIST).GetChildren())
+            { child.QueueFree(); }
+
+            foreach (Battler member in playerParty.GetPlayerParty()) {
+                Label newMember = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetButtonLabel().ResourcePath).Instantiate();
+                newMember.Text = member.GetBattlerName();
+                newMember.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
+
+                menuScreen.GetUsePanel().GetNode(ConstTerm.USE + ConstTerm.LIST).AddChild(newMember);
+            }
+        }
+
+        private void SetupGearList(int slot)
+        {
+            foreach (Node child in menuScreen.GetEquipPanel().GetGearList().GetChildren())
+            { child.QueueFree(); }
+            equipList = [];
+
+            if (slot < 0) { menuScreen.GetEquipPanel().ClearChangeValues(); return; }
+            currentGearSlot = slot + 1;
+
+            Array<Equipment> tempEquip = ItemBag.Instance.GetSlotContents(menuScreen.GetEquipPanel().GetSlotID(slot), playerParty.GetPlayerParty()[menuInput.GetMemberCommand()].GetCharClass());
+
+            Label removeEquip = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetEquipLabel().ResourcePath).Instantiate();
+            removeEquip.Text = "-Remove-";
+            removeEquip.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
+
+            menuScreen.GetEquipPanel().GetGearList().AddChild(removeEquip);
+            equipList.Add(null);
+
+            foreach (Equipment equip in tempEquip) {
+                equipList.Add(equip);
+
+                Label newEquip = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetEquipLabel().ResourcePath).Instantiate();
+                newEquip.Text = equip.ItemName;
+                newEquip.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
+                newEquip.GetNode<Label>(ConstTerm.LABEL).Visible = equip.GetIsEquipped();
+                if (equip.GetIsEquipped()) { newEquip.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true); }
+
+                menuScreen.GetEquipPanel().GetGearList().AddChild(newEquip);
+            }
+
+            ShowCompareValues(0);
+        }
+
+        private void ShowCompareValues(int currentSlot)
+        {
+            Battler currentBattler = playerParty.GetPlayerParty()[memberSelected];
+            Equipment oldEquip = currentBattler.GetEquipList().GetCharEquipment()[currentGearSlot].Equip;
+            Equipment newEquip = equipList[currentSlot];
+
+            Array<float> changes = [];
+            float newAdd, oldAdd;
+
+            for (int s = 0; s < Enum.GetValues(typeof(StatID)).Length - 1; s++) {
+                newAdd = 0;
+                oldAdd = 0;
+                if (newEquip != null) { newAdd = newEquip.GetStatModifiers()[s + 1]; }
+                if (oldEquip != null) { oldAdd = oldEquip.GetStatModifiers()[s + 1]; }
+
+                changes.Add(newAdd - oldAdd);
+            }
+
+            menuScreen.GetEquipPanel().ShowChangeValues(changes);
         }
 
         private bool CheckHasItems()
@@ -434,7 +580,7 @@ namespace ZAM.System
         // SECTION: Access Methods
         //=============================================================================
 
-        public async void LoadBattle(PackedScene randomGroup)
+        public async Task LoadBattle(PackedScene randomGroup)
         {
             // EDIT: this(MapSystem) node not found. 'Disposed'
             // GD.Print("Battle loading - save data");
@@ -461,14 +607,15 @@ namespace ZAM.System
             GetTree().Root.RemoveChild(GetParent());
 
             // GD.Print("Battle loading - load data");
-            SaveLoader.Instance.LoadBattlerData(SaveLoader.Instance.gameSession);
+            await SaveLoader.Instance.LoadBattlerData(SaveLoader.Instance.gameSession);
+            battleNode.InitialHealthBars();
 
             Fader.Instance.FadeIn();
             await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
 
             battleNode.SetBattleControlActive(true);
 
-            // QueueFree();
+            return;
         }
 
         public AudioStream GetBGM()
@@ -490,7 +637,7 @@ namespace ZAM.System
             // }
         }
 
-        public List<Transitions> GetTransitions()
+        public Array<Transitions> GetTransitions()
         {
             return travelList;
         }
@@ -499,16 +646,6 @@ namespace ZAM.System
         //=============================================================================
         // SECTION: Signal Methods
         //=============================================================================
-
-        private void OnSaveGame()
-        {
-            SaveLoader.Instance.SaveGame();
-        }
-
-        private void OnLoadGame()
-        {
-            SaveLoader.Instance.LoadGame();
-        }
 
         private void OnEventStart()
         {
@@ -564,9 +701,9 @@ namespace ZAM.System
             SelectChoice();
         }
 
-        private void OnItemReceive(string newItem)
+        private void OnItemReceive(string newItem, int newType)
         {
-            ItemBag.Instance.AddToItemBag(newItem);
+            ItemBag.Instance.AddToBag(newItem, (ItemType)newType);
         }
 
         private void OnMenuPhase()
@@ -588,6 +725,23 @@ namespace ZAM.System
             menuScreen.Visible = false;
             playerInput.ChangeActive(true);
             playerInput.SetInputPhase(ConstTerm.MOVE);
+        }
+
+        private void OnSaveMenu()
+        {
+            GD.Print("Saving game!");
+            SaveLoader.Instance.SaveGame();
+        }
+
+        private void OnLoadMenu()
+        {
+            playerInput.ChangeActive(false);
+
+            GD.Print("Loading game!");
+            Transitions moveToScene = new();
+            moveToScene.LoadSavedScene(GetTree(), GetParent());
+
+            if (pauseScreen.IsControlActive()) { pauseScreen.ClosePauseMenu(); }
         }
 
         private void OnPauseMenu()
@@ -626,19 +780,67 @@ namespace ZAM.System
         {
             memberSelected = menuInput.GetMemberCommand();
             if (menuInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.SELECT) { SetupSkillList(playerParty.GetPlayerParty()[memberSelected]); }
-            else if (menuInput.GetInputPhase() == ConstTerm.STATUS_SCREEN) { } // EDIT: Create/Assign status screen
+            else if (menuInput.GetInputPhase() == ConstTerm.EQUIP + ConstTerm.SELECT) { SetupCharInfo(); UpdateEquipInfo(); }
+            // else if (menuInput.GetInputPhase() == ConstTerm.STATUS_SCREEN) { } // EDIT: Create/Assign status screen
 
             menuInput.SetNumColumn();
+
+            menuScreen.GetEquipPanel().SetMaxHPMP(playerParty.GetPlayerParty()[memberSelected].GetHealth().GetMaxHP(), playerParty.GetPlayerParty()[memberSelected].GetHealth().GetMaxMP());
         }
 
-        private void OnCatchPlayer(PackedScene battleGroup)
+        private void OnEquipSlot(int slot)
         {
-            LoadBattle(battleGroup);
+            SetupGearList(slot);
         }
 
-        private void OnBattleTrigger(PackedScene battleGroup)
+        private void OnGearEquip(int gearSelect)
         {
-            LoadBattle(battleGroup);
+            Battler currentBattler = playerParty.GetPlayerParty()[memberSelected];
+
+            if (gearSelect == 0) { currentBattler.GetEquipList().RemoveGear(currentGearSlot); }
+            else { currentBattler.GetEquipList().EquipGear(currentGearSlot, equipList[gearSelect]); }
+
+            menuScreen.GetEquipPanel().SetEquipSlot(equipList[gearSelect], currentGearSlot);
+            menuScreen.GetEquipPanel().SetStatValues(currentBattler.GetStats().GetModifiedStatSheet());
+        }
+
+        private void OnGearCompare()
+        {
+            ShowCompareValues(menuInput.GetCommand());
+        }
+
+        private async Task OnCatchPlayer(PackedScene battleGroup, Node toFree)
+        {
+            await LoadBattle(battleGroup);
+            toFree.QueueFree();
+        }
+
+        private async void OnBattleTrigger(PackedScene battleGroup)
+        {
+            await LoadBattle(battleGroup);
+        }
+
+        //=============================================================================
+        // SECTION: Save System
+        //=============================================================================
+
+        public void OnSaveGame(SavedGame saveData)
+        {
+            SystemData newData = new()
+            {
+                SceneName = mapId.ToString()
+            };
+
+            saveData.SystemData = newData;
+        }
+
+        public void OnLoadGame(SystemData loadData)
+        {
+            // SystemData saveData = loadData;
+            // if (saveData == null) { GD.Print("System Data - NULL"); return; }
+
+            // Transitions newTransition = new();
+            // newTransition.MapSceneSwitch(ConstTerm.MAP_SCENE + saveData.SceneName + ConstTerm.TSCN, (Node2D)GetParent());
         }
 
         //=============================================================================

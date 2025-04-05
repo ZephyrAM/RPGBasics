@@ -23,13 +23,15 @@ namespace ZAM.Interactions
         [Export] private Array<InteractType> actionType = [];
         [Export] private int[] choicesGiven = [];
         [Export] private Dictionary<string, string> choiceText = [];
-        [Export] private Dictionary<string, Resource> itemList = [];
+        // [Export] private Dictionary<string, Resource> itemList = [];
 
         [ExportGroup("Values")]
         [Export] private bool doesMove = true;
-        [Export] private bool shouldChasePlayer = false;
         [Export] private bool isRepeatable = false; // SaveData
         [Export] private int noRepeatStep = 0;      // SaveData
+
+        [Export] private bool shouldChasePlayer = false;
+        [Export] private PackedScene battleGroup = null;
 
         // private MapEventScript mapEventScript;
         // private Dictionary<string, Dictionary<string, string>> mapText;
@@ -69,7 +71,7 @@ namespace ZAM.Interactions
         [Signal]
         public delegate void onInteractPhaseEventHandler(string newPhase);
         [Signal]
-        public delegate void onItemReceiveEventHandler(string newItem);
+        public delegate void onItemReceiveEventHandler(string newItem, int newType);
         [Signal]
         public delegate void onEventStartEventHandler();
         // [Signal]
@@ -229,13 +231,21 @@ namespace ZAM.Interactions
 
         public void AddItemGive()
         {
-            string outText = "Receieved " + choiceText[ConstTerm.ITEM + stepNumber] + "!"; // EDIT: Placeholder
+            string giveText;
+            ItemType giveType;
+
+            if (choiceText.ContainsKey(ConstTerm.ITEM + stepNumber)) { giveText = ConstTerm.ITEM + stepNumber; giveType = ItemType.Item; }
+            else if (choiceText.ContainsKey(ConstTerm.WEAPON + stepNumber)) { giveText = ConstTerm.WEAPON + stepNumber; giveType = ItemType.Weapon; }
+            else if (choiceText.ContainsKey(ConstTerm.ARMOR + stepNumber)) { giveText = ConstTerm.ARMOR + stepNumber; giveType = ItemType.Armor; }
+            else { giveText = ConstTerm.ACCESSORY + stepNumber; giveType = ItemType.Accessory;}
+
+            string outText = "Receieved " + choiceText[giveText] + "!"; // EDIT: Placeholder
             collectBox.AddText(outText);
             
             choiceActive = false;
             choiceOption = 0;
 
-            EmitSignal(SignalName.onItemReceive, choiceText[ConstTerm.ITEM + stepNumber]); // -> MapSystem - OnItemReceive
+            EmitSignal(SignalName.onItemReceive, choiceText[giveText], (int)giveType); // -> MapSystem - OnItemReceive
 
             // EmitSignal(SignalName.onInteractPhase, ConstTerm.TEXT);
         }
@@ -349,6 +359,11 @@ namespace ZAM.Interactions
         public NPCMove GetMoveAgent()
         {
             return moveableBody;
+        }
+
+        public PackedScene GetBattleGroup()
+        {
+            return battleGroup;
         }
 
         public void ResetDirection()

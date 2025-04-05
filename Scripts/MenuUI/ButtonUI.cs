@@ -42,8 +42,8 @@ namespace ZAM.MenuUI
             isDisabled = shouldDisable;
 
             if (GetParent() is Label) {
-                if (isDisabled) { GetParent<Label>().Modulate = new Color(ConstTerm.GREY); }
-                else { GetParent<Label>().Modulate = new Color(ConstTerm.WHITE); }
+                if (isDisabled) { GetParent<Label>().SelfModulate = new Color(ConstTerm.GREY); }
+                else { GetParent<Label>().SelfModulate = new Color(ConstTerm.WHITE); }
             }
         }
 

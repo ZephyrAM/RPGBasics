@@ -1,8 +1,9 @@
 using Godot;
+using Godot.Collections;
 using System;
-using System.Collections.Generic;
 
 using ZAM.Abilities;
+using ZAM.Inventory;
 using ZAM.Managers;
 
 namespace ZAM.Stats
@@ -16,10 +17,11 @@ namespace ZAM.Stats
 
         [ExportGroup("Options")]
         [Export] private bool shouldUseAddModifiers = true;
-        [Export] private bool shouldUseBonusModifiers = true;
+        [Export] private bool shouldUsePercentModifiers = true;
 
-        private List<StatID> stat = null;
-        private Dictionary<StatID, float> statSheet = null;
+        private Array<StatID> stat = [];
+        private Dictionary<StatID, float> statSheet = [];
+        private Dictionary<StatID, float> modifiedStatSheet = [];
         private Dictionary<string, CharClass> classDatabase = [];
         private float[] diffMod = [0.75f, 1f, 1.25f, 1.75f];
 
@@ -46,6 +48,7 @@ namespace ZAM.Stats
         //=============================================================================
         private void SetupStats()
         {
+            if (battler.GetBattlerType() == ConstTerm.NPC) { return; }
             stat ??= [];
             for (int s = 0; s < stats.Length; s++)
             {
@@ -57,10 +60,20 @@ namespace ZAM.Stats
         private void SetupStatSheet()
         {
             statSheet ??= [];
+            modifiedStatSheet ??= [];
             for (int s = 0; s < stat.Count; s++)
             {
                 statSheet[stat[s]] = stats[s].Value;
+                modifiedStatSheet[stat[s]] = stats[s].Value;
             }
+
+            SetupHPMP();
+        }
+
+        private void SetupHPMP()
+        {
+            battler.GetHealth().SetMaxHP(GetMaxHP()); // EDIT: Find better place to load?
+            battler.GetHealth().SetMaxMP(GetMaxMP());
         }
 
         public void LevelUpStats()
@@ -84,10 +97,37 @@ namespace ZAM.Stats
 
         public float GetStatValue(StatID stat)
         {
-            float totalValue = statSheet[stat] * (1 + GetPercetageModifier(stat)) + GetAdditiveModifier(stat);
+            float addMod = shouldUseAddModifiers ? GetAdditiveModifier(stat) : 0;
+            float percentMod = shouldUsePercentModifiers ? (1 + GetPercetageModifier(stat)) : 1;
+            float totalValue = statSheet[stat] * percentMod + addMod;
             // if (stat == Stat.Stamina) { GD.Print(stat + " " + totalValue); }
             // if (battler.GetBattlerType() == ConstTerm.ENEMY) { totalValue *= ConfigSettings.GetDifficulty()} // Create Instance? Just use save file?
             return totalValue;
+        }
+
+        public float GetMaxHP()
+        {
+            return Mathf.Round(GetStatValue(StatID.Stamina) * 10f);
+        }
+
+        public float GetMaxMP()
+        {
+            return Mathf.Round(GetStatValue(StatID.Spirit) * 2f);
+        }
+
+        public Dictionary<StatID, float> GetStatSheet()
+        {
+            return statSheet;
+        }
+
+        public Dictionary<StatID, float> GetModifiedStatSheet()
+        {
+            for (int s = 1; s <= modifiedStatSheet.Count; s++)
+            {
+                modifiedStatSheet[(StatID)s] = GetStatValue((StatID)s);
+            }
+
+            return modifiedStatSheet;
         }
 
         //=============================================================================
@@ -118,53 +158,46 @@ namespace ZAM.Stats
 
         private float GetAdditiveModifier(StatID stat)
         {
-            if (!shouldUseAddModifiers) { return 0; }
             float total = 0;
 
-            foreach (EffectState source in battler.GetStateList())
-            {
-                for (int i = 0; i < source.AddModifier.Length; i++)
-                {
+            foreach (EffectState source in battler.GetStateList()) {
+                for (int i = 0; i < source.AddModifier.Length; i++) {
                     if (source.AddModifier[i].Stat == stat) { total += source.AddModifier[i].Value; }
                 }
-                // foreach (float modifier in source.GetAdditiveModifiers(stat))
-                // {
-                //     total += modifier;
-                // }
+            }
+
+            foreach (EquipSlot source in battler.GetEquipList().GetCharEquipment()) {
+                if (source.Equip == null) { continue; }
+                for (int i = 0; i < source.Equip.AddModifier.Length; i++) {
+                    if (source.Equip.AddModifier[i].Stat == stat) { total += source.Equip.AddModifier[i].Value; }
+                }
             }
             return total;
         }
 
         private float GetPercetageModifier(StatID stat)
         {
-            if (!shouldUseBonusModifiers) { return 0; }
             float total = 0;
             float modifier;
 
-            foreach (EffectState source in battler.GetStateList())
-            {
-                for (int i = 0; i < source.PercentModifier.Length; i++)
-                {
-                    // GD.Print(source.PercentModifier[i].Stat);
-                    if (source.PercentModifier[i].Stat == stat) 
-                    { 
+            foreach (EffectState source in battler.GetStateList()) {
+                for (int i = 0; i < source.PercentModifier.Length; i++) {
+                    if (source.PercentModifier[i].Stat == stat) { 
                         modifier = source.PercentModifier[i].Value; 
-                        // GD.Print("Percent Mod = " + modifier);
                         total += modifier;
                     }
                 }
-                // foreach (float modifier in source.GetPercentageModifiers(stat))
-                // {
-                //     total += modifier;
-                // }
             }
-            // foreach (IModifierLookup source in GetNodeOrNull<IModifierLookup>("IModifierLookup"))
-            // {
-            //     foreach (float modifier in source.GetPercentageModifiers(stat))
-            //     {
-            //         total += modifier;
-            //     }
-            // }
+
+            foreach (EquipSlot source in battler.GetEquipList().GetCharEquipment()) {
+                if (source.Equip == null) { continue; }
+                for (int i = 0; i < source.Equip.PercentModifier.Length; i++) {
+                    if (source.Equip.PercentModifier[i].Stat == stat) {
+                        modifier = source.Equip.PercentModifier[i].Value;
+                        total += modifier;
+                    }
+                }
+            }
             return total / 100;
         }
     }

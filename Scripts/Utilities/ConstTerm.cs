@@ -1,5 +1,7 @@
 public class ConstTerm
 {
+    public const string ENCRYPT_KEY = "_*RPGBasics*_";
+
     //=============================================================================
     // SECTION: Animations
     //=============================================================================
@@ -86,6 +88,11 @@ public class ConstTerm
     public const string NEWGAME_SCENE = "res://Scenes/MapSysem.tscn"; // EDIT: Change to default scene!!
     public const string MAP_SCENE = "res://Scenes/Maps/";
     public const string MOUSE_TARGET = "res://Resources/UI/Nodes/mouse_target.tscn";
+    //=============================================================================
+    // SECTION: Node Properties
+    //=============================================================================
+    public const string PERCENT_VISIBLE = "visible_ratio";
+    public const string COLUMNS = "columns";
 
 
     //=============================================================================
@@ -151,15 +158,16 @@ public class ConstTerm
     public const string WHITE = "ffffff";
     public const string GREEN = "2cca6d";
     public const string GREY  = "a1a1a1";
+    public const string COLOR_DECREASE = "ff4044";
+    public const string COLOR_INCREASE = "00ae6a";
 
 
     //=============================================================================
     // SECTION: Groups
     //=============================================================================
-    public const string SAVEDATA = "SaveData";
-    public const string CONFIGDATA = "ConfigData";
-    public const string BATTLERDATA = "BattlerData";
-    public const string PARTYDATA = "PartyData";
+    public const string DATA = "Data";
+    public const string SYSTEM = "System";
+    public const string INVENTORY = "Inventory";
 
 
     //=============================================================================
@@ -169,6 +177,7 @@ public class ConstTerm
     public const string ON_LOADGAME = "OnLoadGame";
     public const string ON_SAVECONFIG = "OnSaveConfig";
     public const string ON_LOADCONFIG = "OnLoadConfig";
+
     public const string TARGETINTERACT = "TargetInteraction";
     public const string UPDATEINTERACT = "UpdateInteraction";
 
@@ -180,6 +189,10 @@ public class ConstTerm
     public const string NPC = "NPC";
     public const string TEAM = "Team";
     public const string PARTY = "Party";
+    public const string EQUIP = "Equip";
+
+    public const string HP = "HP";
+    public const string MP = "MP";
 
     public const string USE = "Use";
     public const string SELECT = "Select";
@@ -189,7 +202,6 @@ public class ConstTerm
     public const string GRID = "Grid";
     public const string PANEL = "Panel";
     public const string CONTAINER = "Container";
-    public const string COLUMNS = "Columns";
 
     public const string TEXTBOX = "TextBox";
     public const string CHOICEBOX = "ChoiceBox";
@@ -199,6 +211,7 @@ public class ConstTerm
     public const string VERT = "Vertical";
 
     public const string CONTROLLER = "Controller";
+    public const string EMPTY = "-Empty-";
 
 
     //=============================================================================
@@ -251,22 +264,18 @@ public class ConstTerm
     public const string EXPERIENCE = "Experience";
 
     public const string HEALTH_DISPLAY = "HealthDisplay";
+    public const string RESOURCE_DISPLAY = "ResourceDisplay";
 
     public const string ABILITY = "Ability";
-    public const string ABILITYDATABASE = "AbilityDatabase";
     public const string STATE = "State";
-    public const string STATEDATABASE = "StateDatabase";
+    public const string CLASS = "Class";
     public const string ITEM = "Item";
-    public const string ITEMDATABASE = "ItemDatabase";
-    public const string CLASSDATABASE = "ClassDatabase";
+    public const string WEAPON = "Weapon";
+    public const string ARMOR = "Armor";
+    public const string ACCESSORY = "Accessory";
+    public const string DATABASE = "Database";
 
     public const string NPCMOVE = "NPCMove";
-
-
-    //=============================================================================
-    // SECTION: Node Properties
-    //=============================================================================
-    public const string PERCENT_VISIBLE = "visible_ratio";
 
 
     //=============================================================================
