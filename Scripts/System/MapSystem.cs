@@ -341,6 +341,14 @@ namespace ZAM.System
             playerInput.SetInputPhase(ConstTerm.MOVE);
         }
 
+        public void StopAllChase()
+        {
+            for (int i = 0; i < chaseList.Count; i++) {
+                chaseList[i].GetMoveAgent().DisableChaseArea();
+                chaseList[i].SetInteractPhase(ConstTerm.DO_NOTHING);
+            }
+        }
+
 
         //=============================================================================
         // SECTION: Menu Handling
@@ -809,9 +817,12 @@ namespace ZAM.System
             ShowCompareValues(menuInput.GetCommand());
         }
 
-        private async Task OnCatchPlayer(PackedScene battleGroup, Node toFree)
+        private async Task OnCatchPlayer(PackedScene battleGroup, Interactable toFree)
         {
             await LoadBattle(battleGroup);
+            
+            toFree.GetMoveAgent().onCatchPlayer -= async (battleGroup, toFree) => await OnCatchPlayer(battleGroup, toFree);
+            chaseList.Remove(toFree);
             toFree.QueueFree();
         }
 

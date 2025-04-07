@@ -45,7 +45,7 @@ public partial class BGMPlayer : Node
 
     public async void TransitionBGM(AudioStream oldBgm, AudioStream newBgm)
     {
-        if (oldBgm == newBgm) { return; }
+        if (oldBgm == newBgm && newBgm == bgm.Stream) { return; }
         
         FadeOutBGM();
         await ToSignal(animPlayer, ConstTerm.ANIM_FINISHED);

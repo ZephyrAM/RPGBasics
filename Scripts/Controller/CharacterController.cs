@@ -334,7 +334,7 @@ namespace ZAM.Controller
 			ClickCollisionCheck();
 			bool collide = MoveAndSlide();
 			if (collide) {
-				if (GetSlideCollision(0).GetCollider() == mouseTarget) { UpdateRayCast(); }
+				if (GetLastSlideCollision().GetCollider() == mouseTarget) { UpdateRayCast(); }
 			}
 		}
 

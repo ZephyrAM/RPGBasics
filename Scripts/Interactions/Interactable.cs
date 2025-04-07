@@ -31,6 +31,7 @@ namespace ZAM.Interactions
         [Export] private int noRepeatStep = 0;      // SaveData
 
         [Export] private bool shouldChasePlayer = false;
+        [Export] private bool isAutoBattle = false;
         [Export] private PackedScene battleGroup = null;
 
         // private MapEventScript mapEventScript;
@@ -141,6 +142,8 @@ namespace ZAM.Interactions
         {
             // GD.Print("Target Interaction");
             // LoadChoiceText();
+            if (isAutoBattle) { GD.Print("Battle Trigger!"); moveableBody.TriggerBattler(); return; }
+
             if (!isEvent) 
             {
                 if (actionType.Count <= 0) { return; }

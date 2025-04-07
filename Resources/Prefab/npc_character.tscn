@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://uqsv1w0qe8uc"]
+[gd_scene load_steps=37 format=3 uid="uid://uqsv1w0qe8uc"]
 
 [ext_resource type="Script" path="res://Scripts/Interactions/Interactable.cs" id="1_1r7ap"]
 [ext_resource type="Texture2D" uid="uid://bpljfe63wdftg" path="res://Assets/Graphics/Characters/Char_Move.png" id="1_m2mkh"]
@@ -21,10 +21,6 @@ normal_texture = ExtResource("3_m5lkv")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sby8l"]
 size = Vector2(45, 60)
-
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_tfa1i"]
-radius = 22.5
-height = 60.0
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_50t2m"]
 animation = &"top_down_move/idle_down"
@@ -173,13 +169,10 @@ monitorable = false
 rotation = -1.5708
 polygon = PackedVector2Array(0, -20, -200, 400, 200, 400)
 
-[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
-avoidance_enabled = true
-avoidance_layers = 4
-avoidance_mask = 15
+[node name="SightRay" type="RayCast2D" parent="."]
+target_position = Vector2(0, 400)
 
 [node name="RayCheck" type="Node2D" parent="."]
-visible = false
 
 [node name="RayCast2D1" type="RayCast2D" parent="RayCheck"]
 position = Vector2(0, 15)
@@ -201,13 +194,10 @@ target_position = Vector2(0, 60)
 collision_mask = 71
 collide_with_areas = true
 
-[node name="ShapeCast2D" type="ShapeCast2D" parent="."]
-visible = false
-position = Vector2(0, 17)
-shape = SubResource("CapsuleShape2D_tfa1i")
-target_position = Vector2(0, 40)
-max_results = 4
-collision_mask = 13
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+avoidance_enabled = true
+avoidance_layers = 4
+avoidance_mask = 15
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
 tree_root = SubResource("AnimationNodeStateMachine_xs4vy")
@@ -230,7 +220,7 @@ text = "Test NPC"
 label_settings = ExtResource("4_05qh1")
 horizontal_alignment = 2
 
-[node name="NPCMove" type="Node" parent="." node_paths=PackedStringArray("npcInteract", "charBody", "charSprite", "charCollider", "sightArea", "navAgent", "checkRay", "animTree")]
+[node name="NPCMove" type="Node" parent="." node_paths=PackedStringArray("npcInteract", "charBody", "charSprite", "charCollider", "sightArea", "navAgent", "sightRay", "checkArray", "animTree")]
 script = ExtResource("3_0wj20")
 playerControlTest = ExtResource("13_ta28v")
 baseSpeed = 250.0
@@ -240,7 +230,8 @@ charSprite = NodePath("../Sprite2D")
 charCollider = NodePath("../CollisionShape2D")
 sightArea = NodePath("../Area2D")
 navAgent = NodePath("../NavigationAgent2D")
-checkRay = NodePath("../RayCast2D")
+sightRay = NodePath("../SightRay")
+checkArray = [NodePath("../RayCheck/RayCast2D1"), NodePath("../RayCheck/RayCast2D2"), NodePath("../RayCheck/RayCast2D3")]
 animTree = NodePath("../AnimationTree")
 
 [node name="Battler" type="Node" parent="." node_paths=PackedStringArray("battlerName", "battlerBody", "battlerSprite", "battlerAnim", "battlerHealth", "battlerStats", "battlerExp", "battlerSkills")]

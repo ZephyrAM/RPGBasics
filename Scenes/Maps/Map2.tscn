@@ -1002,11 +1002,13 @@ position = Vector2(150, 93.5)
 shape = SubResource("RectangleShape2D_rca54")
 
 [node name="Events" type="Node2D" parent="MapSystem"]
+y_sort_enabled = true
 
 [node name="Interactable0" parent="MapSystem/Events" instance=ExtResource("14_sr6m2")]
 position = Vector2(-345, 152)
 isRepeatable = false
 shouldChasePlayer = true
+isAutoBattle = true
 battleGroup = ExtResource("12_gta72")
 
 [node name="Camera2D" type="Camera2D" parent="MapSystem"]

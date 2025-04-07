@@ -51,7 +51,7 @@ namespace ZAM.System
         public async void LoadSavedScene(SceneTree sceneTree, Node oldScene)
         {
             SavedGame gameInfo = SaveLoader.Instance.LoadGameInfo();
-            GD.Print(gameInfo.PartyData.FaceDirection);
+
             string newScenePath = ConstTerm.MAP_SCENE + gameInfo.SystemData.SceneName + ConstTerm.TSCN;
 
             Node moveToMap = ResourceLoader.Load<PackedScene>(newScenePath).Instantiate();
@@ -70,21 +70,24 @@ namespace ZAM.System
             Fader.Instance.FadeIn();
             await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
 
-            mapSystemNode.GetPartyManager().ChangePlayerActive(true);
+            // mapSystemNode.GetPartyManager().ChangePlayerActive(true);
         }
 
         public async void MapSceneSwitch(string newScenePath, Node2D oldScene)
         {
+            oldScene.GetNode<MapSystem>(ConstTerm.MAPSYSTEM).StopAllChase();
             playerParty.ChangePlayerActive(false);
 
-            await SaveLoader.Instance.SaveAllData(); // EDIT: Save player team data. Expand on this
+            if (Fader.Instance.GetAnimPlayer().IsPlaying()) { await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED); }
+
+            await SaveLoader.Instance.SaveAllData();
 
             Node2D moveToMap = ResourceLoader.Load<PackedScene>(newScenePath).Instantiate() as Node2D;
             MapSystem mapSystemNode = moveToMap.GetChild(0) as MapSystem;
 
             AudioStream newBgm = mapSystemNode.GetBGM();
             AudioStream oldBgm = oldScene.GetNode<MapSystem>(ConstTerm.MAPSYSTEM).GetBGM();
-
+            
             Fader.Instance.FadeOut();
             BGMPlayer.Instance.TransitionBGM(oldBgm, newBgm);
             await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
@@ -93,8 +96,9 @@ namespace ZAM.System
 
             mapSystemNode.GetPartyManager().SetMemberArrays(playerParty.GetPartyArray(), playerParty.GetReserveArray());
 
+            oldScene.QueueFree();
             GetTree().Root.AddChild(moveToMap);
-            GetTree().Root.RemoveChild(oldScene);
+            // GetTree().Root.RemoveChild(oldScene);
 
             await SaveLoader.Instance.LoadAllData(SaveLoader.Instance.gameSession);
 
@@ -103,8 +107,6 @@ namespace ZAM.System
             Fader.Instance.FadeIn();
             await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
             oldScene.QueueFree();
-
-            mapSystemNode.GetPartyManager().ChangePlayerActive(true);
         }
 
         public Node2D GetSpawnPoint()
