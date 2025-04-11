@@ -1,7 +1,7 @@
 [gd_scene load_steps=21 format=3 uid="uid://bhw8ja7yjcpke"]
 
-[ext_resource type="Script" path="res://Scripts/Controller/MenuController.cs" id="1_a143d"]
-[ext_resource type="Script" path="res://Scripts/MenuUI/InfoMenu.cs" id="1_grjns"]
+[ext_resource type="Script" uid="uid://cnykdd0xex1be" path="res://Scripts/Controller/MenuController.cs" id="1_a143d"]
+[ext_resource type="Script" uid="uid://bne0sov02xoiq" path="res://Scripts/MenuUI/InfoMenu.cs" id="1_grjns"]
 [ext_resource type="PackedScene" uid="uid://eceb5khigg56" path="res://Resources/UI/Menu/member_info.tscn" id="2_ltrr6"]
 [ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Assets/Font/FFVI Regular.ttf" id="3_e64x6"]
 [ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/UI/Menu/button_label.tscn" id="4_nrhpl"]
@@ -11,7 +11,7 @@
 [ext_resource type="AudioStream" uid="uid://1wxokdt8vdkb" path="res://Resources/Audio/Sound/Cancel 2 (Sine).wav" id="6_p0xlc"]
 [ext_resource type="AudioStream" uid="uid://dk3hoq2ssfdns" path="res://Resources/Audio/Sound/Error 1 (Saw).wav" id="7_ljk4x"]
 [ext_resource type="PackedScene" uid="uid://e0e8caop08tx" path="res://Resources/UI/Menu/label_base.tscn" id="10_vbiue"]
-[ext_resource type="Script" path="res://Scripts/MenuUI/EquipInfo.cs" id="10_yka7i"]
+[ext_resource type="Script" uid="uid://b8m0be7g36lp4" path="res://Scripts/MenuUI/EquipInfo.cs" id="10_yka7i"]
 [ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="12_y43uj"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_36ajg"]
@@ -237,9 +237,9 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_phvtk")
 
-[node name="UseList" type="HBoxContainer" parent="UsePanel"]
+[node name="UseList" type="VBoxContainer" parent="UsePanel"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 10
 
 [node name="EquipPanel" type="Panel" parent="." node_paths=PackedStringArray("charPortrait", "charName", "hpValue", "mpValue", "equipLists", "statLists", "changeList", "gearPanel")]
 visible = false

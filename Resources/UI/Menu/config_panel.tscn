@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://cir6rp1i0ptt0"]
 
-[ext_resource type="Script" path="res://Scripts/MenuUI/ConfigInfo.cs" id="1_4ketw"]
-[ext_resource type="Script" path="res://Scripts/Controller/ConfigController.cs" id="1_8fv22"]
+[ext_resource type="Script" uid="uid://bdvdh3rmsx1b6" path="res://Scripts/MenuUI/ConfigInfo.cs" id="1_4ketw"]
+[ext_resource type="Script" uid="uid://dlv1p5otmijo0" path="res://Scripts/Controller/ConfigController.cs" id="1_8fv22"]
 [ext_resource type="PackedScene" uid="uid://e0e8caop08tx" path="res://Resources/UI/Menu/label_base.tscn" id="2_mewfc"]
 [ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/UI/Menu/button_label.tscn" id="3_v1rft"]
 [ext_resource type="PackedScene" uid="uid://b0kme88cwhj4i" path="res://Resources/UI/Menu/config_label.tscn" id="5_jrggd"]

@@ -8,15 +8,13 @@ namespace ZAM.Inventory
 {
     public partial class EquipList : Node
     {
-        [Export] private int numberAccSlots = 2;
-
         [ExportGroup("DefaultGear")]
         [Export] private string defaultMainHand = "";
         [Export] private string defaultOffHand = "";
         [Export] private string[] defaultArmor = [];
         [Export] private string[] defaultAccessories = [];
 
-        private Array<EquipSlot> characterEquipment = [];
+        private Dictionary<GearSlotID, Equipment> characterEquipment = [];
         private Dictionary<string, Equipment> weaponDictionary = [];
         private Dictionary<string, Equipment> armorDictionary = [];
         private Dictionary<string, Equipment> accessoryDictionary = [];
@@ -41,13 +39,14 @@ namespace ZAM.Inventory
 
         private void SetupEquipList()
         {
-            if (characterEquipment.Count != 0) { return; }
-            for (int e = 0; e < Enum.GetNames(typeof(GearSlotID)).Length - 1; e++) {
-                characterEquipment.Add(new EquipSlot((GearSlotID)e, null));
+            characterEquipment = [];
+            foreach (GearSlotID slotId in Enum.GetValues(typeof(GearSlotID))) {
+                characterEquipment[slotId] = null;
             }
-            for (int a = 0; a < numberAccSlots; a++) {
-                characterEquipment.Add(new EquipSlot(GearSlotID.Accessory, null));
-            }
+            // for (int e = 0; e < Enum.GetNames(typeof(GearSlotID)).Length; e++) {
+            //     characterEquipment[(GearSlotID)e] = null;
+            //     GD.Print((GearSlotID)e);
+            // }
             // SetDefaultEquipList();
         }
 
@@ -57,7 +56,7 @@ namespace ZAM.Inventory
                 if (weaponDictionary[defaultMainHand].GearSlot[0] == GearSlotID.UNDEFINED) { GD.PushError(defaultMainHand + " GearSlot undefined!"); }
                 // EquipGear((int)GearSlotID.MainHand, weaponDictionary[defaultMainHand]);
 
-                ItemBag.Instance.AddToBag(defaultMainHand, weaponDictionary[defaultMainHand].ItemType);
+                ItemBag.Instance.AddToBag(defaultMainHand, weaponDictionary[defaultMainHand].ItemType, 1);
             }
 
             if (defaultOffHand != null && defaultOffHand != "") {
@@ -65,7 +64,7 @@ namespace ZAM.Inventory
                     if (weaponDictionary[defaultOffHand].GearSlot[0] == GearSlotID.UNDEFINED) { GD.PushError(defaultOffHand + " GearSlot undefined!"); }
                     // EquipGear((int)GearSlotID.OffHand, weaponDictionary[defaultOffHand]);
 
-                    ItemBag.Instance.AddToBag(defaultOffHand, weaponDictionary[defaultOffHand].ItemType);
+                    ItemBag.Instance.AddToBag(defaultOffHand, weaponDictionary[defaultOffHand].ItemType, 1);
             } else { GD.PushWarning("Default offhand not OffHand equippable"); }
             }
             
@@ -75,23 +74,22 @@ namespace ZAM.Inventory
                     if (defaultArmor[a] == null || defaultArmor[a] == "") { continue; }
                     nextSlot = (int)armorDictionary[defaultArmor[a]].GearSlot[0];
                     if (nextSlot == 0) { GD.PushError(defaultArmor[a] + " GearSlot undefined!"); }
-                    if (characterEquipment[nextSlot].Equip != null) { GD.PushWarning("Multiple default armor set to same slot. Overwriting previous."); }
+                    if (characterEquipment[(GearSlotID)nextSlot] != null) { GD.PushWarning("Multiple default armor set to same slot. Overwriting previous."); }
                     // EquipGear(nextSlot, armorDictionary[defaultArmor[a]]);
 
-                    ItemBag.Instance.AddToBag(defaultArmor[a], armorDictionary[defaultArmor[a]].ItemType);
+                    ItemBag.Instance.AddToBag(defaultArmor[a], armorDictionary[defaultArmor[a]].ItemType, 1);
                 }
             }
 
             if (defaultAccessories.Length > 0) {
                 int nextSlot;
                 for (int a = 0; a < defaultAccessories.Length; a++) {
-                    if (a > numberAccSlots) { GD.PushWarning("Too many default accessories."); return; }
                     if (defaultAccessories[a] == null || defaultAccessories[a] == "") { continue; }
                     nextSlot = (int)accessoryDictionary[defaultAccessories[a]].GearSlot[0];
                     if (nextSlot == 0) { GD.PushError(defaultAccessories[a] + " GearSlot undefined!"); }
                     // EquipGear(nextSlot + a, accessoryDictionary[defaultAccessories[a]]);
 
-                    ItemBag.Instance.AddToBag(defaultAccessories[a], accessoryDictionary[defaultAccessories[a]].ItemType);
+                    ItemBag.Instance.AddToBag(defaultAccessories[a], accessoryDictionary[defaultAccessories[a]].ItemType, 1);
                 }
             }
         }
@@ -99,31 +97,62 @@ namespace ZAM.Inventory
         public void EquipGear(int slotId, Equipment gear)
         {
             // if (!gear.GearSlot.Contains(characterEquipment[slotId].Slot)) { GD.PushWarning("Attempt to equip item to invalid slot!"); return; }
-            if (characterEquipment[slotId].Equip != null) { RemoveGear(slotId); }
+            if (characterEquipment[(GearSlotID)slotId] != null) { RemoveGear(slotId); }
             if (gear == null) { RemoveGear(slotId); return; }
 
-            characterEquipment[slotId].Equip = gear;
-            characterEquipment[slotId].Equip.SetIsEquipped(true);
+            characterEquipment[(GearSlotID)slotId] = gear;
+            characterEquipment[(GearSlotID)slotId].SetIsEquipped(true);
             // ItemBag.Instance.RemoveItemFromBag(gear);
         }
 
         public void RemoveGear(int slotId)
         {
-            if (characterEquipment[slotId].Equip == null) { return; }
+            if (characterEquipment[(GearSlotID)slotId] == null) { return; }
 
-            characterEquipment[slotId].Equip.SetIsEquipped(false);
+            characterEquipment[(GearSlotID)slotId].SetIsEquipped(false);
             // ItemBag.Instance.AddToEquipBag(characterEquipment[slotId].Equip);
-            characterEquipment[slotId].Equip = null;
+            characterEquipment[(GearSlotID)slotId] = null;
         }
 
-        public void SetCharEquipment(Array<EquipSlot> gearList)
+        public void SetCharEquipment(Dictionary<GearSlotID, Equipment> gearList)
         {
             characterEquipment = gearList;
         }
 
-        public Array<EquipSlot> GetCharEquipment()
+        public Dictionary<GearSlotID, Equipment> GetCharEquipment()
         {
             return characterEquipment;
+        }
+
+
+        //=============================================================================
+        // SECTION: Save System
+        //=============================================================================
+
+        public Dictionary<GearSlotID, int> StoreEquipList()
+        {
+            Dictionary<GearSlotID, int> newList = [];
+
+            foreach (GearSlotID data in characterEquipment.Keys) {
+                int bagPos = ItemBag.Instance.GetEquipBag().IndexOf(characterEquipment[data]);
+                newList[data] = bagPos;
+            }
+
+            return newList;
+        }
+
+        public void SetEquipList(Dictionary<GearSlotID, int> list)
+        {
+            SetupEquipList();
+            foreach(GearSlotID data in list.Keys) {
+                int bagPos = list[data];
+                Equipment bagEquip;
+
+                if (bagPos >= 0) { bagEquip = ItemBag.Instance.GetEquipBag()[bagPos]; }
+                else { bagEquip = null; }
+
+                if (bagPos >= 0) { characterEquipment[data] = bagEquip; }
+            }
         }
     }
 }

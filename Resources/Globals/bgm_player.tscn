@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://cp34whgt312um"]
 
-[ext_resource type="Script" path="res://Scripts/Utilities/BGMPlayer.cs" id="1_5fudl"]
+[ext_resource type="Script" uid="uid://b7s531n8ohuco" path="res://Scripts/Utilities/BGMPlayer.cs" id="1_5fudl"]
 
 [sub_resource type="Animation" id="Animation_l6qc8"]
 length = 0.001
@@ -19,7 +19,7 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_vigt5"]
 _data = {
-"RESET": SubResource("Animation_l6qc8")
+&"RESET": SubResource("Animation_l6qc8")
 }
 
 [sub_resource type="Animation" id="Animation_el2vp"]
@@ -40,7 +40,7 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_a38vs"]
 _data = {
-"audio_fade": SubResource("Animation_el2vp")
+&"audio_fade": SubResource("Animation_el2vp")
 }
 
 [node name="BGMPlayer" type="Node" node_paths=PackedStringArray("bgm", "animPlayer") groups=["ConfigData"]]

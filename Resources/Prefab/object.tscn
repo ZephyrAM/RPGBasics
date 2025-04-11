@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://cpoocr0akx3te"]
 
-[ext_resource type="Script" path="res://Scripts/Interactions/Interactable.cs" id="1_b7v3e"]
+[ext_resource type="Script" uid="uid://dmcewya1bqrsm" path="res://Scripts/Interactions/Interactable.cs" id="1_b7v3e"]
 [ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="2_r0dh8"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_xrird"]

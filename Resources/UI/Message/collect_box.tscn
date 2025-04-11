@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://bv0p7bn016keu"]
 
-[ext_resource type="Script" path="res://Scripts/MenuUI/CollectBox.cs" id="1_kpym0"]
+[ext_resource type="Script" uid="uid://gcchhy75w8qm" path="res://Scripts/MenuUI/CollectBox.cs" id="1_kpym0"]
 [ext_resource type="FontFile" uid="uid://lkrdnqy0wajg" path="res://Assets/Font/FFVI Regular.ttf" id="2_vixla"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0tp0h"]
@@ -66,9 +66,9 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ao532"]
 _data = {
-"RESET": SubResource("Animation_hsr66"),
-"fade_in": SubResource("Animation_pnnrd"),
-"fade_out": SubResource("Animation_agktj")
+&"RESET": SubResource("Animation_hsr66"),
+&"fade_in": SubResource("Animation_pnnrd"),
+&"fade_out": SubResource("Animation_agktj")
 }
 
 [node name="CollectBox" type="PanelContainer" node_paths=PackedStringArray("collectLabel", "animPlayer")]

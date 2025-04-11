@@ -28,7 +28,7 @@ text_overrun_behavior = 3
 [node name="Button" parent="." instance=ExtResource("2_ttyb2")]
 layout_mode = 1
 
-[node name="Label" type="Label" parent="."]
+[node name="Equipped" type="Label" parent="."]
 visible = false
 layout_mode = 1
 anchors_preset = 2
@@ -41,7 +41,7 @@ text = "E"
 label_settings = SubResource("LabelSettings_atyd2")
 vertical_alignment = 2
 
-[node name="Label2" type="Label" parent="."]
+[node name="Count" type="Label" parent="."]
 visible = false
 layout_mode = 1
 anchors_preset = 3

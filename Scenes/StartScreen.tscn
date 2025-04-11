@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://cj808d7ymeo4m"]
 
-[ext_resource type="Script" path="res://Scripts/System/StartScreen.cs" id="1_t8hai"]
+[ext_resource type="Script" uid="uid://cyy8cjwxm2uod" path="res://Scripts/System/StartScreen.cs" id="1_t8hai"]
 [ext_resource type="PackedScene" uid="uid://cj0v8mojhj4a7" path="res://Scenes/Maps/Map1.tscn" id="2_owmo2"]
 [ext_resource type="AudioStream" uid="uid://ch53cutswlum8" path="res://Resources/Audio/Music/How Did We Do.ogg" id="3_gj2mp"]
 [ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/UI/Menu/button_label.tscn" id="4_jkq3u"]

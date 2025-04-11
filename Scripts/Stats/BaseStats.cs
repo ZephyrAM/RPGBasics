@@ -161,15 +161,15 @@ namespace ZAM.Stats
             float total = 0;
 
             foreach (EffectState source in battler.GetStateList()) {
-                for (int i = 0; i < source.AddModifier.Length; i++) {
+                for (int i = 0; i < source.AddModifier.Count; i++) {
                     if (source.AddModifier[i].Stat == stat) { total += source.AddModifier[i].Value; }
                 }
             }
 
-            foreach (EquipSlot source in battler.GetEquipList().GetCharEquipment()) {
-                if (source.Equip == null) { continue; }
-                for (int i = 0; i < source.Equip.AddModifier.Length; i++) {
-                    if (source.Equip.AddModifier[i].Stat == stat) { total += source.Equip.AddModifier[i].Value; }
+            foreach (Equipment source in battler.GetEquipList().GetCharEquipment().Values) {
+                if (source == null) { continue; }
+                for (int i = 0; i < source.AddModifier.Count; i++) {
+                    if (source.AddModifier[i].Stat == stat) { total += source.AddModifier[i].Value; }
                 }
             }
             return total;
@@ -181,7 +181,7 @@ namespace ZAM.Stats
             float modifier;
 
             foreach (EffectState source in battler.GetStateList()) {
-                for (int i = 0; i < source.PercentModifier.Length; i++) {
+                for (int i = 0; i < source.PercentModifier.Count; i++) {
                     if (source.PercentModifier[i].Stat == stat) { 
                         modifier = source.PercentModifier[i].Value; 
                         total += modifier;
@@ -189,11 +189,11 @@ namespace ZAM.Stats
                 }
             }
 
-            foreach (EquipSlot source in battler.GetEquipList().GetCharEquipment()) {
-                if (source.Equip == null) { continue; }
-                for (int i = 0; i < source.Equip.PercentModifier.Length; i++) {
-                    if (source.Equip.PercentModifier[i].Stat == stat) {
-                        modifier = source.Equip.PercentModifier[i].Value;
+            foreach (Equipment source in battler.GetEquipList().GetCharEquipment().Values) {
+                if (source == null) { continue; }
+                for (int i = 0; i < source.PercentModifier.Count; i++) {
+                    if (source.PercentModifier[i].Stat == stat) {
+                        modifier = source.PercentModifier[i].Value;
                         total += modifier;
                     }
                 }

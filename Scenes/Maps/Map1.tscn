@@ -1,20 +1,21 @@
-[gd_scene load_steps=28 format=4 uid="uid://cj0v8mojhj4a7"]
+[gd_scene load_steps=29 format=4 uid="uid://cj0v8mojhj4a7"]
 
-[ext_resource type="Script" path="res://Scripts/System/MapSystem.cs" id="1_0i5bc"]
+[ext_resource type="Script" uid="uid://h7a2i3bvldf3" path="res://Scripts/System/MapSystem.cs" id="1_0i5bc"]
 [ext_resource type="PackedScene" uid="uid://chutyx7868wr6" path="res://Scenes/BattleScene.tscn" id="2_kbl8o"]
-[ext_resource type="Script" path="res://Scripts/MapEvents/Map1.cs" id="4_ia6gl"]
+[ext_resource type="Script" uid="uid://6qlbh47fq67s" path="res://Scripts/MapEvents/Map1.cs" id="4_ia6gl"]
+[ext_resource type="PackedScene" uid="uid://entel812wgun" path="res://Resources/UI/Menu/menu_use_button.tscn" id="4_itk0w"]
 [ext_resource type="AudioStream" uid="uid://dtekp26qwe68u" path="res://Resources/Audio/Music/A Little R & R.ogg" id="5_0hilf"]
 [ext_resource type="PhysicsMaterial" uid="uid://ivvfw5mov3ah" path="res://Resources/UI/Styles/no_friction_material.tres" id="7_dyhpv"]
 [ext_resource type="Texture2D" uid="uid://d00plp23y0m1k" path="res://Assets/Graphics/Tilesets/terrain.png" id="8_70ld1"]
 [ext_resource type="TileSet" uid="uid://8w563qvd783e" path="res://Assets/Graphics/Tilesets/terrain_tileset.tres" id="10_ckmcj"]
 [ext_resource type="PackedScene" uid="uid://c34w24y88bml6" path="res://Resources/UI/Nodes/transition.tscn" id="10_mirxo"]
-[ext_resource type="Script" path="res://Scripts/Managers/PartyManager.cs" id="12_wsyri"]
-[ext_resource type="Script" path="res://Scripts/System/EncounterArea.cs" id="13_enujo"]
+[ext_resource type="Script" uid="uid://csl0yuaxa1tre" path="res://Scripts/Managers/PartyManager.cs" id="12_wsyri"]
+[ext_resource type="Script" uid="uid://blw0m3p2vvjfj" path="res://Scripts/System/EncounterArea.cs" id="13_enujo"]
 [ext_resource type="PackedScene" uid="uid://bjoehnkxwngcu" path="res://Resources/Prefab/Players/player_1.tscn" id="13_m0t7d"]
 [ext_resource type="PackedScene" uid="uid://csacs6oelr813" path="res://Resources/Prefab/Enemies/Groups/enemy_team_1.tscn" id="14_r0cwx"]
 [ext_resource type="PackedScene" uid="uid://bm6r0ypkntj5r" path="res://Resources/Prefab/Players/player_2.tscn" id="14_w08uj"]
 [ext_resource type="PackedScene" uid="uid://uqsv1w0qe8uc" path="res://Resources/Prefab/npc_character.tscn" id="15_2nx0r"]
-[ext_resource type="Script" path="res://Scripts/Controller/CharacterController.cs" id="15_yuk0r"]
+[ext_resource type="Script" uid="uid://buxuafkf3lpdy" path="res://Scripts/Controller/CharacterController.cs" id="15_yuk0r"]
 [ext_resource type="PackedScene" uid="uid://dk8vtbbsa1io8" path="res://Resources/UI/Layers/interaction_layer.tscn" id="16_uwsn8"]
 [ext_resource type="PackedScene" uid="uid://bhw8ja7yjcpke" path="res://Resources/UI/Layers/party_menu.tscn" id="17_c8uvi"]
 [ext_resource type="PackedScene" uid="uid://bgs4oxmd0rgyx" path="res://Resources/UI/Layers/pause_menu.tscn" id="19_i7x2r"]
@@ -992,11 +993,12 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_6aqoq"]
 _data = {
-"RESET": SubResource("Animation_jjokv"),
-"light_pulse": SubResource("Animation_cmgai")
+&"RESET": SubResource("Animation_jjokv"),
+&"light_pulse": SubResource("Animation_cmgai")
 }
 
 [node name="SceneBase" type="Node2D"]
+y_sort_enabled = true
 
 [node name="MapSystem" type="Node2D" parent="." node_paths=PackedStringArray("playerParty", "menuInput", "uiLayer", "transit", "battleAreas") groups=["SystemData"]]
 y_sort_enabled = true
@@ -1009,13 +1011,14 @@ uiLayer = NodePath("CanvasLayer")
 transit = NodePath("Transitions")
 battleScene = ExtResource("2_kbl8o")
 battleAreas = [NodePath("Environment/Area2D")]
+menuUseButton = ExtResource("4_itk0w")
 eventScript = ExtResource("4_ia6gl")
 
 [node name="PartyManager" type="Node2D" parent="MapSystem" groups=["PartyData"]]
 y_sort_enabled = true
 position = Vector2(-383, -46)
 script = ExtResource("12_wsyri")
-partyMembers = [ExtResource("13_m0t7d"), ExtResource("14_w08uj")]
+partyMembers = Array[PackedScene]([ExtResource("13_m0t7d"), ExtResource("14_w08uj")])
 playerController = ExtResource("15_yuk0r")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="MapSystem"]
@@ -1066,7 +1069,7 @@ input_pickable = false
 monitorable = false
 script = ExtResource("13_enujo")
 playerParty = NodePath("../../PartyManager")
-enemyGroups = [ExtResource("14_r0cwx")]
+enemyGroups = Array[PackedScene]([ExtResource("14_r0cwx")])
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MapSystem/Environment/Area2D"]
 position = Vector2(150, 95)
@@ -1085,7 +1088,7 @@ height = 30.0
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="MapSystem/Environment/CanvasModulate/PointLight2D"]
 libraries = {
-"": SubResource("AnimationLibrary_6aqoq")
+&"": SubResource("AnimationLibrary_6aqoq")
 }
 
 [node name="PointLight2D2" type="PointLight2D" parent="MapSystem/Environment/CanvasModulate"]
@@ -1107,9 +1110,9 @@ y_sort_enabled = true
 
 [node name="Interactable0" parent="MapSystem/Events" instance=ExtResource("15_2nx0r")]
 position = Vector2(224, 207)
-actionType = [0, 0, 1, 0, 0, 2]
+actionType = Array[int]([0, 0, 1, 0, 0, 2])
 choicesGiven = PackedInt32Array(2)
-choiceText = {
+choiceText = Dictionary[String, String]({
 "Choice2A": "Yes",
 "Choice2B": "No",
 "Item5": "Potion",
@@ -1118,7 +1121,7 @@ choiceText = {
 "Text2A": "Well then, welcome, friend!",
 "Text2B": "No, really? Huh, must be getting forgetful.",
 "Text4": "Enjoy a potion, on me!"
-}
+})
 
 [node name="Event0" parent="MapSystem/Events" node_paths=PackedStringArray("movePositions") instance=ExtResource("15_2nx0r")]
 position = Vector2(-401, 253)

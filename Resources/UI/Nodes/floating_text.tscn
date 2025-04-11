@@ -33,7 +33,7 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xqovg"]
 _data = {
-"fade_up": SubResource("Animation_fkhcr")
+&"fade_up": SubResource("Animation_fkhcr")
 }
 
 [node name="FloatingText" type="Node2D"]

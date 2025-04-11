@@ -126,6 +126,7 @@ namespace ZAM.Controller
                     break;
                 case 2:
                     EmitSignal(SignalName.onSaveMenu);
+                    CommandSelect(0, ConstTerm.VERT);
                     break;
                 case 3:
                     EmitSignal(SignalName.onLoadMenu);

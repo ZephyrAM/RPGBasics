@@ -1,15 +1,15 @@
+using System.Linq;
 using Godot;
 using Godot.Collections;
 
 using ZAM.Managers;
-using ZAM.Stats;
 
 namespace ZAM.Inventory
 {
     // Global Object \\
     public partial class ItemBag : Node
     {
-        private Array<Item> itemBag = [];
+        private Dictionary<Item, int> itemBag = [];
         private Array<Equipment> equipBag = [];
 
         private Dictionary<string, Item> itemDatabase = [];
@@ -41,37 +41,49 @@ namespace ZAM.Inventory
         // SECTION: List Methods
         //=============================================================================
 
-        public void AddToBag(string newItem, ItemType type)
+        public void AddToBag(string newItem, ItemType type, int count) // For adding newly gained/created items to bags.
         {
             Item addItem;
 
-            switch (type)
+            for (int i = 0; i < count; i++) 
             {
-                case ItemType.Item:
-                    addItem = itemDatabase[newItem].Duplicate() as Item;
-                    AddToItemBag(addItem);
-                    break;
-                case ItemType.Weapon:
-                    addItem = weaponDatabase[newItem].Duplicate() as Equipment;
-                    AddToEquipBag((Equipment)addItem);
-                    break;
-                case ItemType.Armor:
-                    addItem = armorDatabase[newItem].Duplicate() as Equipment;
-                    AddToEquipBag((Equipment)addItem);
-                    break;
-                case ItemType.Accessory:
-                    addItem = accessoryDatabase[newItem].Duplicate() as Equipment;
-                    AddToEquipBag((Equipment)addItem);
-                    break;
-                default:
-                    GD.PushError("Invalid ItemType in AddToBag");
-                    return;
+                switch (type)
+                {
+                    case ItemType.Item:
+                        // addItem = itemDatabase[newItem].Duplicate() as Item;
+                        AddToItemBag(itemDatabase[newItem], 1);
+                        break;
+                    case ItemType.Weapon:
+                        addItem = weaponDatabase[newItem].Duplicate() as Equipment;
+                        AddToEquipBag((Equipment)addItem);
+                        break;
+                    case ItemType.Armor:
+                        addItem = armorDatabase[newItem].Duplicate() as Equipment;
+                        AddToEquipBag((Equipment)addItem);
+                        break;
+                    case ItemType.Accessory:
+                        addItem = accessoryDatabase[newItem].Duplicate() as Equipment;
+                        AddToEquipBag((Equipment)addItem);
+                        break;
+                    default:
+                        GD.PushError("Invalid ItemType in AddToBag");
+                        return;
+                }
             }
         }
 
-        public void AddToItemBag(Item newItem)
+        public void AddToItemBag(Item newItem, int count) // For shifting existing items between bags. Possibly over engineered.
         {
-            itemBag.Add(newItem);
+            if (newItem.CanStack) {
+                if (itemBag.TryGetValue(newItem, out int value)) { itemBag[newItem] = value + count; } 
+                else { 
+                    for (int i = 0; i < count; i++) {
+                        itemBag.Add(newItem, 1);
+                    } 
+                }
+            } else {
+                itemBag.Add(newItem.Duplicate() as Item, 1);
+            }
         }
 
         public void AddToEquipBag(Equipment newEquip)
@@ -82,7 +94,8 @@ namespace ZAM.Inventory
         public void RemoveItemFromBag(Item instance)
         {
             // Item removeItem = itemBag[index];
-            itemBag.Remove(instance);
+            if (itemBag[instance] > 1) { itemBag[instance]--; } 
+            else { itemBag.Remove(instance); }
         }
 
         public void RemoveEquipFromBag(Equipment instance)
@@ -90,14 +103,35 @@ namespace ZAM.Inventory
             equipBag.Remove(instance);
         }
 
-        public Array<Item> GetItemBag()
+        public Dictionary<Item, int> GetItemBag()
         {
             return itemBag;
+        }
+
+        public Item GetItemFromBag(int id)
+        {
+            Item getItem = null;
+            foreach (Item item in itemBag.Keys) {
+                if (item.UniqueID == id) { getItem = item; break; }
+            }
+
+            if (getItem == null) { GD.PushError("ItemSearch not found"!); }
+            return getItem;
         }
 
         public Array<Equipment> GetEquipBag()
         {
             return equipBag;
+        }
+
+        public int FullItemCount()
+        {
+            return itemBag.Count + equipBag.Count;
+        }
+
+        public void SortItemBag()
+        {
+            itemBag = (Dictionary<Item, int>)itemBag.OrderBy(i => i.Key.ItemName);
         }
 
         public void SortEquipBag()
@@ -122,7 +156,10 @@ namespace ZAM.Inventory
                     case GearSlotID.Chest:
                         tempChest.Add(equip);
                         break;
-                    case GearSlotID.Accessory:
+                    case GearSlotID.Accessory1:
+                        tempAccessory.Add(equip);
+                        break;
+                    case GearSlotID.Accessory2:
                         tempAccessory.Add(equip);
                         break;
                     default:
@@ -172,12 +209,77 @@ namespace ZAM.Inventory
         // SECTION: Save System
         //=============================================================================
 
+        public Array<ItemData> StoreItemBag()
+        {
+            Array<ItemData> newList = [];
+
+            foreach (Item data in itemBag.Keys) {
+                ItemData newItem = new();
+
+                data.SetDataDetails(ref newItem);
+                data.SetDataMechanics(ref newItem);
+                data.SetDataRestrictions(ref newItem);
+                newItem.Amount = itemBag[data];
+
+                newList.Add(newItem);
+            }
+            return newList;
+        }
+
+        public Array<EquipmentData> StoreEquipBag()
+        {
+            Array<EquipmentData> newList = [];
+
+            foreach (Equipment data in equipBag) {
+                EquipmentData newEquip = new();
+
+                data.SetDataDetails(ref newEquip);
+                data.SetDataStats(ref newEquip);
+                data.SetDataMechanics(ref newEquip);
+                data.SetDataRestrictions(ref newEquip);
+
+                newList.Add(newEquip);
+            }
+            return newList;
+        }
+
+        public void SetItemBag(Array<ItemData> list)
+        {
+            itemBag = [];
+            foreach(ItemData data in list) {
+                Item newItem = new();
+                newItem.SetDetails(data.ItemType, data.ItemName, data.ItemDescription, data.TargetType, data.TargetArea, data.NumericValue, data.UniqueID);
+                newItem.SetStateDetails(data.AddedState.StateName, data.AddedState.StateDescription, data.AddedState.UniqueID);
+                newItem.SetMechanics(data.DamageType, data.CallAnimation, data.AddedState.AddModifier, data.AddedState.PercentModifier);
+                newItem.SetRestrictions(data.UseableInBattle, data.UseableOutOfBattle, data.UseableOnDead, data.CanStack, data.IsConsumable, data.AddedState.ExistsOutOfBattle);
+
+                itemBag[newItem] = data.Amount;
+            }
+        }
+
+        public void SetEquipBag(Array<EquipmentData> list)
+        {
+            equipBag = [];
+            foreach (EquipmentData data in list) {
+                Equipment newEquip = new();
+                newEquip.SetDetails(data.ItemType, data.ItemName, data.ItemDescription, data.TargetType, data.TargetArea, data.NumericValue, data.UniqueID);
+                newEquip.SetEquipDetails(data.GearSlot);
+                newEquip.SetStateDetails(data.AddedState.StateName, data.AddedState.StateDescription, data.AddedState.UniqueID);
+                newEquip.SetEquipStats(data.AddModifier, data.PercentModifier);
+                newEquip.SetMechanics(data.DamageType, data.CallAnimation, data.AddedState.AddModifier, data.AddedState.PercentModifier);
+                newEquip.SetRestrictions(data.UseableInBattle, data.UseableOutOfBattle, data.UseableOnDead, data.CanStack, data.IsConsumable, data.AddedState.ExistsOutOfBattle);
+                newEquip.SetEquipRestrictions(data.ClassEquip, data.UniqueEquip);
+
+                equipBag.Add(newEquip);
+            }
+        }
+
         public void OnSaveGame(SavedGame saveData)
         {
             InventoryData newData = new()
             {
-                ItemBag = Instance.GetItemBag(),
-                EquipBag = Instance.GetEquipBag()
+                ItemBag = StoreItemBag(),
+                EquipBag = StoreEquipBag()
             };
 
             saveData.InventoryData = newData;
@@ -188,8 +290,8 @@ namespace ZAM.Inventory
             InventoryData saveData = loadData;
             if (saveData == null) { GD.Print("Inventory Data - NULL"); return; }
 
-            Instance.itemBag = saveData.ItemBag;
-            Instance.equipBag = saveData.EquipBag;
+            SetItemBag(saveData.ItemBag);
+            SetEquipBag(saveData.EquipBag);
         }
     }
 }

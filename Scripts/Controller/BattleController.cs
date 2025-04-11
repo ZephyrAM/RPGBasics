@@ -276,7 +276,6 @@ namespace ZAM.Controller
             SetInputPhase(ConstTerm.SKILL + ConstTerm.USE);
             EmitSignal(SignalName.onAbilitySelect, currentCommand);
             SetNewCommand();
-            // EmitSignal(SignalName.onAbilitySelect, currentCommand);
         }
 
         private void SkillUsePhase(InputEvent @event) // inputPhase == ConstTerm.SKILL_USE;
@@ -291,8 +290,8 @@ namespace ZAM.Controller
         {
             if (!AcceptInput()) { return; }
             SetControlActive(false);
-            SkillOption(currentCommand);
-            currentCommand = 0;
+            // SkillOption(currentCommand);
+            EmitSignal(SignalName.onAbilityUse, currentCommand);
         }
 
         private void ItemSelectPhase(InputEvent @event) // inputPhase == ConstTerm.ITEM_SELECT
@@ -325,8 +324,8 @@ namespace ZAM.Controller
         {
             if (!AcceptInput()) { return; }
             SetControlActive(false);
-            ItemOption(currentCommand);
-            currentCommand = 0;
+            // ItemOption(currentCommand);
+            EmitSignal(SignalName.onItemUse, currentCommand);
         }
 
         public void BattlerClick()
@@ -451,6 +450,11 @@ namespace ZAM.Controller
             SetTargetTeam(ConstTerm.ENEMY);
         }
 
+        public void ResetPhaseList()
+        {
+            previousPhase = [];
+        }
+
 
         //=============================================================================
         // SECTION: Command Options
@@ -520,26 +524,26 @@ namespace ZAM.Controller
             // EmitSignal(SignalName.onTurnEnd);
         }
 
-        private void SkillOption(int option)
-        {
-            EmitSignal(SignalName.onAbilityUse, option);
+        // private void SkillOption(int option)
+        // {
+        //     EmitSignal(SignalName.onAbilityUse, option);
 
-            // inputPhase = ConstTerm.WAIT;
-            // currentCommand = 0;
+        //     // inputPhase = ConstTerm.WAIT;
+        //     // currentCommand = 0;
 
-            // playerAnim.Queue(ConstTerm.ANIM_CAST);
-            // await ToSignal(playerAnim, ConstTerm.ANIM_FINISHED);
+        //     // playerAnim.Queue(ConstTerm.ANIM_CAST);
+        //     // await ToSignal(playerAnim, ConstTerm.ANIM_FINISHED);
 
-            // EmitSignal(SignalName.onTurnEnd);
-        }
+        //     // EmitSignal(SignalName.onTurnEnd);
+        // }
 
-        private void ItemOption(int option)
-        {
-            EmitSignal(SignalName.onItemUse, option);
+        // private void ItemOption(int option)
+        // {
+        //     EmitSignal(SignalName.onItemUse, option);
 
-            // inputPhase = ConstTerm.WAIT;
-            // currentCommand = 0;
-        }
+        //     // inputPhase = ConstTerm.WAIT;
+        //     // currentCommand = 0;
+        // }
 
 
         //=============================================================================

@@ -93,6 +93,9 @@ public class ConstTerm
     //=============================================================================
     public const string PERCENT_VISIBLE = "visible_ratio";
     public const string COLUMNS = "columns";
+    public const string COLLIDER_ID = "collider_id";
+
+    public const string UNIQUE_ID = "UniqueID";
 
 
     //=============================================================================
@@ -212,11 +215,14 @@ public class ConstTerm
 
     public const string CONTROLLER = "Controller";
     public const string EMPTY = "-Empty-";
+    public const string COUNT = "Count";
+    public const string EQUIPPED = "Equipped";
 
 
     //=============================================================================
     // SECTION: Node Names
     //=============================================================================
+    public const string CANVAS_ITEM = "CanvasItem";
     public const string LABEL = "Label";
     public const string BUTTON = "Button";
     public const string MARGIN_CONTAINER = "MarginContainer";

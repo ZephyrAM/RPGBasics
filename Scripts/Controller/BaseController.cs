@@ -114,6 +114,7 @@ namespace ZAM.Controller
             }
         }
 
+
         //=============================================================================
         // SECTION: Selection Handling
         //=============================================================================
@@ -130,8 +131,15 @@ namespace ZAM.Controller
         {
             previousCommand.Add(currentCommand);
             currentCommand = 0;
-
+            
             activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+        }
+
+        protected virtual void ResetCommandPhase()
+        {
+            currentCommand = 0;
+            previousCommand = [];
+            previousPhase = [];
         }
 
         protected virtual void CancelCycle() // EDIT: Might not work through inheritance
@@ -213,6 +221,11 @@ namespace ZAM.Controller
         public int GetCommand()
         {
             return currentCommand;
+        }
+
+        public int GetPrevCommand()
+        {
+            return previousCommand[^1];
         }
 
         public int GetNumColumn()

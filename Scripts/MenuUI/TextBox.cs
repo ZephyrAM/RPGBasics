@@ -21,13 +21,7 @@ namespace ZAM.MenuUI
         private Tween textTween = null;
         // private List<string> textQueue = [];        
 
-        private enum State {
-            READY,
-            ACTIVE,
-            FINISHED
-        };
-
-        private State currentState = State.READY;
+        private StateType currentState = StateType.READY;
 
         //=============================================================================
         // SECTION: OnReady Methods
@@ -85,26 +79,26 @@ namespace ZAM.MenuUI
             
             ShowTextBox();
 
-            ChangeState(State.ACTIVE);
+            ChangeState(StateType.ACTIVE);
             textTween = CreateTween();
             textTween.TweenProperty(textLabel, ConstTerm.PERCENT_VISIBLE, 1, textLabel.Text.Length / textRate).SetTrans(Tween.TransitionType.Linear);
 
             await ToSignal(textTween, ConstTerm.FINISHED_SIGNAL);
-            ChangeState(State.FINISHED);
+            ChangeState(StateType.FINISHED);
         }
 
-        private void ChangeState(State nextState)
+        private void ChangeState(StateType nextState)
         {
             currentState = nextState;
             switch (currentState)
             {
-                case State.READY:
+                case StateType.READY:
                     // GD.Print("Ready");
                     break;
-                case State.ACTIVE:
+                case StateType.ACTIVE:
                     // GD.Print("Active");
                     break;
-                case State.FINISHED:
+                case StateType.FINISHED:
                     endLabel.Text = "_";
                     break;
             }

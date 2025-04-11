@@ -1,0 +1,309 @@
+[gd_resource type="Resource" load_steps=33 format=3]
+
+[ext_resource type="Script" path="res://Scripts/SaveLoad/BattlerData.cs" id="1_hn71x"]
+[ext_resource type="Script" path="res://Scripts/SaveLoad/AbilityData.cs" id="2_3v858"]
+[ext_resource type="Script" path="res://Scripts/SaveLoad/EquipmentData.cs" id="3_dprlo"]
+[ext_resource type="Script" path="res://Scripts/Abilities/Modifier.cs" id="4_gwx8n"]
+[ext_resource type="Script" path="res://Scripts/SaveLoad/EffectStateData.cs" id="5_odnb5"]
+[ext_resource type="Script" path="res://Scripts/SaveLoad/ItemData.cs" id="6_c0jse"]
+[ext_resource type="Script" path="res://Scripts/SaveLoad/InventoryData.cs" id="7_nllru"]
+[ext_resource type="PackedScene" path="res://Resources/Prefab/Players/player_1.tscn" id="8_13sxx"]
+[ext_resource type="PackedScene" path="res://Resources/Prefab/Players/player_2.tscn" id="9_xrh7v"]
+[ext_resource type="Script" path="res://Scripts/SaveLoad/PartyData.cs" id="10_2pw75"]
+[ext_resource type="Script" path="res://Scripts/SaveLoad/SystemData.cs" id="11_m1xr7"]
+[ext_resource type="Script" path="res://Scripts/SaveLoad/SavedGame.cs" id="12_qsn4b"]
+
+[sub_resource type="Resource" id="Resource_hn71x"]
+script = ExtResource("2_3v858")
+AbilityName = "Fire"
+AbilityDescription = "Blasts one enemy with fire."
+TargetType = "Enemy"
+TargetArea = "Single"
+NumericValue = 30.0
+CostValue = 5.0
+DamageType = "Magical"
+CallAnimation = "battle_anim/spell_cast"
+UseableInBattle = true
+UseableOutOfBattle = false
+UseableOnDead = false
+UniqueID = 2
+
+[sub_resource type="Resource" id="Resource_3v858"]
+script = ExtResource("2_3v858")
+AbilityName = "Fire Wave"
+AbilityDescription = "Covers the field in damaging fire."
+TargetType = "Enemy"
+TargetArea = "Group"
+NumericValue = 15.0
+CostValue = 15.0
+DamageType = "Magical"
+CallAnimation = "battle_anim/spell_cast"
+UseableInBattle = true
+UseableOutOfBattle = false
+UseableOnDead = false
+UniqueID = 3
+
+[sub_resource type="Resource" id="Resource_dprlo"]
+script = ExtResource("1_hn71x")
+CharID = 0
+CurrentHP = 100.0
+CurrentMP = 50.0
+StatValues = PackedFloat32Array(40, 10, 30, 25, 10)
+CurrentExp = 0.0
+CurrentLevel = 1
+SkillList = Array[ExtResource("2_3v858")]([SubResource("Resource_hn71x"), SubResource("Resource_3v858")])
+EquipList = Dictionary[int, int]({
+0: -1,
+1: 0,
+2: -1,
+3: -1,
+4: -1,
+5: -1,
+6: -1
+})
+
+[sub_resource type="Resource" id="Resource_gwx8n"]
+script = ExtResource("2_3v858")
+AbilityName = "Heal"
+AbilityDescription = "Restore life to an ally."
+TargetType = "Ally"
+TargetArea = "Single"
+NumericValue = 30.0
+CostValue = 5.0
+DamageType = "Healing"
+CallAnimation = "battle_anim/heal"
+UseableInBattle = true
+UseableOutOfBattle = true
+UseableOnDead = false
+UniqueID = 4
+
+[sub_resource type="Resource" id="Resource_odnb5"]
+script = ExtResource("2_3v858")
+AbilityName = "Heal All"
+AbilityDescription = "Recover health for full party."
+TargetType = "Ally"
+TargetArea = "Group"
+NumericValue = 20.0
+CostValue = 15.0
+DamageType = "Healing"
+CallAnimation = "battle_anim/heal"
+UseableInBattle = true
+UseableOutOfBattle = true
+UseableOnDead = false
+UniqueID = 5
+
+[sub_resource type="Resource" id="Resource_c0jse"]
+script = ExtResource("1_hn71x")
+CharID = 0
+CurrentHP = 100.0
+CurrentMP = 70.0
+StatValues = PackedFloat32Array(30, 10, 50, 35, 12)
+CurrentExp = 0.0
+CurrentLevel = 1
+SkillList = Array[ExtResource("2_3v858")]([SubResource("Resource_gwx8n"), SubResource("Resource_odnb5")])
+EquipList = Dictionary[int, int]({
+0: -1,
+1: -1,
+2: -1,
+3: -1,
+4: -1,
+5: -1,
+6: 3
+})
+
+[sub_resource type="Resource" id="Resource_drslc"]
+script = ExtResource("4_gwx8n")
+Stat = 1
+Value = 2.0
+
+[sub_resource type="Resource" id="Resource_nllru"]
+script = ExtResource("5_odnb5")
+StateName = ""
+StateDescription = ""
+AddModifier = null
+PercentModifier = null
+ExistsOutOfBattle = false
+
+[sub_resource type="Resource" id="Resource_13sxx"]
+script = ExtResource("3_dprlo")
+GearSlot = Array[int]([1, 2])
+isEquipped = false
+AddModifier = Array[ExtResource("4_gwx8n")]([SubResource("Resource_drslc")])
+PercentModifier = Array[ExtResource("4_gwx8n")]([])
+ClassEquip = Array[int]([1])
+UniqueEquip = 0
+ItemType = 2
+ItemName = "Sword"
+ItemDescription = "Basic weapon."
+TargetType = ""
+TargetArea = ""
+NumericValue = 0.0
+DamageType = ""
+CallAnimation = ""
+AddedState = SubResource("Resource_nllru")
+UseableInBattle = false
+UseableOutOfBattle = false
+UseableOnDead = false
+CanStack = false
+IsConsumable = true
+UniqueID = 0
+Amount = 0
+
+[sub_resource type="Resource" id="Resource_xrh7v"]
+script = ExtResource("5_odnb5")
+StateName = ""
+StateDescription = ""
+AddModifier = null
+PercentModifier = null
+ExistsOutOfBattle = false
+
+[sub_resource type="Resource" id="Resource_2pw75"]
+script = ExtResource("3_dprlo")
+GearSlot = Array[int]([3])
+isEquipped = false
+AddModifier = Array[ExtResource("4_gwx8n")]([])
+PercentModifier = Array[ExtResource("4_gwx8n")]([])
+ClassEquip = Array[int]([1])
+UniqueEquip = 0
+ItemType = 3
+ItemName = "Helmet"
+ItemDescription = "Metal headgear."
+TargetType = ""
+TargetArea = ""
+NumericValue = 0.0
+DamageType = ""
+CallAnimation = ""
+AddedState = SubResource("Resource_xrh7v")
+UseableInBattle = false
+UseableOutOfBattle = false
+UseableOnDead = false
+CanStack = false
+IsConsumable = true
+UniqueID = 0
+Amount = 0
+
+[sub_resource type="Resource" id="Resource_m1xr7"]
+script = ExtResource("5_odnb5")
+StateName = ""
+StateDescription = ""
+AddModifier = null
+PercentModifier = null
+ExistsOutOfBattle = false
+
+[sub_resource type="Resource" id="Resource_qsn4b"]
+script = ExtResource("3_dprlo")
+GearSlot = Array[int]([4])
+isEquipped = false
+AddModifier = Array[ExtResource("4_gwx8n")]([])
+PercentModifier = Array[ExtResource("4_gwx8n")]([])
+ClassEquip = Array[int]([1])
+UniqueEquip = 0
+ItemType = 3
+ItemName = "Breastplate"
+ItemDescription = "Metal chest armor."
+TargetType = ""
+TargetArea = ""
+NumericValue = 0.0
+DamageType = ""
+CallAnimation = ""
+AddedState = SubResource("Resource_m1xr7")
+UseableInBattle = false
+UseableOutOfBattle = false
+UseableOnDead = false
+CanStack = false
+IsConsumable = true
+UniqueID = 0
+Amount = 0
+
+[sub_resource type="Resource" id="Resource_e5w5y"]
+script = ExtResource("5_odnb5")
+StateName = ""
+StateDescription = ""
+AddModifier = null
+PercentModifier = null
+ExistsOutOfBattle = false
+
+[sub_resource type="Resource" id="Resource_ynogo"]
+script = ExtResource("3_dprlo")
+GearSlot = Array[int]([5, 6])
+isEquipped = false
+AddModifier = Array[ExtResource("4_gwx8n")]([])
+PercentModifier = Array[ExtResource("4_gwx8n")]([])
+ClassEquip = Array[int]([0])
+UniqueEquip = 0
+ItemType = 4
+ItemName = "Ring"
+ItemDescription = "A simple ring."
+TargetType = ""
+TargetArea = ""
+NumericValue = 0.0
+DamageType = ""
+CallAnimation = ""
+AddedState = SubResource("Resource_e5w5y")
+UseableInBattle = false
+UseableOutOfBattle = false
+UseableOnDead = false
+CanStack = false
+IsConsumable = true
+UniqueID = 0
+Amount = 0
+
+[sub_resource type="Resource" id="Resource_mhx46"]
+script = ExtResource("5_odnb5")
+StateName = ""
+StateDescription = ""
+AddModifier = null
+PercentModifier = null
+ExistsOutOfBattle = false
+
+[sub_resource type="Resource" id="Resource_442nh"]
+script = ExtResource("3_dprlo")
+GearSlot = Array[int]([5, 6])
+isEquipped = false
+AddModifier = Array[ExtResource("4_gwx8n")]([])
+PercentModifier = Array[ExtResource("4_gwx8n")]([])
+ClassEquip = Array[int]([0])
+UniqueEquip = 0
+ItemType = 4
+ItemName = "Ring"
+ItemDescription = "A simple ring."
+TargetType = ""
+TargetArea = ""
+NumericValue = 0.0
+DamageType = ""
+CallAnimation = ""
+AddedState = SubResource("Resource_mhx46")
+UseableInBattle = false
+UseableOutOfBattle = false
+UseableOnDead = false
+CanStack = false
+IsConsumable = true
+UniqueID = 0
+Amount = 0
+
+[sub_resource type="Resource" id="Resource_ormnu"]
+script = ExtResource("7_nllru")
+ItemBag = Array[ExtResource("6_c0jse")]([])
+EquipBag = Array[ExtResource("3_dprlo")]([SubResource("Resource_13sxx"), SubResource("Resource_2pw75"), SubResource("Resource_qsn4b"), SubResource("Resource_ynogo"), SubResource("Resource_442nh")])
+
+[sub_resource type="Resource" id="Resource_kc2ac"]
+script = ExtResource("10_2pw75")
+PartyMembers = Array[PackedScene]([ExtResource("8_13sxx"), ExtResource("9_xrh7v")])
+ReserveMembers = Array[PackedScene]([])
+MapPosition = Vector2(-282.003, 194.997)
+FaceDirection = Vector2(1, 0)
+TotalGold = 0
+
+[sub_resource type="Resource" id="Resource_2xrpd"]
+script = ExtResource("11_m1xr7")
+SceneName = "Map1"
+
+[resource]
+script = ExtResource("12_qsn4b")
+CharData = Dictionary[int, ExtResource("1_hn71x")]({
+1: SubResource("Resource_dprlo"),
+2: SubResource("Resource_c0jse")
+})
+PartyData = SubResource("Resource_kc2ac")
+SystemData = SubResource("Resource_2xrpd")
+InventoryData = SubResource("Resource_ormnu")

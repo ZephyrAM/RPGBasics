@@ -63,17 +63,17 @@ namespace ZAM.MenuUI
             charName.Text = name;
         }
 
-        public void SetEquipValues(Array<EquipSlot> charEquipment)
+        public void SetEquipValues(Dictionary<GearSlotID, Equipment> charEquipment)
         {
             slotList = [];
             for (int v = 0; v < equipValues.GetChildCount(); v++) {
-                if (charEquipment[v + 1].Equip == null) {
+                if (charEquipment[(GearSlotID)v + 1] == null) {
                     equipValues.GetChild<Label>(v).Text = ConstTerm.EMPTY;
                 } else {
-                    equipValues.GetChild<Label>(v).Text = charEquipment[v + 1].Equip.ItemName; 
+                    equipValues.GetChild<Label>(v).Text = charEquipment[(GearSlotID)v + 1].ItemName; 
                 }
 
-                slotList.Add(charEquipment[v + 1].Slot);
+                slotList.Add((GearSlotID)v + 1);
             }
         }
 

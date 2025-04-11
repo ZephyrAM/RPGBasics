@@ -2,15 +2,15 @@
 
 [ext_resource type="AnimationLibrary" uid="uid://djlnn8cs542vh" path="res://Resources/Animations/battle_anim.res" id="1_obl04"]
 [ext_resource type="PackedScene" uid="uid://g7e8x0srwjid" path="res://Resources/UI/Nodes/health_display.tscn" id="1_q22yd"]
-[ext_resource type="Script" path="res://Scripts/Stats/Battler.cs" id="1_s2dv8"]
-[ext_resource type="Script" path="res://Scripts/Stats/Health.cs" id="1_x77f6"]
+[ext_resource type="Script" uid="uid://k0j1rqd50rlm" path="res://Scripts/Stats/Battler.cs" id="1_s2dv8"]
+[ext_resource type="Script" uid="uid://vo10rq3b8niy" path="res://Scripts/Stats/Health.cs" id="1_x77f6"]
 [ext_resource type="AnimationLibrary" uid="uid://c6lee7et8dall" path="res://Resources/Animations/enemy_anim.res" id="2_1yrh2"]
 [ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="2_cwgqe"]
-[ext_resource type="Script" path="res://Scripts/Stats/BaseStats.cs" id="3_bhlhe"]
+[ext_resource type="Script" uid="uid://dbv8tf0bbw0vp" path="res://Scripts/Stats/BaseStats.cs" id="3_bhlhe"]
 [ext_resource type="PackedScene" uid="uid://cxr2jmgq30pcn" path="res://Resources/UI/Nodes/cursor_target.tscn" id="5_rtvvc"]
-[ext_resource type="Script" path="res://Scripts/Abilities/SkillList.cs" id="8_rop6n"]
-[ext_resource type="Script" path="res://Scripts/Stats/Experience.cs" id="9_mvfr5"]
-[ext_resource type="Script" path="res://Scripts/Inventory/EquipList.cs" id="11_w53bj"]
+[ext_resource type="Script" uid="uid://b3fxnr5rfs20t" path="res://Scripts/Abilities/SkillList.cs" id="8_rop6n"]
+[ext_resource type="Script" uid="uid://p1bb3rsmni18" path="res://Scripts/Stats/Experience.cs" id="9_mvfr5"]
+[ext_resource type="Script" uid="uid://m48h2kke7u2g" path="res://Scripts/Inventory/EquipList.cs" id="11_w53bj"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_olfkb"]
 size = Vector2(100, 100)
@@ -35,7 +35,7 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_nhsy5"]
 _data = {
-"RESET": SubResource("Animation_gvsnw")
+&"RESET": SubResource("Animation_gvsnw")
 }
 
 [node name="CharacterBody2D" type="CharacterBody2D"]
@@ -59,9 +59,9 @@ shape = SubResource("RectangleShape2D_urwtv")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_nhsy5"),
-"battle_anim": ExtResource("1_obl04"),
-"enemy_anim": ExtResource("2_1yrh2")
+&"": SubResource("AnimationLibrary_nhsy5"),
+&"battle_anim": ExtResource("1_obl04"),
+&"enemy_anim": ExtResource("2_1yrh2")
 }
 
 [node name="HealthDisplay" parent="." instance=ExtResource("1_q22yd")]

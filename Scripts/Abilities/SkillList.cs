@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using Godot;
 using Godot.Collections;
 
@@ -49,15 +50,34 @@ namespace ZAM.Abilities
         {
             return characterSkills;
         }
-        
-        public void SetSkills(Array<Ability> list)
+
+        public Array<AbilityData> StoreSkills()
         {
-            characterSkills = list;
-            // characterSkills = new();
-            // for (int s = 0; s < list.Count; s++)
-            // {
-            //     characterSkills.Add((Ability)list[s]);
-            // }
+            Array<AbilityData> newList = [];
+
+            foreach (Ability data in characterSkills) {
+                AbilityData newAbility = new();
+
+                data.SetDataDetails(ref newAbility);
+                data.SetDataMechanics(ref newAbility);
+                data.SetDataRestrictions(ref newAbility);
+
+                newList.Add(newAbility);
+            }
+            return newList;
+        }
+
+        public void SetSkills(Array<AbilityData> list)
+        {
+            characterSkills = [];
+            foreach (AbilityData data in list) {
+                Ability newAbility = new();
+                newAbility.SetDetails(data.AbilityName, data. AbilityDescription, data.TargetType, data.TargetArea, data.NumericValue, data.CostValue, data.UniqueID);
+                newAbility.SetMechanics(data.DamageType, data.CallAnimation);
+                newAbility.SetRestrictions(data.UseableInBattle, data.UseableOutOfBattle, data.UseableOnDead);
+
+                characterSkills.Add(newAbility);
+            }
         }
     }
 }

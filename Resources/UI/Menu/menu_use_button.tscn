@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://entel812wgun"]
+
+[ext_resource type="PackedScene" uid="uid://ceex1ny35kacf" path="res://Resources/UI/Menu/button_base.tscn" id="1_smsdm"]
+[ext_resource type="PackedScene" uid="uid://drakoxf8swfix" path="res://Resources/UI/Battle/status_list.tscn" id="2_tni24"]
+
+[node name="PanelContainer" type="PanelContainer"]
+self_modulate = Color(1, 1, 1, 0)
+offset_right = 500.0
+offset_bottom = 50.0
+
+[node name="Button" parent="." instance=ExtResource("1_smsdm")]
+layout_mode = 2
+
+[node name="StatusList" parent="." instance=ExtResource("2_tni24")]
+layout_mode = 2

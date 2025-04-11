@@ -37,14 +37,6 @@ namespace ZAM.Interactions
         // private MapEventScript mapEventScript;
         // private Dictionary<string, Dictionary<string, string>> mapText;
 
-        public enum InteractType
-        {
-            TEXT = 0,
-            CHOICE = 1,
-            ITEM = 2,
-            MOVE = 3
-        }
-
         private string interactPhase = ConstTerm.MOVE;
 
         private int stepNumber = 0;
@@ -72,7 +64,7 @@ namespace ZAM.Interactions
         [Signal]
         public delegate void onInteractPhaseEventHandler(string newPhase);
         [Signal]
-        public delegate void onItemReceiveEventHandler(string newItem, int newType);
+        public delegate void onItemReceiveEventHandler(string newItem, int newType, int count);
         [Signal]
         public delegate void onEventStartEventHandler();
         // [Signal]
@@ -236,6 +228,7 @@ namespace ZAM.Interactions
         {
             string giveText;
             ItemType giveType;
+            int count = 1;
 
             if (choiceText.ContainsKey(ConstTerm.ITEM + stepNumber)) { giveText = ConstTerm.ITEM + stepNumber; giveType = ItemType.Item; }
             else if (choiceText.ContainsKey(ConstTerm.WEAPON + stepNumber)) { giveText = ConstTerm.WEAPON + stepNumber; giveType = ItemType.Weapon; }
@@ -248,7 +241,7 @@ namespace ZAM.Interactions
             choiceActive = false;
             choiceOption = 0;
 
-            EmitSignal(SignalName.onItemReceive, choiceText[giveText], (int)giveType); // -> MapSystem - OnItemReceive
+            EmitSignal(SignalName.onItemReceive, choiceText[giveText], (int)giveType, count); // -> MapSystem - OnItemReceive
 
             // EmitSignal(SignalName.onInteractPhase, ConstTerm.TEXT);
         }
@@ -260,6 +253,20 @@ namespace ZAM.Interactions
             // if (GetCurrPosition() >= movePositions.Length) { SetCurrPosition(0); } // Looping. Unneeded for structured events.
             // GD.Print("Move to point - " + GetCurrPosition());
             GetMoveAgent().MoveToTarget(movePositions[GetCurrPosition()]); // -> NPCMove
+        }
+
+
+        //=============================================================================
+        // SECTION: Event Calls
+        //=============================================================================
+
+        public void GiveItem(string itemName, int itemType, int amount)
+        {
+            string outText = "Receieved " + itemName + "!"; // EDIT: Placeholder
+            collectBox.AddText(outText);
+            // await ToSignal(collectBox, ) // EDIT: Work in awaiter for animation
+
+            EmitSignal(SignalName.onItemReceive, itemName, itemType, amount);
         }
 
 
@@ -302,7 +309,7 @@ namespace ZAM.Interactions
         {
             stepNumber++;
             // GD.Print("Stepcheck = " + stepNumber);
-            bool stepComplete = false;
+            bool stepComplete;
 
             if (IsEvent()) { stepComplete = stepNumber >= eventStepCount; }
             else { stepComplete = stepNumber >= actionType.Count; }

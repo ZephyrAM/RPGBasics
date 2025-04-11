@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://clk0yeroml1j2"]
 
-[ext_resource type="Script" path="res://Scripts/MenuUI/ChoiceBox.cs" id="1_u66xb"]
+[ext_resource type="Script" uid="uid://crlcnv5hq1p8j" path="res://Scripts/MenuUI/ChoiceBox.cs" id="1_u66xb"]
 [ext_resource type="PackedScene" uid="uid://ylwniho8mxrf" path="res://Resources/UI/Message/choice_label.tscn" id="2_ecarr"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xdso2"]

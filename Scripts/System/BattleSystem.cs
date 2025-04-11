@@ -47,7 +47,7 @@ namespace ZAM.System
         private Ability defendAbility;
         private Ability activeAbility;
         private Item activeItem;
-        private Array<Item> itemList = [];
+        // private Array<Item> itemList = [];
 
         private Array<Battler> battler, enemyTeam, playerTeam = null;
         private VBoxContainer enemyList, playerList = null;
@@ -214,9 +214,9 @@ namespace ZAM.System
                 Node tempLine = ResourceLoader.Load<PackedScene>(statusList.ResourcePath).Instantiate();
                 playerList = battleUI.GetNode<VBoxContainer>(ConstTerm.PLAYER + ConstTerm.LIST);
                 playerList.AddChild(tempLine);
-                playerList.GetChild(n).GetNode<HealthDisplay>(ConstTerm.HEALTH_DISPLAY).SetBattler(playerTeam[n]);
-                playerList.GetChild(n).GetNode<HealthDisplay>(ConstTerm.RESOURCE_DISPLAY).SetBattler(playerTeam[n]);
-                playerList.GetChild(n).GetNode<Label>(ConstTerm.NAME).Text = playerTeam[n].GetNameLabel().Text;
+                playerList.GetChild(n).GetNode<HBoxContainer>(ConstTerm.STATUS + ConstTerm.LIST).GetNode<HealthDisplay>(ConstTerm.HEALTH_DISPLAY).SetBattler(playerTeam[n]);
+                playerList.GetChild(n).GetNode<HBoxContainer>(ConstTerm.STATUS + ConstTerm.LIST).GetNode<HealthDisplay>(ConstTerm.RESOURCE_DISPLAY).SetBattler(playerTeam[n]);
+                playerList.GetChild(n).GetNode<HBoxContainer>(ConstTerm.STATUS + ConstTerm.LIST).GetNode<Label>(ConstTerm.NAME).Text = playerTeam[n].GetBattlerName();
                 playerTeam[n].GetNameLabel().Visible = false;
             }
 
@@ -227,8 +227,8 @@ namespace ZAM.System
         {
             for (int n = 0; n < playerList.GetChildCount(); n++)
             {
-                playerList.GetChild(n).GetNode<HealthDisplay>(ConstTerm.HEALTH_DISPLAY).ForceHealthBarUpdate();
-                playerList.GetChild(n).GetNode<HealthDisplay>(ConstTerm.RESOURCE_DISPLAY).ForceResourceBarUpdate();
+                playerList.GetChild(n).GetNode<HBoxContainer>(ConstTerm.STATUS + ConstTerm.LIST).GetNode<HealthDisplay>(ConstTerm.HEALTH_DISPLAY).ForceHealthBarUpdate();
+                playerList.GetChild(n).GetNode<HBoxContainer>(ConstTerm.STATUS + ConstTerm.LIST).GetNode<HealthDisplay>(ConstTerm.RESOURCE_DISPLAY).ForceResourceBarUpdate();
             }
         }
 
@@ -645,6 +645,7 @@ namespace ZAM.System
 
         public void PlayerTurn()
         {
+            CheckHasItems();
             SetupSkillList(battler[0]);
             // GD.Print(" - Player Go");
             partyInput.SetActiveMember(playerTeam.IndexOf(battler[0]));
@@ -697,7 +698,8 @@ namespace ZAM.System
                 Label newSkill = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
                 newSkill.Text = skill.AbilityName;
                 newSkill.CustomMinimumSize = new Vector2(partyInput.GetSkillItemWidth(), 0);
-                if (!player.GetHealth().HasEnoughMP(skill.CostValue)) {
+
+                if (!player.CheckCanUse(skill, true)) { // true = isInBattle
                     newSkill.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
                 }
 
@@ -713,16 +715,25 @@ namespace ZAM.System
 
             foreach(Node child in itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
             { child.QueueFree(); }
-            itemList = [];
+            // itemList = []; EDIT: Useful for anything?
 
-            foreach (Item item in ItemBag.Instance.GetItemBag())
+            foreach (Item item in ItemBag.Instance.GetItemBag().Keys)
             {
                 if (!item.UseableInBattle) { continue; }
-                itemList.Add(item);
+                // itemList.Add(item);
                 
                 Label newItem = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
                 newItem.Text = item.ItemName;
+                newItem.SetMeta(ConstTerm.UNIQUE_ID, item.UniqueID);
+
                 newItem.CustomMinimumSize = new Vector2(partyInput.GetSkillItemWidth(), 0);
+                if (ItemBag.Instance.GetItemBag()[item] > 1) {
+                    newItem.GetNode<Label>(ConstTerm.COUNT).Text = "x" + ItemBag.Instance.GetItemBag()[item];
+                    newItem.GetNode<Label>(ConstTerm.COUNT).Visible = true;
+                }
+                if (!item.UseableInBattle)  {
+                    newItem.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
+                }
 
                 itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newItem);
             }
@@ -731,18 +742,27 @@ namespace ZAM.System
         private bool CheckHasItems()
         {
             int itemCommand = 0;
-            for (int i = 0; i < partyInput.GetCommandOptions().Length; i++)
-            {
+            for (int i = 0; i < partyInput.GetCommandOptions().Length; i++) {
                 if (partyInput.GetCommandOptions()[i] == ConstTerm.ITEM) { itemCommand = i; break; }
             }
 
-            if (ItemBag.Instance.GetItemBag().Count <= 0)
-            {
+            if (ItemBag.Instance.GetItemBag().Count <= 0) {
                 commandPanel.GetNode<VBoxContainer>(ConstTerm.COMMAND + ConstTerm.LIST).GetChild<Label>(itemCommand).GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
                 return false;
             } else {
                 commandPanel.GetNode<VBoxContainer>(ConstTerm.COMMAND + ConstTerm.LIST).GetChild<Label>(itemCommand).GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(false); ;
                 return true;
+            }
+        }
+
+        private void CheckRemoveItemFromList()
+        {
+            ItemBag.Instance.RemoveItemFromBag(activeItem);
+            if (!ItemBag.Instance.GetItemBag().TryGetValue(activeItem, out var count)) { 
+                itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(partyInput.GetPrevCommand()).QueueFree();
+            } else {
+                itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(partyInput.GetPrevCommand()).GetNode<Label>(ConstTerm.COUNT).Text = 
+                "x" + ItemBag.Instance.GetItemBag()[activeItem];
             }
         }
 
@@ -759,7 +779,7 @@ namespace ZAM.System
         public void OnHitEnemy(Battler player) // Called from Battler
         {
             int currTarget = partyInput.GetTarget();
-            CommandDone();
+            
             if (activeAbility != null && activeAbility.TargetArea == ConstTerm.GROUP) {
 
                 Array<Battler> killTargets = [];
@@ -805,6 +825,8 @@ namespace ZAM.System
             }
 
             if (activeAbility != null) { player.GetHealth().ChangeMP(-activeAbility.CostValue); }
+
+            CommandDone();
         }
 
         public void OnHitPlayer(Battler enemy) // Called from Battler
@@ -932,6 +954,7 @@ namespace ZAM.System
         {
             partyInput.SetInputPhase(ConstTerm.WAIT);
             partyInput.SetCommand(0);
+            partyInput.ResetPhaseList();
             ClearAllCursors();
 
             // commandBar.Position = Vector2.Zero;
@@ -993,6 +1016,7 @@ namespace ZAM.System
         private void OnAbilitySelect(int index)
         {
             activeAbility = battler[0].GetSkillList().GetSkills()[index];
+            activeItem = null;
 
             if (partyInput.IsPlayerTurn()) 
             {
@@ -1004,8 +1028,6 @@ namespace ZAM.System
 
         private async void OnAbilityUse(int index)
         {
-            CommandDone();
-
             if (index == -1) { activeAbility = defendAbility; }
             // else {
             //     activeAbility = battler[0].GetSkillList().GetSkills()[index];
@@ -1023,6 +1045,7 @@ namespace ZAM.System
 
             // partyInput.ActivateTargetting();
 
+            CommandDone();
             OnTurnEnd();
         }
 
@@ -1048,7 +1071,9 @@ namespace ZAM.System
 
         private void OnItemSelect(int index)
         {
-            activeItem = itemList[index]; // EDIT: Update to work for assorted list types. By index not ideal.
+            int id = (int)itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).GetMeta(ConstTerm.UNIQUE_ID);
+            activeItem = ItemBag.Instance.GetItemFromBag(id);
+            activeAbility = null;
 
             if (partyInput.IsPlayerTurn())
             {
@@ -1060,16 +1085,17 @@ namespace ZAM.System
 
         private async void OnItemUse(int index)
         {
-            CommandDone();
-
             battler[0].GetAnimPlayer().Queue(activeItem.CallAnimation);
             await ToSignal(battler[0].GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
-            ItemBag.Instance.RemoveItemFromBag(itemList[index]);
-            itemList.RemoveAt(index);
-            itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).QueueFree();
+
+            if (activeItem.IsConsumable) { 
+                CheckRemoveItemFromList();
+            }
+            // itemList.Remove(activeItem);
+
 
             // partyInput.ActivateTargetting();
-
+            CommandDone();
             OnTurnEnd();
         }
 

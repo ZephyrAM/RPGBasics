@@ -6,11 +6,16 @@ namespace ZAM.Abilities
     [GlobalClass]
     public partial class EffectState : Node
     {
+        [ExportGroup("Details")]
         [Export] public string StateName { get; private set; }
         [Export] public string StateDescription { get; private set; }
-        
-        [Export] public Modifier[] AddModifier { get; private set; }
-        [Export] public Modifier[] PercentModifier { get; private set; }
+
+        [ExportGroup("Mechanics")]
+        [Export] public Array<Modifier> AddModifier { get; private set; }
+        [Export] public Array<Modifier> PercentModifier { get; private set; }
+
+        [ExportGroup("Restrictions")]
+        [Export] public bool ExistsOutOfBattle { get; private set; }
 
         public int UniqueID { get; private set; } = 0;
 
@@ -29,7 +34,7 @@ namespace ZAM.Abilities
         {
             int index = 0;
 
-            for (int m = 0; m < AddModifier.Length; m++) {
+            for (int m = 0; m < AddModifier.Count; m++) {
                 if (AddModifier[m].Stat == stat) {index = m; break; }
             }
 
@@ -40,7 +45,7 @@ namespace ZAM.Abilities
         {
             int index = 0;
 
-            for (int m = 0; m < PercentModifier.Length; m++) {
+            for (int m = 0; m < PercentModifier.Count; m++) {
                 if (PercentModifier[m].Stat == stat) {index = m; break; }
             }
             
@@ -66,5 +71,48 @@ namespace ZAM.Abilities
         //     }
         //     return statSheet;
         // }
+
+
+        //=============================================================================
+        // SECTION: Save System
+        //=============================================================================
+
+        public void SetDetails(string name, string description, int id)
+        {
+            StateName = name;
+            StateDescription = description;
+
+            UniqueID = id;
+        }
+
+        public void SetMechanics(Array<Modifier> add, Array<Modifier> percent)
+        {
+            AddModifier = add;
+            PercentModifier = percent;
+        }
+
+        public void SetRestrictions(bool outOfBattle)
+        {
+            ExistsOutOfBattle = outOfBattle;
+        }
+
+        public void SetDataDetails(EffectStateData data)
+        {
+            data.StateName = StateName;
+            data.StateDescription = StateDescription;
+
+            data.UniqueID = UniqueID;
+        }
+
+        public void SetDataMechanics(EffectStateData data)
+        {
+            data.AddModifier = AddModifier;
+            data.PercentModifier = PercentModifier;
+        }
+
+        public void SetDataRestrictions(EffectStateData data)
+        {
+            data.ExistsOutOfBattle = ExistsOutOfBattle;
+        }
     }
 }

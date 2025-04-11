@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=3 uid="uid://ceex1ny35kacf"]
 
-[ext_resource type="Script" path="res://Scripts/MenuUI/ButtonUI.cs" id="1_so5wj"]
+[ext_resource type="Script" uid="uid://dmiiv3omkykv2" path="res://Scripts/MenuUI/ButtonUI.cs" id="1_so5wj"]
 [ext_resource type="AudioStream" uid="uid://cp6rewnlogf5" path="res://Resources/Audio/Sound/Cursor 2 (Sine).wav" id="2_vpak7"]
 [ext_resource type="AudioStream" uid="uid://dk3hoq2ssfdns" path="res://Resources/Audio/Sound/Error 1 (Saw).wav" id="3_kk4is"]
 
@@ -49,8 +49,8 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_2epyi"]
 _data = {
-"RESET": SubResource("Animation_86bgm"),
-"focus_blink": SubResource("Animation_oadpo")
+&"RESET": SubResource("Animation_86bgm"),
+&"focus_blink": SubResource("Animation_oadpo")
 }
 
 [node name="Button" type="Button" node_paths=PackedStringArray("soundPlayer") groups=["ConfigData"]]

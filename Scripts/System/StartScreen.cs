@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ZAM.Controller;
+using ZAM.Inventory;
 
 using ZAM.MenuUI;
 
@@ -261,10 +262,20 @@ namespace ZAM.System
             await BGMPlayer.Instance.FadeBGMTransition(bgm, newGameScene.GetNode<MapSystem>(ConstTerm.MAPSYSTEM).GetBGM());
 
             GetTree().Root.AddChild(newGameScene);
+            LoadStarterGear();
             Fader.Instance.FadeIn();
             QueueFree();
 
             return;
+        }
+
+        private void LoadStarterGear() // EDIT: Temporary!
+        {
+            ItemBag.Instance.AddToBag("Sword", ItemType.Weapon, 1);
+            ItemBag.Instance.AddToBag("Helmet", ItemType.Armor, 1);
+            ItemBag.Instance.AddToBag("Breastplate", ItemType.Armor, 1);
+            ItemBag.Instance.AddToBag("Ring", ItemType.Accessory, 1);
+            ItemBag.Instance.AddToBag("Ring", ItemType.Accessory, 1);
         }
 
         private void LoadSaveGame()

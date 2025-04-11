@@ -14,19 +14,19 @@ namespace ZAM.Stats
         // [Export] private bool hasBattleStats = true; // Implement if needed
 
         [ExportGroup("Nodes")]
-        [Export] private Label battlerName;
-        [Export] private string battlerTitle;
-        [Export] private CharacterBody2D battlerBody;
-        [Export] private Sprite2D battlerSprite;
-        [Export] private Texture2D battlerPortrait;
-        [Export] private AnimationPlayer battlerAnim;
-        [Export] private Node2D battlerCursor;
+        [Export] private Label battlerName = null;
+        [Export] private string battlerTitle = "";
+        [Export] private CharacterBody2D battlerBody = null;
+        [Export] private Sprite2D battlerSprite = null;
+        [Export] private Texture2D battlerPortrait = null;
+        [Export] private AnimationPlayer battlerAnim = null;
+        [Export] private Node2D battlerCursor = null;
 
-        [Export] private Health battlerHealth;
-        [Export] private BaseStats battlerStats;
-        [Export] private Experience battlerExp;
-        [Export] private SkillList battlerSkills;
-        [Export] private EquipList battlerEquipment;
+        [Export] private Health battlerHealth = null;
+        [Export] private BaseStats battlerStats = null;
+        [Export] private Experience battlerExp = null;
+        [Export] private SkillList battlerSkills = null;
+        [Export] private EquipList battlerEquipment = null;
 
         private Array<EffectState> states = [];
         private Vector2 basePosition;
@@ -116,12 +116,26 @@ namespace ZAM.Stats
         // SECTION: Access Methods
         //=============================================================================
 
-        public bool CheckCanUse(Ability skill)
+        public bool CheckCanUse(Ability skill, bool isInBattle)
         {
-            bool outOfBattle = skill.UseableOutOfBattle;
-            bool checkDeath = !GetHealth().IsDead() || (GetHealth().IsDead() && skill.UseableOnDead); // EDIT: Death check should be on TARGET, not CASTER
+            bool battleState;
+            if (isInBattle) { battleState = skill.UseableInBattle; } else { battleState = skill.UseableOutOfBattle;}
+            bool checkDeath = !GetHealth().IsDead();
+            bool haveResource = GetHealth().HasEnoughMP(skill.CostValue);
 
-            bool result = outOfBattle && checkDeath;
+            bool result = battleState && checkDeath && haveResource;
+            return result;
+        }
+
+        public bool CheckCanTarget(Battler target, Ability skill, Item item)
+        {
+            bool useableOnDead = false;
+            if (skill != null) { useableOnDead = skill.UseableOnDead; }
+            if (item != null) { useableOnDead = item.UseableOnDead; }
+            bool checkDeath = !GetHealth().IsDead() || useableOnDead;
+            bool needsHealth = !target.GetHealth().IsHPFull();
+
+            bool result = checkDeath && needsHealth;
             return result;
         }
 
@@ -261,8 +275,8 @@ namespace ZAM.Stats
                 StatValues = GetStats().SaveAllStats(),
                 CurrentExp = GetExperience().GetTotalExp(),
                 CurrentLevel = GetExperience().GetCurrentLevel(),
-                SkillList = GetSkillList().GetSkills(),
-                EquipList = GetEquipList().GetCharEquipment()
+                SkillList = GetSkillList().StoreSkills(),
+                EquipList = GetEquipList().StoreEquipList()
             };
             // GD.Print("Battler " + GetHealth().GetHP());
             // GD.Print("Save - " + " " + GetCharID() + " battler HP at = " + saveData[GetCharID()].CurrentHP + "/" + newData.CurrentHP);
@@ -270,7 +284,7 @@ namespace ZAM.Stats
             // GD.Print(saveData[GetCharID()].CurrentHP);
         }
 
-        public void OnLoadGame(Godot.Collections.Dictionary<CharacterID, BattlerData> loadData)
+        public void OnLoadGame(Dictionary<CharacterID, BattlerData> loadData)
         {
             // GD.Print(this);
             // GD.Print("Load " + GetCharID());
@@ -286,7 +300,7 @@ namespace ZAM.Stats
             GetExperience().SetExpTotal(saveData.CurrentExp);
             GetExperience().SetCurrentLevel(saveData.CurrentLevel);
             GetSkillList().SetSkills(saveData.SkillList);
-            GetEquipList().SetCharEquipment(saveData.EquipList);
+            GetEquipList().SetEquipList(saveData.EquipList);
 
             // GD.Print(GetHealth().GetHP());
         }

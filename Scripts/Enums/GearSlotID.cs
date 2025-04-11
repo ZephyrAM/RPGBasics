@@ -5,5 +5,6 @@ public enum GearSlotID
     OffHand = 2,
     Head = 3,
     Chest = 4,
-    Accessory = 5
+    Accessory1 = 5, 
+    Accessory2 = 6
 }

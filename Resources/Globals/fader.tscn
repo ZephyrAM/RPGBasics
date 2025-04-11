@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://c2dq3p7gsmeyw"]
 
-[ext_resource type="Script" path="res://Scripts/Utilities/Fader.cs" id="1_e5npa"]
+[ext_resource type="Script" uid="uid://clnxqwt3x3xdi" path="res://Scripts/Utilities/Fader.cs" id="1_e5npa"]
 
 [sub_resource type="Animation" id="Animation_6uuuc"]
 length = 0.001
@@ -53,9 +53,9 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_qaj3i"]
 _data = {
-"RESET": SubResource("Animation_6uuuc"),
-"fade_in": SubResource("Animation_8bdcp"),
-"fade_out": SubResource("Animation_tsfr7")
+&"RESET": SubResource("Animation_6uuuc"),
+&"fade_in": SubResource("Animation_8bdcp"),
+&"fade_out": SubResource("Animation_tsfr7")
 }
 
 [node name="Fader" type="CanvasLayer"]

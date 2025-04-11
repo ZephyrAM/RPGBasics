@@ -35,6 +35,11 @@ namespace ZAM.Stats
             return (currMP - value) >= 0;
         }
 
+        public bool IsHPFull()
+        {
+            return GetHP() >= GetMaxHP();
+        }
+
         public bool IsDead()
         {
             return isDead;

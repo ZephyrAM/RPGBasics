@@ -1,12 +1,12 @@
 [gd_scene load_steps=40 format=3 uid="uid://ca6j0rh7qrlwf"]
 
-[ext_resource type="Script" path="res://Scripts/Abilities/Ability.cs" id="1_c011n"]
-[ext_resource type="Script" path="res://Scripts/Managers/DatabaseManager.cs" id="1_vh6lm"]
-[ext_resource type="Script" path="res://Scripts/Inventory/Item.cs" id="3_f30r0"]
-[ext_resource type="Script" path="res://Scripts/Abilities/EffectState.cs" id="4_58xhj"]
-[ext_resource type="Script" path="res://Scripts/Abilities/Modifier.cs" id="5_f5u6h"]
-[ext_resource type="Script" path="res://Scripts/Inventory/Equipment.cs" id="6_bblu7"]
-[ext_resource type="Script" path="res://Scripts/Stats/CharClass.cs" id="6_ckdgg"]
+[ext_resource type="Script" uid="uid://7w6pnmlxcbmt" path="res://Scripts/Abilities/Ability.cs" id="1_c011n"]
+[ext_resource type="Script" uid="uid://dug7ohsbcxbv1" path="res://Scripts/Managers/DatabaseManager.cs" id="1_vh6lm"]
+[ext_resource type="Script" uid="uid://c13lrmgepimjn" path="res://Scripts/Inventory/Item.cs" id="3_f30r0"]
+[ext_resource type="Script" uid="uid://b43gnneskjpcd" path="res://Scripts/Abilities/EffectState.cs" id="4_58xhj"]
+[ext_resource type="Script" uid="uid://dvrvewsrmh6d4" path="res://Scripts/Abilities/Modifier.cs" id="5_f5u6h"]
+[ext_resource type="Script" uid="uid://cynqpif5h1lxo" path="res://Scripts/Inventory/Equipment.cs" id="6_bblu7"]
+[ext_resource type="Script" uid="uid://cu74n76t65fnu" path="res://Scripts/Stats/CharClass.cs" id="6_ckdgg"]
 
 [sub_resource type="Resource" id="Resource_15cgh"]
 script = ExtResource("5_f5u6h")
@@ -182,14 +182,14 @@ accessoryList = NodePath("AccessoryDatabase")
 
 [node name="AbilityDatabase" type="Node2D" parent="."]
 
-[node name="Defend" type="Node" parent="AbilityDatabase" node_paths=PackedStringArray("AddedState")]
+[node name="Defend" type="Node" parent="AbilityDatabase"]
 script = ExtResource("1_c011n")
 AbilityName = "Defend"
 AbilityDescription = "Reduce incoming damage for turn."
 TargetType = "Self"
 TargetArea = "Single"
 CallAnimation = "battle_anim/defend"
-AddedState = NodePath("../../StateDatabase/Defend")
+UseableInBattle = true
 
 [node name="Fire" type="Node" parent="AbilityDatabase"]
 script = ExtResource("1_c011n")
@@ -201,6 +201,7 @@ NumericValue = 30.0
 CostValue = 5.0
 DamageType = "Magical"
 CallAnimation = "battle_anim/spell_cast"
+UseableInBattle = true
 
 [node name="Fire Wave" type="Node" parent="AbilityDatabase"]
 script = ExtResource("1_c011n")
@@ -212,6 +213,7 @@ NumericValue = 15.0
 CostValue = 15.0
 DamageType = "Magical"
 CallAnimation = "battle_anim/spell_cast"
+UseableInBattle = true
 
 [node name="Heal" type="Node" parent="AbilityDatabase"]
 script = ExtResource("1_c011n")
@@ -223,6 +225,7 @@ NumericValue = 30.0
 CostValue = 5.0
 DamageType = "Healing"
 CallAnimation = "battle_anim/heal"
+UseableInBattle = true
 UseableOutOfBattle = true
 
 [node name="Heal All" type="Node" parent="AbilityDatabase"]
@@ -235,6 +238,7 @@ NumericValue = 20.0
 CostValue = 15.0
 DamageType = "Healing"
 CallAnimation = "battle_anim/heal"
+UseableInBattle = true
 UseableOutOfBattle = true
 
 [node name="StateDatabase" type="Node2D" parent="."]
@@ -281,14 +285,15 @@ DamageType = "Healing"
 CallAnimation = "battle_anim/heal"
 UseableInBattle = true
 UseableOutOfBattle = true
+CanStack = true
 
 [node name="WeaponDatabase" type="Node2D" parent="."]
 
 [node name="Sword" type="Node" parent="WeaponDatabase"]
 script = ExtResource("6_bblu7")
-GearSlot = [1, 2]
-AddModifier = [SubResource("Resource_drslc")]
-ClassEquip = [1]
+GearSlot = Array[int]([1, 2])
+AddModifier = Array[ExtResource("5_f5u6h")]([SubResource("Resource_drslc")])
+ClassEquip = Array[int]([1])
 ItemType = 2
 ItemName = "Sword"
 ItemDescription = "Basic weapon."
@@ -297,16 +302,16 @@ ItemDescription = "Basic weapon."
 
 [node name="Breastplate" type="Node" parent="ArmorDatabase"]
 script = ExtResource("6_bblu7")
-GearSlot = [4]
-ClassEquip = [1]
+GearSlot = Array[int]([4])
+ClassEquip = Array[int]([1])
 ItemType = 3
 ItemName = "Breastplate"
 ItemDescription = "Metal chest armor."
 
 [node name="Helmet" type="Node" parent="ArmorDatabase"]
 script = ExtResource("6_bblu7")
-GearSlot = [3]
-ClassEquip = [1]
+GearSlot = Array[int]([3])
+ClassEquip = Array[int]([1])
 ItemType = 3
 ItemName = "Helmet"
 ItemDescription = "Metal headgear."
@@ -315,7 +320,7 @@ ItemDescription = "Metal headgear."
 
 [node name="Ring" type="Node" parent="AccessoryDatabase"]
 script = ExtResource("6_bblu7")
-GearSlot = [5]
+GearSlot = Array[int]([5, 6])
 ItemType = 4
 ItemName = "Ring"
 ItemDescription = "A simple ring."

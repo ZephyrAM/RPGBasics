@@ -1,4 +1,5 @@
 using Godot;
+using ZAM.Inventory;
 
 using ZAM.MenuUI;
 
@@ -19,7 +20,7 @@ namespace ZAM.Controller
 
         private GridContainer skillList;
         private GridContainer itemList;
-        private HBoxContainer useList;
+        private VBoxContainer useList;
         private Container equipList;
         private Container gearList;
         private float skillItemWidth = 0;
@@ -58,6 +59,12 @@ namespace ZAM.Controller
         [Signal]
         public delegate void onMemberSelectEventHandler();
         [Signal]
+        public delegate void onItemSelectEventHandler(int index);
+        [Signal]
+        public delegate void onAbilitySelectEventHandler(int index);
+        [Signal]
+        public delegate void onUseMemberEventHandler(int user, int target);
+        [Signal]
         public delegate void onEquipSlotEventHandler(int slot);
         [Signal]
         public delegate void onGearEquipEventHandler(int slot);
@@ -88,7 +95,7 @@ namespace ZAM.Controller
         {
             skillList = skillPanel.GetNode<GridContainer>(ConstTerm.TEXT + ConstTerm.LIST);
             itemList = itemPanel.GetNode<GridContainer>(ConstTerm.TEXT + ConstTerm.LIST);
-            useList = usePanel.GetNode<HBoxContainer>(ConstTerm.USE + ConstTerm.LIST);
+            useList = usePanel.GetNode<VBoxContainer>(ConstTerm.USE + ConstTerm.LIST);
             equipList = equipPanel.GetEquipList();
             gearList = equipPanel.GetGearList();
 
@@ -190,12 +197,12 @@ namespace ZAM.Controller
                 case ConstTerm.EQUIP + ConstTerm.USE:
                     EquipUsePhase(@event);
                     break;
-                case ConstTerm.STATUS_SCREEN:
-                    StatusPhase(@event);
-                    break;
-                case ConstTerm.SAVE:
-                    SavePhase(@event);
-                    break;
+                // case ConstTerm.STATUS_SCREEN:
+                //     StatusPhase(@event);
+                //     break;
+                // case ConstTerm.SAVE:
+                //     SavePhase(@event);
+                //     break;
                 default:
                     break;
             }
@@ -268,14 +275,14 @@ namespace ZAM.Controller
         {
             if (!AcceptInput()) { return; }
             SetInputPhase(ConstTerm.ITEM + ConstTerm.USE);
+            EmitSignal(SignalName.onItemSelect, currentCommand);
             SetNewCommand();
-            // EmitSignal(SignalName.onItemSelect, currentCommand);
         }
 
         private void ItemUsePhase(InputEvent @event) // inputPhase == ConstTerm.ITEM_USE
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
-                SkillUseAccept();
+                ItemUseAccept();
             }
             else { PhaseControls(@event); }
         }
@@ -284,7 +291,8 @@ namespace ZAM.Controller
         {
             if (activeControl.OnButtonPressed()) { InvalidOption(); return; }
             // EDIT: Use Item
-            CancelCycle();
+            EmitSignal(SignalName.onUseMember, memberSelect, currentCommand);
+            // CancelCycle();
         }
 
         private void SkillSelectPhase(InputEvent @event) // inputPhase == ConstTerm.SKILL_SELECT;
@@ -299,8 +307,8 @@ namespace ZAM.Controller
         {
             if (!AcceptInput()) { return; }
             SetInputPhase(ConstTerm.SKILL + ConstTerm.USE);
+            EmitSignal(SignalName.onAbilitySelect, currentCommand);
             SetNewCommand();
-            // EmitSignal(SignalName.onAbilitySelect, currentCommand);
         }
         
         private void SkillUsePhase(InputEvent @event) // inputPhase == ConstTerm.SKILL_USE
@@ -315,7 +323,8 @@ namespace ZAM.Controller
         {
             if (activeControl.OnButtonPressed()) { InvalidOption(); return; }
             // EDIT: Activate skill
-            CancelCycle();
+            EmitSignal(SignalName.onUseMember, memberSelect, currentCommand);
+            // CancelCycle();
         }
 
         private void EquipSelectPhase(InputEvent @event)
@@ -350,31 +359,31 @@ namespace ZAM.Controller
             CancelCycle();
         }
 
-        private void StatusPhase(InputEvent @event) // inputPhase == ConstTerm.STATUS_SCREEN
-        {
-            // Show status screen of selected member
-            if (@event.IsActionPressed(ConstTerm.CANCEL)) {
-                CancelCycle();
-            }
-        }
+        // private void StatusPhase(InputEvent @event) // inputPhase == ConstTerm.STATUS_SCREEN
+        // {
+        //     // Show status screen of selected member
+        //     if (@event.IsActionPressed(ConstTerm.CANCEL)) {
+        //         CancelCycle();
+        //     }
+        // }
 
-        private void StatusAccept()
-        {
+        // private void StatusAccept()
+        // {
 
-        }
+        // }
 
-        private void SavePhase(InputEvent @event) // inputPhase == ConstTerm.SAVE
-        {
-            // Bring up save menu
-            if (@event.IsActionPressed(ConstTerm.CANCEL)) {
-                CancelCycle();
-            }
-        }
+        // private void SavePhase(InputEvent @event) // inputPhase == ConstTerm.SAVE
+        // {
+        //     // Bring up save menu
+        //     if (@event.IsActionPressed(ConstTerm.CANCEL)) {
+        //         CancelCycle();
+        //     }
+        // }
 
-        private void SaveAccept()
-        {
+        // private void SaveAccept()
+        // {
 
-        }
+        // }
 
         //=============================================================================
         // SECTION: Selection Handling
@@ -410,9 +419,11 @@ namespace ZAM.Controller
             bool clearEquip = false;
             if (GetInputPhase() == ConstTerm.COMMAND) { MenuClose(); return; }
             else if (GetInputPhase() == ConstTerm.EQUIP + ConstTerm.USE) { clearEquip = true; }
+            else if (previousPhase[^1] == ConstTerm.ITEM + ConstTerm.SELECT && ItemBag.Instance.FullItemCount() <= 0) { previousPhase.RemoveAt(previousPhase.Count - 1); }
+            
             base.CancelCycle();
 
-            if (clearEquip) { EmitSignal(SignalName.onEquipSlot, -1); }
+            if (clearEquip) { EmitSignal(SignalName.onEquipSlot, -1); } // -1 signals to clear the +/- stat adjustments from the screen
             // activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
             // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
 
@@ -603,10 +614,7 @@ namespace ZAM.Controller
         public void MenuClose()
         {
             IUIFunctions.ResetMouseInput(commandList, out mouseFocus);
-            
-            currentCommand = 0;
-            previousCommand = [];
-            previousPhase = [];
+            ResetCommandPhase();
             
             SetInputPhase(ConstTerm.WAIT);
             SetControlActive(false);

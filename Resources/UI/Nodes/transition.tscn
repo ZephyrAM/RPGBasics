@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c34w24y88bml6"]
 
-[ext_resource type="Script" path="res://Scripts/System/Transitions.cs" id="1_4iqw6"]
+[ext_resource type="Script" uid="uid://snbnnoihxk4h" path="res://Scripts/System/Transitions.cs" id="1_4iqw6"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pu2yp"]
 size = Vector2(14, 140)

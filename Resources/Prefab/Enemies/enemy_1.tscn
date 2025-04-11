@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://bp7qhvcvsgdjm"]
 
 [ext_resource type="PackedScene" uid="uid://blox2rfxsjm64" path="res://Resources/Prefab/enemy_character.tscn" id="1_timfd"]
-[ext_resource type="Script" path="res://Scripts/Abilities/Modifier.cs" id="2_ejbbd"]
+[ext_resource type="Script" uid="uid://dvrvewsrmh6d4" path="res://Scripts/Abilities/Modifier.cs" id="2_ejbbd"]
 
 [sub_resource type="Resource" id="Resource_ryjqy"]
 script = ExtResource("2_ejbbd")

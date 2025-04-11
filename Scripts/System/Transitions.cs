@@ -62,8 +62,8 @@ namespace ZAM.System
             await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
 
             oldScene.QueueFree();
-            mapSystemNode.GetPartyManager().SetMemberArrays(gameInfo.PartyData.PartyMembers, gameInfo.PartyData.ReserveMembers);
-
+            // mapSystemNode.GetPartyManager().SetMemberArrays(gameInfo.PartyData.PartyMembers, gameInfo.PartyData.ReserveMembers);
+            
             sceneTree.Root.AddChild(moveToMap);
             await SaveLoader.Instance.LoadAllData(gameInfo);
 
@@ -91,22 +91,20 @@ namespace ZAM.System
             Fader.Instance.FadeOut();
             BGMPlayer.Instance.TransitionBGM(oldBgm, newBgm);
             await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
-            
+
             // PackedScene moveToScene = ResourceLoader.Load<PackedScene>(newScenePath);
 
-            mapSystemNode.GetPartyManager().SetMemberArrays(playerParty.GetPartyArray(), playerParty.GetReserveArray());
+            mapSystemNode.GetPartyManager().SetMemberArrays(SaveLoader.Instance.gameSession.PartyData.PartyMembers, SaveLoader.Instance.gameSession.PartyData.ReserveMembers);
 
-            oldScene.QueueFree();
             GetTree().Root.AddChild(moveToMap);
+            oldScene.QueueFree();
             // GetTree().Root.RemoveChild(oldScene);
-
             await SaveLoader.Instance.LoadAllData(SaveLoader.Instance.gameSession);
 
             mapSystemNode.GetPartyManager().GetPlayer().GlobalPosition = mapSystemNode.GetTransitions()[destinationID].GetSpawnPoint().GlobalPosition;
 
             Fader.Instance.FadeIn();
             await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
-            oldScene.QueueFree();
         }
 
         public Node2D GetSpawnPoint()

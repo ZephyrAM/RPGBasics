@@ -120,7 +120,9 @@ namespace ZAM.Controller
 			int rayCount = GetNode(ConstTerm.RAY_CHECK).GetChildren().Count;
 			interactArray = [];
 			for (int r = 0; r <	rayCount; r++) {
-				interactArray.Add((RayCast2D)GetNode(ConstTerm.RAY_CHECK).GetChild(r)); }
+				interactArray.Add((RayCast2D)GetNode(ConstTerm.RAY_CHECK).GetChild(r)); 
+				interactArray[r].AddException(this);
+			}
 
 			charSprite ??= GetNode<Sprite2D>(ConstTerm.SPRITE2D);
 			charCollider ??= GetNode<CollisionShape2D>(ConstTerm.COLLIDER2D);

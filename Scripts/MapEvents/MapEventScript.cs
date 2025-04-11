@@ -12,14 +12,6 @@ namespace ZAM.MapEvents
         protected string mapNumber;
         protected string eventNumber;
         protected string textSource;
-
-        public enum InteractType
-        {
-            TEXT = 0,
-            CHOICE = 1,
-            ITEM = 2,
-            MOVE = 3
-        }
         
         // Delegate Events \\
         [Signal]

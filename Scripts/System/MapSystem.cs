@@ -34,6 +34,7 @@ namespace ZAM.System
 
         [ExportGroup("Resources")]
         // [Export] private PackedScene labelSettings = null;
+        [Export] private PackedScene menuUseButton = null;
         [Export] private Script eventScript = null;
 
         private AnimationPlayer bgmPlayer = null;
@@ -58,7 +59,7 @@ namespace ZAM.System
         private Ability activeAbility;
         private Item activeItem;
         
-        private Array<Item> itemList = [];
+        // private Array<Item> itemList = [];
         private Array<Equipment> equipList = [];
         private int currentGearSlot = 0;
 
@@ -86,7 +87,6 @@ namespace ZAM.System
             UpdateMenuInfo();
 
             // // GD.Print("Map ready - save data");
-            SaveLoader.Instance.GatherBattlers(); // Should only happen once, when game loads.
             // hasLoaded = true;
         }
 
@@ -169,6 +169,10 @@ namespace ZAM.System
             menuInput.onMenuPhase += OnMenuPhase;
             // menuInput.onTargetChange += OnTargetChange;
             menuInput.onMemberSelect += OnMemberSelect;
+            menuInput.onAbilitySelect += OnAbilitySelect;
+            menuInput.onItemSelect += OnItemSelect;
+
+            menuInput.onUseMember += OnUseMember;
             menuInput.onEquipSlot += OnEquipSlot;
             menuInput.onGearEquip += OnGearEquip;
             menuInput.onGearCompare += OnGearCompare;
@@ -391,6 +395,17 @@ namespace ZAM.System
             menuScreen.GetEquipPanel().SetStatValues(currBattler.GetStats().GetModifiedStatSheet());
         }
 
+        private void UpdateUseList(Battler user)
+        {
+            for (int c = 0; c < menuScreen.GetUsePanel().GetNode(ConstTerm.USE + ConstTerm.LIST).GetChildCount(); c++) {
+                if (!user.CheckCanTarget(playerParty.GetPlayerParty()[c], activeAbility, activeItem)) {
+                    menuScreen.GetUsePanel().GetNode(ConstTerm.USE + ConstTerm.LIST).GetChild(c).GetChild<ButtonUI>(0).SetQuasiDisabled(true);
+                } else {
+                    menuScreen.GetUsePanel().GetNode(ConstTerm.USE + ConstTerm.LIST).GetChild(c).GetChild<ButtonUI>(0).SetQuasiDisabled(false);
+                }
+            }
+        }
+
         private void SetupCharInfo()
         {
             Battler currentChar = playerParty.GetPlayerParty()[menuInput.GetMemberCommand()];
@@ -425,29 +440,14 @@ namespace ZAM.System
         private void SetupSkillList(Battler player)
         {
             foreach (Node child in menuScreen.GetSkillPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
-            { child.QueueFree(); }
-
-            // for (int c = 0; c < menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).GetChildCount(); c++)
-            // {
-            //     Node tempChild = menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).GetChild(c);
-            //     menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).RemoveChild(tempChild);
-            //     tempChild.QueueFree();
-            // }
-            // GD.Print(menuScreen.GetSkillPanel().GetNode(ConstTerm.SKILL + ConstTerm.LIST).GetChildCount());
-
-            // for (int a = 0; a < player.GetSkillCount(); a++)
-            // {
-            //     Label newSkill = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetButtonLabel().ResourcePath).Instantiate();
-            //     newSkill.Text = player.GetSkillName(a);
-            //     newSkill.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
-            // }
+            { child.Free(); }
 
             foreach (Ability skill in player.GetSkillList().GetSkills())
             {
                 Label newSkill = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetButtonLabel().ResourcePath).Instantiate();
                 newSkill.Text = skill.AbilityName;
                 newSkill.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
-                if (!player.CheckCanUse(skill)) {
+                if (!player.CheckCanUse(skill, false)) { // false = notInBattle
                     newSkill.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
                 }
 
@@ -459,33 +459,63 @@ namespace ZAM.System
         {
             if (!CheckHasItems()) { return; };
 
-            foreach (Node child in menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
-            { child.QueueFree(); }
-            itemList = [];
+            ClearItemWindow();
+            BuildItemList();
+            BuildEquipList();
+        }
 
-            foreach (Item item in ItemBag.Instance.GetItemBag()) {
+        private void ClearItemWindow()
+        {
+            foreach (Node child in menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
+            { child.Free(); }
+        }
+
+        private void BuildItemList()
+        {
+            // itemList = []; // EDIT: Useful for anything?
+
+            foreach (Item item in ItemBag.Instance.GetItemBag().Keys) {
                 // if (!item.UseableOutOfBattle) { continue; }
-                itemList.Add(item);
+                // itemList.Add(item);
                 
                 Label newItem = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetEquipLabel().ResourcePath).Instantiate();
                 newItem.Text = item.ItemName;
+                newItem.SetMeta(ConstTerm.UNIQUE_ID, item.UniqueID);
+
                 newItem.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
+                if (ItemBag.Instance.GetItemBag()[item] > 1) {
+                    newItem.GetNode<Label>(ConstTerm.COUNT).Text = "x" + ItemBag.Instance.GetItemBag()[item];
+                    newItem.GetNode<Label>(ConstTerm.COUNT).Visible = true;
+                }
                 if (!item.UseableOutOfBattle) {
                     newItem.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
                 }
 
                 menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newItem);
             }
+        }
+
+        private void RefreshEquipList() // EDIT: Find newly equip/changed gear, rather than cycling full list.
+        {
+            for (int e = 0; e < ItemBag.Instance.GetEquipBag().Count; e++) {
+                menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(e).GetNode<Label>(ConstTerm.EQUIPPED).Visible = ItemBag.Instance.GetEquipBag()[e].GetIsEquipped();
+            }
+        }
+
+        private void BuildEquipList()
+        {
             foreach (Equipment equip in ItemBag.Instance.GetEquipBag()) {
-                itemList.Add(equip);
+                // itemList.Add(equip);
 
                 Label newEquip = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetEquipLabel().ResourcePath).Instantiate();
                 newEquip.Text = equip.ItemName;
+                newEquip.SetMeta(ConstTerm.UNIQUE_ID, equip.UniqueID);
+
                 newEquip.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
                 if (!equip.UseableOutOfBattle) {
                     newEquip.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
                 }
-                newEquip.GetNode<Label>(ConstTerm.LABEL).Visible = equip.GetIsEquipped();
+                newEquip.GetNode<Label>(ConstTerm.EQUIPPED).Visible = equip.GetIsEquipped();
 
                 menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newEquip);
             }
@@ -494,12 +524,14 @@ namespace ZAM.System
         private void SetupUseList()
         {
             foreach (Node child in menuScreen.GetUsePanel().GetNode(ConstTerm.USE + ConstTerm.LIST).GetChildren())
-            { child.QueueFree(); }
+            { child.Free(); }
 
             foreach (Battler member in playerParty.GetPlayerParty()) {
-                Label newMember = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetButtonLabel().ResourcePath).Instantiate();
-                newMember.Text = member.GetBattlerName();
-                newMember.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
+                PanelContainer newMember = (PanelContainer)ResourceLoader.Load<PackedScene>(menuUseButton.ResourcePath).Instantiate();
+                newMember.GetNode<HBoxContainer>(ConstTerm.STATUS + ConstTerm.LIST).GetNode<Label>(ConstTerm.NAME).Text = member.GetBattlerName();
+                newMember.GetNode<HBoxContainer>(ConstTerm.STATUS + ConstTerm.LIST).GetNode<HealthDisplay>(ConstTerm.HEALTH_DISPLAY).SetBattler(member);
+                newMember.GetNode<HBoxContainer>(ConstTerm.STATUS + ConstTerm.LIST).GetNode<HealthDisplay>(ConstTerm.RESOURCE_DISPLAY).SetBattler(member);
+                // newMember.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
 
                 menuScreen.GetUsePanel().GetNode(ConstTerm.USE + ConstTerm.LIST).AddChild(newMember);
             }
@@ -508,10 +540,15 @@ namespace ZAM.System
         private void SetupGearList(int slot)
         {
             foreach (Node child in menuScreen.GetEquipPanel().GetGearList().GetChildren())
-            { child.QueueFree(); }
+            { child.Free(); }
             equipList = [];
 
-            if (slot < 0) { menuScreen.GetEquipPanel().ClearChangeValues(); return; }
+            if (slot < 0) { 
+                menuScreen.GetEquipPanel().ClearChangeValues();
+                RefreshEquipList();
+                return; 
+            }
+
             currentGearSlot = slot + 1;
 
             Array<Equipment> tempEquip = ItemBag.Instance.GetSlotContents(menuScreen.GetEquipPanel().GetSlotID(slot), playerParty.GetPlayerParty()[menuInput.GetMemberCommand()].GetCharClass());
@@ -529,7 +566,7 @@ namespace ZAM.System
                 Label newEquip = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetEquipLabel().ResourcePath).Instantiate();
                 newEquip.Text = equip.ItemName;
                 newEquip.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
-                newEquip.GetNode<Label>(ConstTerm.LABEL).Visible = equip.GetIsEquipped();
+                newEquip.GetNode<Label>(ConstTerm.EQUIPPED).Visible = equip.GetIsEquipped();
                 if (equip.GetIsEquipped()) { newEquip.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true); }
 
                 menuScreen.GetEquipPanel().GetGearList().AddChild(newEquip);
@@ -541,7 +578,7 @@ namespace ZAM.System
         private void ShowCompareValues(int currentSlot)
         {
             Battler currentBattler = playerParty.GetPlayerParty()[memberSelected];
-            Equipment oldEquip = currentBattler.GetEquipList().GetCharEquipment()[currentGearSlot].Equip;
+            Equipment oldEquip = currentBattler.GetEquipList().GetCharEquipment()[(GearSlotID)currentGearSlot];
             Equipment newEquip = equipList[currentSlot];
 
             Array<float> changes = [];
@@ -580,6 +617,17 @@ namespace ZAM.System
                 // IUIFunctions.EnableOption(menuScreen.GetCommandList().GetChild<Label>(itemCommand));
                 // menuScreen.GetCommandList().GetChild<Label>(itemCommand).Modulate = new Color(ConstTerm.WHITE);
                 return true;
+            }
+        }
+
+        private void CheckRemoveItemFromList()
+        {
+            ItemBag.Instance.RemoveItemFromBag(activeItem);
+            if (!ItemBag.Instance.GetItemBag().TryGetValue(activeItem, out var count)) { 
+                menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(menuInput.GetPrevCommand()).QueueFree();
+            }else {
+                menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(menuInput.GetPrevCommand()).GetNode<Label>(ConstTerm.COUNT).Text = 
+                "x" + ItemBag.Instance.GetItemBag()[activeItem];
             }
         }
 
@@ -650,6 +698,49 @@ namespace ZAM.System
             return travelList;
         }
 
+        //=============================================================================
+        // SECTION: Battler Handling
+        //=============================================================================
+
+        private void UseHeal(Battler user, Battler target)
+        {
+            if (activeAbility != null) {
+                if (activeAbility.TargetArea == ConstTerm.GROUP) {
+                    for (int c = 0; c < playerParty.GetPlayerParty().Count; c++) {
+                        if (!playerParty.GetPlayerParty()[c].GetHealth().IsHPFull()) {
+                            playerParty.GetPlayerParty()[c].GetHealth().ChangeHP(activeAbility.NumericValue);
+                        }
+                    }
+                    user.GetHealth().ChangeMP(-activeAbility.CostValue);
+                } else {
+                    if (!target.GetHealth().IsHPFull()) {
+                        target.GetHealth().ChangeHP(activeAbility.NumericValue);
+                        user.GetHealth().ChangeMP(-activeAbility.CostValue);
+                    }
+                }
+            }
+            
+            if (activeItem != null) {
+                if (activeItem.TargetArea == ConstTerm.GROUP) {
+                    for (int c = 0; c < playerParty.GetPlayerParty().Count; c++) {
+                        if (!playerParty.GetPlayerParty()[c].GetHealth().IsHPFull()) {
+                            playerParty.GetPlayerParty()[c].GetHealth().ChangeHP(activeAbility.NumericValue);
+                        }
+                    }
+                    if (activeItem.IsConsumable) { ItemBag.Instance.RemoveItemFromBag(activeItem); }
+                } else {
+                    if (!target.GetHealth().IsHPFull()) {
+                        target.GetHealth().ChangeHP(activeItem.NumericValue);
+                        if (activeItem.IsConsumable) { 
+                            CheckRemoveItemFromList();
+                        }
+                    }
+                }
+            }
+
+            UpdateUseList(user);
+        }
+
 
         //=============================================================================
         // SECTION: Signal Methods
@@ -709,14 +800,15 @@ namespace ZAM.System
             SelectChoice();
         }
 
-        private void OnItemReceive(string newItem, int newType)
+        private void OnItemReceive(string newItem, int newType, int count)
         {
-            ItemBag.Instance.AddToBag(newItem, (ItemType)newType);
+            ItemBag.Instance.AddToBag(newItem, (ItemType)newType, count);
         }
 
         private void OnMenuPhase()
         {
             UIVisibility();
+            // if (menuInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.USE) { UpdateUseList(); }
         }
 
         private void OnMenuOpen()
@@ -739,6 +831,7 @@ namespace ZAM.System
         {
             GD.Print("Saving game!");
             SaveLoader.Instance.SaveGame();
+            pauseScreen.ClosePauseMenu();
         }
 
         private void OnLoadMenu()
@@ -791,9 +884,47 @@ namespace ZAM.System
             else if (menuInput.GetInputPhase() == ConstTerm.EQUIP + ConstTerm.SELECT) { SetupCharInfo(); UpdateEquipInfo(); }
             // else if (menuInput.GetInputPhase() == ConstTerm.STATUS_SCREEN) { } // EDIT: Create/Assign status screen
 
-            menuInput.SetNumColumn();
+            // menuInput.SetNumColumn();
 
             menuScreen.GetEquipPanel().SetMaxHPMP(playerParty.GetPlayerParty()[memberSelected].GetHealth().GetMaxHP(), playerParty.GetPlayerParty()[memberSelected].GetHealth().GetMaxMP());
+        }
+
+        private void OnAbilitySelect(int index)
+        {
+            activeAbility = playerParty.GetPlayerParty()[menuInput.GetMemberCommand()].GetSkillList().GetSkills()[index];
+            activeItem = null;
+
+            UpdateUseList(playerParty.GetPlayerParty()[0]);
+        }
+
+        private void OnItemSelect(int index)
+        {
+            int id = (int)menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).GetMeta(ConstTerm.UNIQUE_ID);
+            activeItem = ItemBag.Instance.GetItemFromBag(id);
+            activeAbility = null;
+
+            UpdateUseList(playerParty.GetPlayerParty()[0]);
+        }
+
+        private void OnUseMember(int user, int target)
+        {
+            Battler memberUser = playerParty.GetPlayerParty()[user];
+            Battler memberTarget = playerParty.GetPlayerParty()[target];
+
+            string damageType = "";
+            if (activeAbility != null) { damageType = activeAbility.DamageType; }
+            if (activeItem != null) { damageType = activeItem.DamageType;}
+            UpdateUseList(memberTarget);
+
+            switch (damageType)
+            {
+                case "Healing":
+                    UseHeal(memberUser, memberTarget);
+                    break;
+                default:
+                    GD.PushError("ActiveAbility/Item not properly assigned!");
+                    break;
+            }
         }
 
         private void OnEquipSlot(int slot)
@@ -819,6 +950,7 @@ namespace ZAM.System
 
         private async Task OnCatchPlayer(PackedScene battleGroup, Interactable toFree)
         {
+            GD.Print("Catching");
             await LoadBattle(battleGroup);
             
             toFree.GetMoveAgent().onCatchPlayer -= async (battleGroup, toFree) => await OnCatchPlayer(battleGroup, toFree);

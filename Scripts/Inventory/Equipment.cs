@@ -12,8 +12,8 @@ namespace ZAM.Inventory
         // EDIT: Add icon and equip graphics
         
         [ExportGroup("Stats")]
-        [Export] public Modifier[] AddModifier { get; private set; } = [];
-        [Export] public Modifier[] PercentModifier { get; private set; } = [];
+        [Export] public Array<Modifier> AddModifier { get; private set; } = [];
+        [Export] public Array<Modifier> PercentModifier { get; private set; } = [];
         // [Export] public Array<StatID> AffectStat { get; private set; } = [StatID.UNDEFINED]; // Stat modifier on weapon
         // [Export] public Array<float> StatValue { get; private set; } = [0]; // Modifier value
 
@@ -61,7 +61,7 @@ namespace ZAM.Inventory
             //     tempMods[(int)PercentModifier[p].Stat] = PercentModifier[p].Value + 1;
             // }
 
-            for (int a = 0; a < AddModifier.Length; a++) {
+            for (int a = 0; a < AddModifier.Count; a++) {
                 tempMods[(int)AddModifier[a].Stat] += AddModifier[a].Value;
             }            
 
@@ -79,7 +79,7 @@ namespace ZAM.Inventory
 
         public Dictionary<StatID, float> StatAddModifier(Dictionary<StatID, float> statSheet)
         {
-            for (int s = 0; s < AddModifier.Length; s++) {
+            for (int s = 0; s < AddModifier.Count; s++) {
                 statSheet[AddModifier[s].Stat] += AddModifier[s].Value;
             }
             return statSheet;
@@ -87,10 +87,79 @@ namespace ZAM.Inventory
 
         public Dictionary<StatID, float> StatPercentModifier(Dictionary<StatID, float> statSheet)
         {
-            for (int s = 0; s < PercentModifier.Length; s++) {
+            for (int s = 0; s < PercentModifier.Count; s++) {
                 statSheet[PercentModifier[s].Stat] *= PercentModifier[s].Value;
             }
             return statSheet;
+        }
+
+
+        //=============================================================================
+        // SECTION: Save System
+        //=============================================================================
+
+        public void SetEquipDetails(Array<GearSlotID> slots)
+        {
+            GearSlot = slots;
+        }
+
+        public void SetEquipStats(Array<Modifier> add, Array<Modifier> percent)
+        {
+            AddModifier = add;
+            PercentModifier = percent;
+        }
+
+        public void SetEquipRestrictions(Array<ClassID> classes, int uniqueEquip)
+        {
+            ClassEquip = classes;
+            UniqueEquip = uniqueEquip;
+        }
+
+        public void SetDataDetails(ref EquipmentData data)
+        {
+            data.ItemType = ItemType;
+            data.ItemName = ItemName;
+            data.ItemDescription = ItemDescription;
+            data.TargetType = TargetType;
+            data.TargetArea = TargetArea;
+            data.NumericValue = NumericValue;
+
+            data.UniqueID = UniqueID;
+
+            data.GearSlot = GearSlot;
+
+            AddedState.SetDataDetails(data.AddedState);
+        }
+
+        public void SetDataStats(ref EquipmentData data)
+        {
+            data.AddModifier = AddModifier;
+            data.PercentModifier = PercentModifier;
+        }
+
+        public void SetDataMechanics(ref EquipmentData data)
+        {
+            data.DamageType = DamageType;
+            data.CallAnimation = CallAnimation;
+
+            data.AddedState.AddModifier = AddedState.AddModifier;
+            data.AddedState.PercentModifier = AddedState.PercentModifier;
+
+            AddedState.SetDataMechanics(data.AddedState);
+        }
+
+        public void SetDataRestrictions(ref EquipmentData data)
+        {
+            data.UseableInBattle = UseableInBattle;
+            data.UseableOutOfBattle = UseableOutOfBattle;
+            data.UseableOnDead = UseableOnDead;
+            data.CanStack = CanStack;
+            data.IsConsumable = IsConsumable;
+
+            data.ClassEquip = ClassEquip;
+            data.UniqueEquip = UniqueEquip;
+
+            AddedState.SetDataRestrictions(data.AddedState);
         }
     }
 }

@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://bjoehnkxwngcu"]
 
 [ext_resource type="PackedScene" uid="uid://da7fwfcevplrb" path="res://Resources/Prefab/player_character.tscn" id="1_8ij14"]
-[ext_resource type="Script" path="res://Scripts/Abilities/Modifier.cs" id="2_1jf01"]
+[ext_resource type="Script" uid="uid://dvrvewsrmh6d4" path="res://Scripts/Abilities/Modifier.cs" id="2_1jf01"]
 
 [sub_resource type="Resource" id="Resource_lynlm"]
 script = ExtResource("2_1jf01")
