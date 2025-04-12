@@ -188,7 +188,7 @@ namespace ZAM.System
                 chaseList = [];
             for (int i = 0; i < mapEvents.GetChildCount(); i++) {
                 Interactable tempActor = (Interactable)mapEvents.GetChild(i);
-                if (tempActor.GetShouldChase()) { 
+                if (tempActor.ShouldChasePlayer) { 
                     tempActor.GetMoveAgent().onCatchPlayer += async (battleGroup, toFree) => await OnCatchPlayer(battleGroup, toFree);
                     chaseList.Add(tempActor);
                 }
@@ -297,7 +297,7 @@ namespace ZAM.System
             }
             else
             {
-                if (interactTarget.IsEvent()) 
+                if (interactTarget.IsEvent) 
                 {
                     textBox.HideTextBox();
                     playerInput.SetInputPhase(ConstTerm.DO_NOTHING);
@@ -321,7 +321,7 @@ namespace ZAM.System
             playerInput.SetInteractToggle(true);
             interactTarget = (Interactable)interactArray[index].GetCollider();
             
-            if (interactTarget.IsEventAndInteractStart()) {
+            if (interactTarget.IsEvent && interactTarget.IsInteractable) {
                 interactTarget.onEventStart += OnEventStart; }
             interactTarget.onInteractPhase += OnInteractPhase;
             interactTarget.onItemReceive += OnItemReceive;
@@ -333,7 +333,7 @@ namespace ZAM.System
             interactTarget.ResetDirection();
             interactTarget.ResetEvent();
 
-            if (interactTarget.IsEventAndInteractStart()) {
+            if (interactTarget.IsEvent && interactTarget.IsInteractable) {
                 interactTarget.onEventStart -= OnEventStart;
                 interactTarget.GetMoveAgent().onEndEventStep -= mapEvents.OnEndEventStep; 
             }
@@ -764,7 +764,7 @@ namespace ZAM.System
         private void OnEventComplete()
         {
             // GD.Print("Event complete");
-            interactTarget.TurnOffEvent();
+            if (!interactTarget.IsRepeatable) { interactTarget.TurnOffEvent(); }
             RemoveInteractTarget();
         }
 
@@ -950,7 +950,6 @@ namespace ZAM.System
 
         private async Task OnCatchPlayer(PackedScene battleGroup, Interactable toFree)
         {
-            GD.Print("Catching");
             await LoadBattle(battleGroup);
             
             toFree.GetMoveAgent().onCatchPlayer -= async (battleGroup, toFree) => await OnCatchPlayer(battleGroup, toFree);

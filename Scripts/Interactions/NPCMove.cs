@@ -71,7 +71,7 @@ namespace ZAM.Interactions
 
             npcInteract.SetInteractPhase(ConstTerm.WAIT);
             
-            if (!npcInteract.GetShouldChase()) { DisableChaseArea(); }
+            if (!npcInteract.ShouldChasePlayer) { DisableChaseArea(); }
         }
 
         // public override void _ExitTree()
@@ -268,7 +268,7 @@ namespace ZAM.Interactions
 
         private void HearingCheck()
         {
-            if (!npcInteract.GetShouldChase()) { return; }
+            if (!npcInteract.ShouldChasePlayer) { return; }
         }
 
         private void LineOfSightCheck()
@@ -407,7 +407,7 @@ namespace ZAM.Interactions
 
         private void StartChase()
         {           
-            if (npcInteract.GetShouldChase())
+            if (npcInteract.ShouldChasePlayer)
             {
                 returnPosition = charBody.GlobalPosition;
                 npcInteract.SetInteractPhase(ConstTerm.CHASE);

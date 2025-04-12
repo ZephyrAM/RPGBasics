@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=4 uid="uid://cj0v8mojhj4a7"]
+[gd_scene load_steps=24 format=4 uid="uid://cj0v8mojhj4a7"]
 
 [ext_resource type="Script" uid="uid://h7a2i3bvldf3" path="res://Scripts/System/MapSystem.cs" id="1_0i5bc"]
 [ext_resource type="PackedScene" uid="uid://chutyx7868wr6" path="res://Scenes/BattleScene.tscn" id="2_kbl8o"]
@@ -927,76 +927,6 @@ sources/1 = SubResource("TileSetAtlasSource_hjwbo")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b7hks"]
 size = Vector2(278, 151)
 
-[sub_resource type="Gradient" id="Gradient_2prei"]
-colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_u7gre"]
-gradient = SubResource("Gradient_2prei")
-fill = 1
-fill_from = Vector2(0.5, 0.5)
-fill_to = Vector2(0.5, 0)
-
-[sub_resource type="Animation" id="Animation_jjokv"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:texture_scale")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [1.65]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath(".:energy")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [1.0]
-}
-
-[sub_resource type="Animation" id="Animation_cmgai"]
-resource_name = "light_pulse"
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:texture_scale")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.166667, 0.333333, 0.5, 0.666667, 0.833333, 1),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [1.65, 1.55, 1.65, 1.55, 1.65, 1.55, 1.65]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath(".:energy")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.5, 1),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [1.0, 0.75, 1.0]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_6aqoq"]
-_data = {
-&"RESET": SubResource("Animation_jjokv"),
-&"light_pulse": SubResource("Animation_cmgai")
-}
-
 [node name="SceneBase" type="Node2D"]
 y_sort_enabled = true
 
@@ -1075,36 +1005,6 @@ enemyGroups = Array[PackedScene]([ExtResource("14_r0cwx")])
 position = Vector2(150, 95)
 shape = SubResource("RectangleShape2D_b7hks")
 
-[node name="CanvasModulate" type="CanvasModulate" parent="MapSystem/Environment"]
-visible = false
-color = Color(0, 0.196078, 0.333333, 1)
-
-[node name="PointLight2D" type="PointLight2D" parent="MapSystem/Environment/CanvasModulate"]
-position = Vector2(-357, 79)
-scale = Vector2(3.10938, 2.71875)
-texture = SubResource("GradientTexture2D_u7gre")
-texture_scale = 1.65
-height = 30.0
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="MapSystem/Environment/CanvasModulate/PointLight2D"]
-libraries = {
-&"": SubResource("AnimationLibrary_6aqoq")
-}
-
-[node name="PointLight2D2" type="PointLight2D" parent="MapSystem/Environment/CanvasModulate"]
-position = Vector2(293, -68)
-scale = Vector2(3.10938, 2.71875)
-texture = SubResource("GradientTexture2D_u7gre")
-texture_scale = 1.65
-height = 30.0
-
-[node name="PointLight2D3" type="PointLight2D" parent="MapSystem/Environment/CanvasModulate"]
-position = Vector2(81, 298)
-scale = Vector2(3.10938, 2.71875)
-texture = SubResource("GradientTexture2D_u7gre")
-texture_scale = 1.65
-height = 30.0
-
 [node name="Events" type="Node2D" parent="MapSystem"]
 y_sort_enabled = true
 
@@ -1122,15 +1022,14 @@ choiceText = Dictionary[String, String]({
 "Text2B": "No, really? Huh, must be getting forgetful.",
 "Text4": "Enjoy a potion, on me!"
 })
+IsRepeatable = true
 
 [node name="Event0" parent="MapSystem/Events" node_paths=PackedStringArray("movePositions") instance=ExtResource("15_2nx0r")]
 position = Vector2(-401, 253)
 movePositions = [NodePath("Point0"), NodePath("Point1"), NodePath("Point2")]
 eventStepCount = 3
-isEvent = true
-eventDirectStart = true
-doesMove = false
-isRepeatable = false
+IsEvent = true
+DoesMove = false
 
 [node name="Point0" type="Node2D" parent="MapSystem/Events/Event0"]
 top_level = true

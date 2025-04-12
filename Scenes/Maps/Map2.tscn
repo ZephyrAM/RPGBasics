@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=4 uid="uid://be4kqh4vda2fb"]
+[gd_scene load_steps=27 format=4 uid="uid://be4kqh4vda2fb"]
 
 [ext_resource type="Script" uid="uid://h7a2i3bvldf3" path="res://Scripts/System/MapSystem.cs" id="1_6wcfb"]
 [ext_resource type="Script" uid="uid://csl0yuaxa1tre" path="res://Scripts/Managers/PartyManager.cs" id="2_jht3e"]
@@ -925,6 +925,76 @@ sources/1 = SubResource("TileSetAtlasSource_cct6p")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rca54"]
 size = Vector2(278, 151)
 
+[sub_resource type="Gradient" id="Gradient_2prei"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_qumf2"]
+gradient = SubResource("Gradient_2prei")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Animation" id="Animation_jjokv"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:texture_scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.65]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:energy")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+[sub_resource type="Animation" id="Animation_cmgai"]
+resource_name = "light_pulse"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:texture_scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.166667, 0.333333, 0.5, 0.666667, 0.833333, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.65, 1.55, 1.65, 1.55, 1.65, 1.55, 1.65]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:energy")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [1.0, 0.75, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_6aqoq"]
+_data = {
+&"RESET": SubResource("Animation_jjokv"),
+&"light_pulse": SubResource("Animation_cmgai")
+}
+
 [node name="SceneBase" type="Node2D"]
 y_sort_enabled = true
 
@@ -943,6 +1013,7 @@ menuUseButton = ExtResource("4_gmeec")
 eventScript = ExtResource("4_8c2a8")
 
 [node name="PartyManager" type="Node2D" parent="MapSystem" groups=["PartyData"]]
+y_sort_enabled = true
 position = Vector2(965, -461)
 script = ExtResource("2_jht3e")
 playerController = ExtResource("7_f0vsb")
@@ -1004,14 +1075,42 @@ enemyGroups = Array[PackedScene]([ExtResource("12_gta72")])
 position = Vector2(150, 93.5)
 shape = SubResource("RectangleShape2D_rca54")
 
+[node name="CanvasModulate" type="CanvasModulate" parent="MapSystem/Environment"]
+color = Color(0, 0.196078, 0.333333, 1)
+
+[node name="PointLight2D" type="PointLight2D" parent="MapSystem/Environment/CanvasModulate"]
+position = Vector2(-251, 24)
+scale = Vector2(3.10938, 2.71875)
+texture = SubResource("GradientTexture2D_qumf2")
+texture_scale = 1.65
+height = 30.0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="MapSystem/Environment/CanvasModulate/PointLight2D"]
+libraries = {
+&"": SubResource("AnimationLibrary_6aqoq")
+}
+
+[node name="PointLight2D2" type="PointLight2D" parent="MapSystem/Environment/CanvasModulate"]
+position = Vector2(475, 15)
+scale = Vector2(3.10938, 2.71875)
+texture = SubResource("GradientTexture2D_qumf2")
+texture_scale = 1.65
+height = 30.0
+
+[node name="PointLight2D3" type="PointLight2D" parent="MapSystem/Environment/CanvasModulate"]
+position = Vector2(124, 135)
+scale = Vector2(3.10938, 2.71875)
+texture = SubResource("GradientTexture2D_qumf2")
+texture_scale = 1.65
+height = 30.0
+
 [node name="Events" type="Node2D" parent="MapSystem"]
 y_sort_enabled = true
 
 [node name="Interactable0" parent="MapSystem/Events" instance=ExtResource("14_sr6m2")]
 position = Vector2(-345, 152)
-isRepeatable = false
-shouldChasePlayer = true
-isAutoBattle = true
+ShouldChasePlayer = true
+IsAutoBattle = true
 battleGroup = ExtResource("12_gta72")
 
 [node name="Camera2D" type="Camera2D" parent="MapSystem"]

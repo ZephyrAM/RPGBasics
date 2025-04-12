@@ -15,9 +15,7 @@ namespace ZAM.Interactions
         [ExportGroup("Events")]
         [Export] private Node2D[] movePositions = [];
         [Export] private int eventStepCount = 0;
-
-        [Export] private bool isEvent = false;
-        [Export] private bool eventDirectStart = false;
+        [Export] public bool IsEvent { get; private set; } = false;
 
         [ExportGroup("Interactions")]
         [Export] private Array<InteractType> actionType = [];
@@ -26,12 +24,13 @@ namespace ZAM.Interactions
         // [Export] private Dictionary<string, Resource> itemList = [];
 
         [ExportGroup("Values")]
-        [Export] private bool doesMove = true;
-        [Export] private bool isRepeatable = false; // SaveData
+        [Export] public bool IsInteractable { get; private set; } = true;
+        [Export] public bool DoesMove { get; private set; } = true;
+        [Export] public bool IsRepeatable { get; private set; } = false; // SaveData
         [Export] private int noRepeatStep = 0;      // SaveData
 
-        [Export] private bool shouldChasePlayer = false;
-        [Export] private bool isAutoBattle = false;
+        [Export] public bool ShouldChasePlayer { get; private set; } = false;
+        [Export] public bool IsAutoBattle { get; private set; } = false;
         [Export] private PackedScene battleGroup = null;
 
         // private MapEventScript mapEventScript;
@@ -45,7 +44,7 @@ namespace ZAM.Interactions
 
         private bool choiceActive = false;
         private bool hasPlayed = false;             // SaveData
-        private bool isPlaying = false;
+        public bool IsPlaying { get; private set; } = false;
 
         private readonly char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
 
@@ -100,7 +99,7 @@ namespace ZAM.Interactions
             // playerParty ??= GetNode<PartyManager>("../" + ConstTerm.PARTYMANAGER);
             // partyInput ??= playerParty.GetChild<CharacterController>(0);
 
-            moveableBody.SetDoesMove(doesMove);
+            moveableBody.SetDoesMove(DoesMove);
             ResetInteractPhase();
         }
 
@@ -121,34 +120,28 @@ namespace ZAM.Interactions
 
         public bool CheckValidInteract()
         {
-            bool isValid = false;
-
-            if (IsEventAndInteractStart()) { isValid = true; }
-            else if (actionType.Count > 0) { isValid = true; }
-            else if (isRepeatable) { isValid = true; }
-
-            return isValid;
+            return IsInteractable;
         }
 
         public void TargetInteraction(Vector2 direction)
         {
             // GD.Print("Target Interaction");
             // LoadChoiceText();
-            if (isAutoBattle) { GD.Print("Battle Trigger!"); moveableBody.TriggerBattler(); return; }
+            if (IsAutoBattle) { moveableBody.TriggerBattler(); return; }
 
-            if (!isEvent) 
+            if (!IsEvent) 
             {
                 if (actionType.Count <= 0) { return; }
                 SetInteractPhase(ConstTerm.INTERACT);
                 moveableBody?.FaceDirection(direction);
 
-                if (isRepeatable) { stepNumber = 0; choiceStep = 0; }
-                isPlaying = true;
+                if (IsRepeatable) { stepNumber = 0; choiceStep = 0; }
+                IsPlaying = true;
 
                 StepInteract(0);
             } else 
             {
-                isPlaying = true;
+                IsPlaying = true;
                 EmitSignal(SignalName.onEventStart); // -> MapSystem - OnEventStart
             }
         }
@@ -156,7 +149,7 @@ namespace ZAM.Interactions
         public void StepInteract(int adjust)
         {
             // GD.Print(actionType[stepNumber + adjust]);
-            if (IsEvent()) { GD.PushError("Event active! StepInteract invalid usage."); return; }
+            if (IsEvent) { GD.PushError("Event active! StepInteract invalid usage."); return; }
 
             switch (actionType[stepNumber + adjust])
             {
@@ -274,14 +267,28 @@ namespace ZAM.Interactions
         // SECTION: External Access
         //=============================================================================
 
+        public bool StepCheck()
+        {
+            stepNumber++;
+            // GD.Print("Stepcheck = " + stepNumber);
+            bool stepComplete;
+
+            if (IsEvent) { stepComplete = stepNumber >= eventStepCount; }
+            else { stepComplete = stepNumber >= actionType.Count; }
+
+            if (stepComplete) { IsPlaying = false; }
+            return stepComplete;
+        }
+
+        public void TurnOffEvent()
+        {
+            IsEvent = false;
+            IsInteractable = false;
+        }
+
         public void SetPlayer(CharacterBody2D getPlayer)
         {
             playerTarget = getPlayer;
-        }
-
-        public bool GetShouldChase()
-        {
-            return shouldChasePlayer;
         }
 
         public void SetChoiceOption(int index)
@@ -290,52 +297,19 @@ namespace ZAM.Interactions
             choiceBox.SetChoiceOption(choiceOption);
         }
 
-        public bool IsPlaying()
-        {
-            return isPlaying;
-        }
-
         public void SetIsPlaying(bool value)
         {
-            isPlaying = value;
-        }
-
-        public int GetStep()
-        {
-            return stepNumber;
-        }
-
-        public bool StepCheck()
-        {
-            stepNumber++;
-            // GD.Print("Stepcheck = " + stepNumber);
-            bool stepComplete;
-
-            if (IsEvent()) { stepComplete = stepNumber >= eventStepCount; }
-            else { stepComplete = stepNumber >= actionType.Count; }
-
-            if (stepComplete) { isPlaying = false; }
-            return stepComplete;
-        }
-
-        public TextBox GetTextBox()
-        {
-            return textBox;
-        }
-        
-        public ChoiceBox GetChoiceBox()
-        {
-            return choiceBox;
-        }
-
-        public string GetInteractPhase()
-        {
-            return interactPhase;
+            IsPlaying = value;
         }
 
         public void SetInteractPhase(string phase)
         {
             interactPhase = phase;
+        }
+
+        public void SetCurrPosition(int value)
+        {
+            currentMovePos = value;
         }
 
         public void ResetInteractPhase()
@@ -349,22 +323,16 @@ namespace ZAM.Interactions
             stepNumber = 0;
             SetCurrPosition(0);
             GetMoveAgent().GetCollider().Disabled = false;
+        }       
+
+        public void ResetDirection()
+        {
+            moveableBody?.RevertDirection();
         }
 
-        public Node2D[] GetMovePositions()
-        {
-            return movePositions;
-        }
-
-        public int GetCurrPosition()
-        {
-            return currentMovePos;
-        }
-
-        public void SetCurrPosition(int value)
-        {
-            currentMovePos = value;
-        }
+        //=============================================================================
+        // SECTION: Get Access
+        //=============================================================================
 
         public NPCMove GetMoveAgent()
         {
@@ -376,25 +344,34 @@ namespace ZAM.Interactions
             return battleGroup;
         }
 
-        public void ResetDirection()
+        public Node2D[] GetMovePositions()
         {
-            moveableBody?.RevertDirection();
+            return movePositions;
         }
 
-        public bool IsEventAndInteractStart()
+        public TextBox GetTextBox()
         {
-            return isEvent && eventDirectStart;
+            return textBox;
         }
 
-        public bool IsEvent()
+        public ChoiceBox GetChoiceBox()
         {
-            return isEvent;
+            return choiceBox;
         }
 
-        public void TurnOffEvent()
+        public int GetStep()
         {
-            isEvent = false;
-            eventDirectStart = false;
+            return stepNumber;
+        }
+
+        public int GetCurrPosition()
+        {
+            return currentMovePos;
+        }        
+
+        public string GetInteractPhase()
+        {
+            return interactPhase;
         }
 
         // public bool IsEventDirectStart()

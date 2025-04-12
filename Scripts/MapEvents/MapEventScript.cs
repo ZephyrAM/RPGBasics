@@ -59,7 +59,7 @@ namespace ZAM.MapEvents
 
         public void OnEndEventStep(Interactable interactor)
         {
-            if (!interactor.IsEvent()) { return; }
+            if (!interactor.IsEvent) { return; }
 
             if (interactor.StepCheck()) { EmitSignal(SignalName.onEventComplete); } // -> MapSystem
             else { Call(interactor.Name, interactor); } // -> Map#: Event# function
