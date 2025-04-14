@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Godot;
 using Godot.Collections;
 
@@ -129,29 +130,32 @@ namespace ZAM.Inventory
         // SECTION: Save System
         //=============================================================================
 
-        public Dictionary<GearSlotID, int> StoreEquipList()
+        public Dictionary<GearSlotID, ulong> StoreEquipList()
         {
-            Dictionary<GearSlotID, int> newList = [];
+            Dictionary<GearSlotID, ulong> newList = [];
 
             foreach (GearSlotID data in characterEquipment.Keys) {
-                int bagPos = ItemBag.Instance.GetEquipBag().IndexOf(characterEquipment[data]);
-                newList[data] = bagPos;
+                if (characterEquipment[data] == null) { newList[data] = 0; continue;}
+                ulong uniqueID = characterEquipment[data].UniqueID;
+                newList[data] = uniqueID;
             }
 
             return newList;
         }
 
-        public void SetEquipList(Dictionary<GearSlotID, int> list)
+        public void SetEquipList(Dictionary<GearSlotID, ulong> list)
         {
             SetupEquipList();
             foreach(GearSlotID data in list.Keys) {
-                int bagPos = list[data];
+                ulong uniqueID = list[data];
                 Equipment bagEquip;
 
-                if (bagPos >= 0) { bagEquip = ItemBag.Instance.GetEquipBag()[bagPos]; }
+                if (uniqueID > 0) { bagEquip = ItemBag.Instance.GetEquipBag().FirstOrDefault(gear => gear.UniqueID == uniqueID); }
                 else { bagEquip = null; }
 
-                if (bagPos >= 0) { characterEquipment[data] = bagEquip; }
+                if (bagEquip != null) { 
+                    characterEquipment[data] = bagEquip;
+                }
             }
         }
     }

@@ -24,5 +24,5 @@ public partial class AbilityData : Resource
     [Export] public bool UseableOutOfBattle { get; set; }
     [Export] public bool UseableOnDead { get; set; }
 
-    [Export] public int UniqueID { get; set; }
+    [Export] public ulong UniqueID { get; set; }
 }

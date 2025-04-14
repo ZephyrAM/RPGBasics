@@ -498,7 +498,7 @@ namespace ZAM.System
         private void RefreshEquipList() // EDIT: Find newly equip/changed gear, rather than cycling full list.
         {
             for (int e = 0; e < ItemBag.Instance.GetEquipBag().Count; e++) {
-                menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(e).GetNode<Label>(ConstTerm.EQUIPPED).Visible = ItemBag.Instance.GetEquipBag()[e].GetIsEquipped();
+                menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(e).GetNode<Label>(ConstTerm.EQUIPPED).Visible = ItemBag.Instance.GetEquipBag()[e].IsEquipped;
             }
         }
 
@@ -515,7 +515,7 @@ namespace ZAM.System
                 if (!equip.UseableOutOfBattle) {
                     newEquip.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true);
                 }
-                newEquip.GetNode<Label>(ConstTerm.EQUIPPED).Visible = equip.GetIsEquipped();
+                newEquip.GetNode<Label>(ConstTerm.EQUIPPED).Visible = equip.IsEquipped;
 
                 menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).AddChild(newEquip);
             }
@@ -551,7 +551,8 @@ namespace ZAM.System
 
             currentGearSlot = slot + 1;
 
-            Array<Equipment> tempEquip = ItemBag.Instance.GetSlotContents(menuScreen.GetEquipPanel().GetSlotID(slot), playerParty.GetPlayerParty()[menuInput.GetMemberCommand()].GetCharClass());
+            Battler currentBattler = playerParty.GetPlayerParty()[menuInput.GetMemberCommand()];
+            Array<Equipment> tempEquip = ItemBag.Instance.GetSlotContents(menuScreen.GetEquipPanel().GetSlotID(slot), currentBattler.GetCharClass());
 
             Label removeEquip = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetEquipLabel().ResourcePath).Instantiate();
             removeEquip.Text = "-Remove-";
@@ -566,8 +567,11 @@ namespace ZAM.System
                 Label newEquip = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetEquipLabel().ResourcePath).Instantiate();
                 newEquip.Text = equip.ItemName;
                 newEquip.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
-                newEquip.GetNode<Label>(ConstTerm.EQUIPPED).Visible = equip.GetIsEquipped();
-                if (equip.GetIsEquipped()) { newEquip.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true); }
+                newEquip.GetNode<Label>(ConstTerm.EQUIPPED).Visible = equip.IsEquipped;
+                if (equip.IsEquipped) { newEquip.GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(true); }
+                
+                if (equip == currentBattler.GetEquipList().GetCharEquipment()[(GearSlotID)currentGearSlot]) 
+                { newEquip.GetNode<ButtonUI>(ConstTerm.BUTTON).GetParent().Set(CanvasItem.PropertyName.Modulate, new Color(ConstTerm.GREEN)); }
 
                 menuScreen.GetEquipPanel().GetGearList().AddChild(newEquip);
             }
@@ -899,7 +903,7 @@ namespace ZAM.System
 
         private void OnItemSelect(int index)
         {
-            int id = (int)menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).GetMeta(ConstTerm.UNIQUE_ID);
+            ulong id = (ulong)menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).GetMeta(ConstTerm.UNIQUE_ID);
             activeItem = ItemBag.Instance.GetItemFromBag(id);
             activeAbility = null;
 

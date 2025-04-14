@@ -31,16 +31,16 @@ namespace ZAM.Inventory
         [Export] public bool CanStack { get; private set; }
         [Export] public bool IsConsumable { get; private set; } = true;
 
-        public int UniqueID { get; private set; } = 0;
+        public ulong UniqueID { get; private set; } = 0;
 
-        public void SetUniqueID(ref int id)
+        public void SetUniqueID(ref ulong id)
         { 
             if (UniqueID != 0) { GD.PushWarning("Attempting to re-declare UniqueID for " + ItemName); return; }
             UniqueID = id;
             id++;
         }
 
-        public void CreateUniqueInstance(ref int id)
+        public void CreateUniqueInstance(ref ulong id)
         {
             UniqueID = id;
             id++;
@@ -50,7 +50,7 @@ namespace ZAM.Inventory
         // SECTION: Save System
         //=============================================================================
 
-        public void SetDetails(ItemType itemType, string name, string description, string type, string area, float value, int id)
+        public void SetDetails(ItemType itemType, string name, string description, string type, string area, float value, ulong id)
         {
             ItemType = itemType;
             ItemName = name;
@@ -62,7 +62,7 @@ namespace ZAM.Inventory
             UniqueID = id;
         }
 
-        public void SetStateDetails(string name, string description, int id)
+        public void SetStateDetails(string name, string description, ulong id)
         {
             AddedState.SetDetails(name, description, id);
         }

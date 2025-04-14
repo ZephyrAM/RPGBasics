@@ -15,5 +15,5 @@ public partial class EffectStateData : Resource
     [ExportGroup("Restrictions")]
     [Export] public bool ExistsOutOfBattle { get; set; }
 
-    public int UniqueID { get; set; } = 0;
+    public ulong UniqueID { get; set; } = 0;
 }

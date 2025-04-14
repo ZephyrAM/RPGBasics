@@ -10,5 +10,5 @@ public partial class BattlerData: Resource
     [Export] public float CurrentExp { get; set; }
     [Export] public int CurrentLevel { get; set; }
     [Export] public Array<AbilityData> SkillList { get; set; } = [];
-    [Export] public Dictionary<GearSlotID, int> EquipList { get; set; } = [];
+    [Export] public Dictionary<GearSlotID, ulong> EquipList { get; set; } = [];
 }

@@ -17,9 +17,9 @@ namespace ZAM.Abilities
         [ExportGroup("Restrictions")]
         [Export] public bool ExistsOutOfBattle { get; private set; }
 
-        public int UniqueID { get; private set; } = 0;
+        public ulong UniqueID { get; private set; } = 0;
 
-        public void SetUniqueID(ref int id)
+        public void SetUniqueID(ref ulong id)
         {
             if (UniqueID != 0) { GD.PushWarning("Attempting to re-declare UniqueID for " + StateName); return; }
             UniqueID = id;
@@ -77,7 +77,7 @@ namespace ZAM.Abilities
         // SECTION: Save System
         //=============================================================================
 
-        public void SetDetails(string name, string description, int id)
+        public void SetDetails(string name, string description, ulong id)
         {
             StateName = name;
             StateDescription = description;

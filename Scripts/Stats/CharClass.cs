@@ -17,9 +17,9 @@ namespace ZAM.Stats
 
         [Export] public LearnSkill[] LearnSkills { get; private set; }
 
-        public int UniqueID { get; private set; } = 0;
+        public ulong UniqueID { get; private set; } = 0;
 
-        public void SetUniqueID(ref int id)
+        public void SetUniqueID(ref ulong id)
         {
             if (UniqueID != 0) { GD.PushWarning("Attempting to re-declare UniqueID for " + ClassName); return; }
             UniqueID = id;

@@ -21,7 +21,7 @@ namespace ZAM.Inventory
         [Export] public Array<ClassID> ClassEquip { get; private set; } = [ClassID.UNDEFINED]; // Classes that can equip it.
         [Export] public int UniqueEquip { get; private set; } = 0; // If 0, not unique. Else, number of equips allowed.
 
-        private bool isEquipped  = false;
+        public bool IsEquipped { get; private set; } = false;
 
         // private Dictionary<StatID, float> gearStatList = [];
 
@@ -40,14 +40,10 @@ namespace ZAM.Inventory
         // SECTION: External Access Methods
         //=============================================================================
 
-        public bool GetIsEquipped()
-        {
-            return isEquipped;
-        }
 
         public void SetIsEquipped(bool value)
         {
-            isEquipped = value;
+            IsEquipped = value;
         }
 
         public Array<float> GetStatModifiers()
@@ -109,10 +105,11 @@ namespace ZAM.Inventory
             PercentModifier = percent;
         }
 
-        public void SetEquipRestrictions(Array<ClassID> classes, int uniqueEquip)
+        public void SetEquipRestrictions(Array<ClassID> classes, int uniqueEquip, bool equipped)
         {
             ClassEquip = classes;
             UniqueEquip = uniqueEquip;
+            IsEquipped = equipped;
         }
 
         public void SetDataDetails(ref EquipmentData data)
@@ -158,6 +155,7 @@ namespace ZAM.Inventory
 
             data.ClassEquip = ClassEquip;
             data.UniqueEquip = UniqueEquip;
+            data.IsEquipped = IsEquipped;
 
             AddedState.SetDataRestrictions(data.AddedState);
         }

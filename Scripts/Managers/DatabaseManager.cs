@@ -28,7 +28,7 @@ namespace ZAM.Managers
         private Dictionary<string, Equipment> armorDatabase = [];
         private Dictionary<string, Equipment> accessoryDatabase = [];
 
-        private int uniqueIDCounter = 1;
+        private ulong uniqueIDCounter = 1;
 
         public static DatabaseManager Instance { get; private set; }
 
@@ -79,21 +79,26 @@ namespace ZAM.Managers
 
             for (int i = 0; i < weaponList.GetChildCount(); i++) {
                 Equipment tempWeapon = (Equipment)weaponList.GetChild(i);
-                tempWeapon.SetUniqueID(ref uniqueIDCounter);
+                // tempWeapon.SetUniqueID(ref uniqueIDCounter);
                 weaponDatabase[tempWeapon.ItemName] = tempWeapon;
             }
 
             for (int i = 0; i < armorList.GetChildCount(); i++) {
                 Equipment tempArmor = (Equipment)armorList.GetChild(i);
-                tempArmor.SetUniqueID(ref uniqueIDCounter);
+                // tempArmor.SetUniqueID(ref uniqueIDCounter);
                 armorDatabase[tempArmor.ItemName] = tempArmor;
             }
 
             for (int i = 0; i < accessoryList.GetChildCount(); i++) {
                 Equipment tempAccessory = (Equipment)accessoryList.GetChild(i);
-                tempAccessory.SetUniqueID(ref uniqueIDCounter);
+                // tempAccessory.SetUniqueID(ref uniqueIDCounter);
                 accessoryDatabase[tempAccessory.ItemName] = tempAccessory;
             }
+        }
+
+        public ref ulong GetUniqueCounter()
+        {
+            return ref uniqueIDCounter;
         }
 
         //=============================================================================

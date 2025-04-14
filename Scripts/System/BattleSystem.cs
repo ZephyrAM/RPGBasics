@@ -1071,7 +1071,7 @@ namespace ZAM.System
 
         private void OnItemSelect(int index)
         {
-            int id = (int)itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).GetMeta(ConstTerm.UNIQUE_ID);
+            ulong id = (ulong)itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).GetMeta(ConstTerm.UNIQUE_ID);
             activeItem = ItemBag.Instance.GetItemFromBag(id);
             activeAbility = null;
 

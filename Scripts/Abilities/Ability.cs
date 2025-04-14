@@ -25,16 +25,16 @@ namespace ZAM.Abilities
         [Export] public bool UseableOutOfBattle { get; private set; }
         [Export] public bool UseableOnDead { get; private set; }
 
-        public int UniqueID { get; private set; } = 0;
+        public ulong UniqueID { get; private set; } = 0;
 
-        public void SetUniqueID(ref int id)
+        public void SetUniqueID(ref ulong id)
         { 
             if (UniqueID != 0) { GD.PushWarning("Attempting to re-declare UniqueID for " + AbilityName); return; }
             UniqueID = id;
             id++;
         }
 
-        public void CreateUniqueInstance(ref int id)
+        public void CreateUniqueInstance(ref ulong id)
         {
             UniqueID = id;
             id++;
@@ -44,7 +44,7 @@ namespace ZAM.Abilities
         // SECTION: Save System
         //=============================================================================
 
-        public void SetDetails(string name, string description, string type, string area, float value, float cost, int id)
+        public void SetDetails(string name, string description, string type, string area, float value, float cost, ulong id)
         {
             AbilityName = name;
             AbilityDescription = description;

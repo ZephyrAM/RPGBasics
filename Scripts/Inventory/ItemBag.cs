@@ -55,14 +55,17 @@ namespace ZAM.Inventory
                         break;
                     case ItemType.Weapon:
                         addItem = weaponDatabase[newItem].Duplicate() as Equipment;
+                        addItem.SetUniqueID(ref DatabaseManager.Instance.GetUniqueCounter());
                         AddToEquipBag((Equipment)addItem);
                         break;
                     case ItemType.Armor:
                         addItem = armorDatabase[newItem].Duplicate() as Equipment;
+                        addItem.SetUniqueID(ref DatabaseManager.Instance.GetUniqueCounter());
                         AddToEquipBag((Equipment)addItem);
                         break;
                     case ItemType.Accessory:
                         addItem = accessoryDatabase[newItem].Duplicate() as Equipment;
+                        addItem.SetUniqueID(ref DatabaseManager.Instance.GetUniqueCounter());
                         AddToEquipBag((Equipment)addItem);
                         break;
                     default:
@@ -82,7 +85,9 @@ namespace ZAM.Inventory
                     } 
                 }
             } else {
-                itemBag.Add(newItem.Duplicate() as Item, 1);
+                Item addItem = newItem.Duplicate() as Item;
+                addItem.SetUniqueID(ref DatabaseManager.Instance.GetUniqueCounter());
+                itemBag.Add(addItem, 1);
             }
         }
 
@@ -103,12 +108,7 @@ namespace ZAM.Inventory
             equipBag.Remove(instance);
         }
 
-        public Dictionary<Item, int> GetItemBag()
-        {
-            return itemBag;
-        }
-
-        public Item GetItemFromBag(int id)
+        public Item GetItemFromBag(ulong id)
         {
             Item getItem = null;
             foreach (Item item in itemBag.Keys) {
@@ -117,6 +117,11 @@ namespace ZAM.Inventory
 
             if (getItem == null) { GD.PushError("ItemSearch not found"!); }
             return getItem;
+        }
+
+        public Dictionary<Item, int> GetItemBag()
+        {
+            return itemBag;
         }
 
         public Array<Equipment> GetEquipBag()
@@ -134,7 +139,7 @@ namespace ZAM.Inventory
             itemBag = (Dictionary<Item, int>)itemBag.OrderBy(i => i.Key.ItemName);
         }
 
-        public void SortEquipBag()
+        public void SortEquipBag() // EDIT: Make sure this doesn't disrupt UniqueID's
         {
             Array<Equipment> tempMainHand = [];
             Array<Equipment> tempOffHand = [];
@@ -268,7 +273,7 @@ namespace ZAM.Inventory
                 newEquip.SetEquipStats(data.AddModifier, data.PercentModifier);
                 newEquip.SetMechanics(data.DamageType, data.CallAnimation, data.AddedState.AddModifier, data.AddedState.PercentModifier);
                 newEquip.SetRestrictions(data.UseableInBattle, data.UseableOutOfBattle, data.UseableOnDead, data.CanStack, data.IsConsumable, data.AddedState.ExistsOutOfBattle);
-                newEquip.SetEquipRestrictions(data.ClassEquip, data.UniqueEquip);
+                newEquip.SetEquipRestrictions(data.ClassEquip, data.UniqueEquip, data.IsEquipped);
 
                 equipBag.Add(newEquip);
             }

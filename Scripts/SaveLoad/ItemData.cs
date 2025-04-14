@@ -26,6 +26,6 @@ public partial class ItemData : Resource
     [Export] public bool CanStack { get; set; }
     [Export] public bool IsConsumable { get; set; } = true;
 
-    [Export] public int UniqueID { get; set; }
+    [Export] public ulong UniqueID { get; set; }
     [Export] public int Amount { get; set; }
 }

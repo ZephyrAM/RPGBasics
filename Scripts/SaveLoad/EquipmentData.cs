@@ -15,4 +15,5 @@ public partial class EquipmentData : ItemData
     [ExportGroup("Restrictions")]
     [Export] public Array<ClassID> ClassEquip { get;  set; } = []; // Classes that can equip it.
     [Export] public int UniqueEquip { get;  set; } // If 0, not unique. Else, number of equips allowed.
+    [Export] public bool IsEquipped { get; set; }
 }
