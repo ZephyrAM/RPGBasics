@@ -1,6 +1,6 @@
 using Godot;
 using Godot.Collections;
-using System.Collections.Generic;
+// using System.Collections.Generic;
 
 using ZAM.Controller;
 using ZAM.Stats;
@@ -17,7 +17,7 @@ namespace ZAM.Managers
         // Setup Variables \\
         private CharacterController characterController = null;
         private CharacterBody2D leaderMember = null;
-        private List<Battler> activeParty = [];
+        private Array<Battler> activeParty = [];
 
         private double timePlayed;
         private int currencyTotal = 0;
@@ -164,7 +164,7 @@ namespace ZAM.Managers
             return partyMembers[index].Instantiate() as CharacterBody2D;
         }
 
-        public List<Battler> GetPlayerParty()
+        public Array<Battler> GetPlayerParty()
         {
             return activeParty;
         }

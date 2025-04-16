@@ -1,5 +1,6 @@
 using Godot;
-using System.Collections.Generic;
+using Godot.Collections;
+// using System.Collections.Generic;
 
 using ZAM.MenuUI;
 
@@ -23,7 +24,7 @@ public interface IUIFunctions // EDIT: In Progess. Template UI Controls
         else { target += change; }
     }
 
-    public static string CancelSelect(out int currentCommand, List<int> previousCommand, List<string> previousPhase)
+    public static string CancelSelect(out int currentCommand, Array<int> previousCommand, Array<string> previousPhase)
     {
         int oldCommand = previousCommand[^1];
         previousCommand.RemoveAt(previousCommand.Count - 1);

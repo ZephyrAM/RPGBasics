@@ -1,5 +1,6 @@
 using Godot;
-using System.Collections.Generic;
+using Godot.Collections;
+// using System.Collections.Generic;
 
 using ZAM.MenuUI;
 
@@ -11,10 +12,10 @@ namespace ZAM.Controller
         protected Container activeList = null;
         protected ButtonUI activeControl = null;
 
-        protected List<string> previousPhase = [];
+        protected Array<string> previousPhase = [];
         protected int numColumn = 1;
         protected int currentCommand = 0;
-        protected List<int> previousCommand = [];
+        protected Array<int> previousCommand = [];
         protected Dictionary<string, Container> listDict = [];
 
         protected bool signalsDone = false;

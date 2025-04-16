@@ -1,6 +1,6 @@
 using Godot;
-using ZAM.Inventory;
 
+using ZAM.Inventory;
 using ZAM.MenuUI;
 
 namespace ZAM.Controller

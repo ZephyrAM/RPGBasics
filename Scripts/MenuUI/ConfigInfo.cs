@@ -1,5 +1,6 @@
 using Godot;
-using System.Collections.Generic;
+using Godot.Collections;
+// using System.Collections.Generic;
 
 namespace ZAM.MenuUI
 {
@@ -82,9 +83,9 @@ namespace ZAM.MenuUI
             return activeCommandList;
         }
 
-        public List<Container> GetAllLists()
+        public Array<Container> GetAllLists()
         {
-            List<Container> commandLists = [audioCommandList, graphicsCommandList, keybindsCommandList];
+            Array<Container> commandLists = [audioCommandList, graphicsCommandList, keybindsCommandList];
             return commandLists;
         }
 

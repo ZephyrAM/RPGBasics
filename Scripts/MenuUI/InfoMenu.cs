@@ -1,6 +1,7 @@
 using Godot;
+using Godot.Collections;
 using System;
-using System.Collections.Generic;
+// using System.Collections.Generic;
 
 namespace ZAM.MenuUI
 {
@@ -27,7 +28,7 @@ namespace ZAM.MenuUI
         // [Export] private ColorRect skillBar = null;
         // [Export] private ColorRect itemBar = null;
 
-        private List<MemberInfo> partyMembers = [];
+        private Array<MemberInfo> partyMembers = [];
 
         public override void _Ready()
         {

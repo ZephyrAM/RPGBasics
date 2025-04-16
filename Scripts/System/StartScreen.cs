@@ -1,8 +1,10 @@
 using Godot;
+using Godot.Collections;
 using System;
-using System.Collections.Generic;
+// using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using ZAM.Controller;
 using ZAM.Inventory;
 
@@ -26,10 +28,10 @@ namespace ZAM.System
         private ButtonUI activeControl = null;
 
         private string inputPhase = ConstTerm.WAIT;
-        private List<string> previousPhase = [];
+        private Array<string> previousPhase = [];
         private int numColumn = 1;
         private int currentCommand = 0;
-        private List<int> previousCommand = [];
+        private Array<int> previousCommand = [];
 
         private bool signalsDone = false;
         private bool savesExist = false;

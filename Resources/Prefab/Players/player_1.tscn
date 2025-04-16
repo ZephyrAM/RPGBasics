@@ -2,8 +2,8 @@
 
 [ext_resource type="PackedScene" uid="uid://da7fwfcevplrb" path="res://Resources/Prefab/player_character.tscn" id="1_8ij14"]
 [ext_resource type="Script" uid="uid://dvrvewsrmh6d4" path="res://Scripts/Abilities/Modifier.cs" id="2_1jf01"]
-[ext_resource type="Texture2D" uid="uid://bpljfe63wdftg" path="res://Assets/Graphics/Characters/Char_Move.png" id="2_84wel"]
-[ext_resource type="Texture2D" uid="uid://cndqfneon2v35" path="res://Assets/Graphics/Characters/Celes_Move_Map.png" id="3_84wel"]
+[ext_resource type="Texture2D" uid="uid://meue4hboupr" path="res://Assets/Graphics/Characters/Celes_Move.png" id="2_84wel"]
+[ext_resource type="Texture2D" uid="uid://ofqc4hroe4n0" path="res://Assets/Graphics/Characters/Celes_Move_Map.png" id="3_84wel"]
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_p1q2g"]
 diffuse_texture = ExtResource("2_84wel")

@@ -1,5 +1,6 @@
-using System.Threading.Tasks;
 using Godot;
+using System.Threading.Tasks;
+
 
 public partial class SaveLoader : Node
 {
@@ -94,7 +95,7 @@ public partial class SaveLoader : Node
         fileSave.StoreString(readSave.GetAsText()); // Save as encrypted file
         fileSave.Close();
         readSave.Close();
-        DirAccess.RemoveAbsolute(resourceSavePath); // Remove temporary Resource save
+        // DirAccess.RemoveAbsolute(resourceSavePath); // Remove temporary Resource save
     }
 
     public Task SaveAllData()
@@ -103,6 +104,8 @@ public partial class SaveLoader : Node
         GatherBattlers();
         GatherPartyData();
         GatherInventoryData();
+        GatherInteractData();
+        // GatherMapData();
 
         return Task.CompletedTask;
     }
@@ -132,6 +135,16 @@ public partial class SaveLoader : Node
         GetTree().CallGroup(ConstTerm.INVENTORY + ConstTerm.DATA, ConstTerm.ON_SAVEGAME, Instance.gameSession);
     }
 
+    public void GatherInteractData()
+    {
+        GetTree().CallGroup(ConstTerm.INTERACT + ConstTerm.DATA, ConstTerm.ON_SAVEGAME, Instance.gameSession);
+    }
+
+    // public void GatherMapData()
+    // {
+    //     GetTree().CallGroup(ConstTerm.MAP + ConstTerm.DATA, ConstTerm.ON_SAVEGAME, Instance.gameSession);
+    // }
+
     //=============================================================================
     // SECTION: Load Methods
     //=============================================================================
@@ -158,7 +171,7 @@ public partial class SaveLoader : Node
 
         Error dir = DirAccess.RenameAbsolute(textSavePath, resourceSavePath); // Rename .txt to .tres
         using SavedGame tempSave = ResourceLoader.Load(resourceSavePath) as SavedGame; // Load as Resource (.tres)
-        DirAccess.RemoveAbsolute(resourceSavePath); // Remove temporary Resource save
+        // DirAccess.RemoveAbsolute(resourceSavePath); // Remove temporary Resource save
 
         return tempSave;
     }
@@ -170,6 +183,7 @@ public partial class SaveLoader : Node
         await LoadInventoryData(gameSave);
         await LoadPartyData(gameSave);
         await LoadBattlerData(gameSave);
+        await LoadInteractData(gameSave);
 
         return;
     }
@@ -197,6 +211,18 @@ public partial class SaveLoader : Node
         GetTree().CallGroup(ConstTerm.INVENTORY + ConstTerm.DATA, ConstTerm.ON_LOADGAME, gameSave.InventoryData);
         return Task.CompletedTask;
     }
+
+    public Task LoadInteractData(SavedGame gameSave)
+    {
+        GetTree().CallGroup(ConstTerm.INTERACT + ConstTerm.DATA, ConstTerm.ON_LOADGAME, gameSave.InteractData, (int)gameSave.SystemData.LoadCurrentMapID);
+        return Task.CompletedTask;
+    }
+
+    // public Task LoadMapData(SavedGame gameSave)
+    // {
+    //     // GetTree().CallGroup(ConstTerm.MAP + ConstTerm.DATA, ConstTerm.ON_LOADGAME, gameSave.MapData); // EDIT: For MapData
+    //     return Task.CompletedTask;
+    // }
 
     //=============================================================================
     // SECTION: Load Data Types

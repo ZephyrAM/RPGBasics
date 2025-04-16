@@ -3,7 +3,7 @@ using Godot.Collections;
 
 public partial class BattlerData: Resource
 {
-    [Export] public CharacterID CharID { get; set; }
+    // [Export] public CharacterID CharID { get; set; }
     [Export] public float CurrentHP { get; set; }
     [Export] public float CurrentMP { get; set;}
     [Export] public float[] StatValues { get; set; }

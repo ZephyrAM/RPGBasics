@@ -1109,9 +1109,14 @@ y_sort_enabled = true
 
 [node name="Interactable0" parent="MapSystem/Events" instance=ExtResource("14_sr6m2")]
 position = Vector2(-345, 152)
-ShouldChasePlayer = true
 IsAutoBattle = true
 battleGroup = ExtResource("12_gta72")
+
+[node name="Event0" parent="MapSystem/Events" instance=ExtResource("14_sr6m2")]
+position = Vector2(472, -89)
+eventStepCount = 2
+IsEvent = true
+DoesMove = false
 
 [node name="Camera2D" type="Camera2D" parent="MapSystem"]
 limit_left = -1800

@@ -13,7 +13,6 @@ using ZAM.MenuUI;
 
 using ZAM.Managers;
 using ZAM.MapEvents;
-using System.Linq;
 
 namespace ZAM.System
 {
@@ -974,7 +973,7 @@ namespace ZAM.System
         {
             SystemData newData = new()
             {
-                SceneName = mapId.ToString()
+                SavedSceneName = mapId
             };
 
             saveData.SystemData = newData;
@@ -982,8 +981,10 @@ namespace ZAM.System
 
         public void OnLoadGame(SystemData loadData)
         {
-            // SystemData saveData = loadData;
-            // if (saveData == null) { GD.Print("System Data - NULL"); return; }
+            SystemData saveData = loadData;
+            if (saveData == null) { GD.Print("System Data - NULL"); return; }
+
+            saveData.LoadCurrentMapID = mapId;
 
             // Transitions newTransition = new();
             // newTransition.MapSceneSwitch(ConstTerm.MAP_SCENE + saveData.SceneName + ConstTerm.TSCN, (Node2D)GetParent());

@@ -20,7 +20,7 @@ namespace ZAM.MapEvents
         {
             eventNumber = interactor.Name.ToString()[interactor.Name.ToString().Length - 1] + ConstTerm.DIVIDER;
             textSource = ConstTerm.MAP + mapNumber + ConstTerm.EVENT + eventNumber + ConstTerm.STEP;
-            GD.Print(interactor.GetStep());
+
             switch(interactor.GetStep())
             {
                 case 0:
@@ -30,7 +30,8 @@ namespace ZAM.MapEvents
                     interactor.GiveItem("Sword", 2, 1);
                     interactor.GiveItem("Breastplate", 3, 1);
                     interactor.GiveItem("Ring", 4, 1);
-                    interactor.StepCheck();
+                    interactor.ItemMessage();
+                    OnEndEventStep(interactor);
                     break;
                 default:
                     GD.Print("Complete!");

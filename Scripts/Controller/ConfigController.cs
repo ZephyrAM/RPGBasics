@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 using System;
 using System.Collections.Generic;
 
@@ -33,7 +34,7 @@ namespace ZAM.Controller
         private int resolutionIndex = 4;
         // private int resolutionIndex = 0;
 
-        private List<string> changedKeys = [];
+        private Array<string> changedKeys = [];
 
         // Delegate Events \\
         [Signal]
@@ -83,7 +84,7 @@ namespace ZAM.Controller
         {
             listDict.Add(ConstTerm.OPTIONS, configOptionsList);
 
-            List<Container> tempLists = configPanel.GetAllLists();
+            Array<Container> tempLists = configPanel.GetAllLists();
             listDict.Add(ConstTerm.AUDIO, tempLists[0]);
             listDict.Add(ConstTerm.GRAPHICS, tempLists[1]);
             listDict.Add(ConstTerm.KEYBINDS, tempLists[2]);

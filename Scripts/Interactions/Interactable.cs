@@ -229,7 +229,8 @@ namespace ZAM.Interactions
             else { giveText = ConstTerm.ACCESSORY + stepNumber; giveType = ItemType.Accessory;}
 
             string outText = "Receieved " + choiceText[giveText] + "!"; // EDIT: Placeholder
-            collectBox.AddText(outText);
+            collectBox.QueueText(outText);
+            ItemMessage();
             
             choiceActive = false;
             choiceOption = 0;
@@ -256,10 +257,15 @@ namespace ZAM.Interactions
         public void GiveItem(string itemName, int itemType, int amount)
         {
             string outText = "Receieved " + itemName + "!"; // EDIT: Placeholder
-            collectBox.AddText(outText);
+            collectBox.QueueText(outText);
             // await ToSignal(collectBox, ) // EDIT: Work in awaiter for animation
 
-            EmitSignal(SignalName.onItemReceive, itemName, itemType, amount);
+            EmitSignal(SignalName.onItemReceive, itemName, itemType, amount); // -> MapSystem
+        }
+
+        public void ItemMessage()
+        {
+            collectBox.CompleteCollectText();
         }
 
 
@@ -378,6 +384,38 @@ namespace ZAM.Interactions
         // {
         //     return eventDirectStart;
         // }
+
+        //=============================================================================
+        // SECTION: Save System
+        //=============================================================================
+
+        public void OnSaveGame(SavedGame saveData)
+        {
+            InteractData newData = new()
+            {
+                DataIsEvent = IsEvent,
+                DataIsInteractable = IsInteractable,
+                NoRepeatStep = noRepeatStep
+            };
+            if (!saveData.InteractData.TryGetValue(saveData.SystemData.SavedSceneName, out Dictionary<string, InteractData> data)) {
+                data = [];
+                saveData.InteractData.Add(saveData.SystemData.SavedSceneName, data); }
+
+            // data[Name] = newData;
+            saveData.InteractData[saveData.SystemData.SavedSceneName][Name] = newData;
+        }
+
+        public void OnLoadGame(Dictionary<MapID, Dictionary<string, InteractData>> loadData, int currentID)
+        {
+            if (!loadData.ContainsKey((MapID)currentID)) { return; }
+
+            InteractData saveData = loadData[(MapID)currentID][Name];
+            if (saveData == null) { GD.Print("Interact Data - NULL"); return; }
+
+            IsEvent = saveData.DataIsEvent;
+            IsInteractable = saveData.DataIsInteractable;
+            noRepeatStep = saveData.NoRepeatStep;
+        }
 
         //=============================================================================
         // SECTION: Signal Calls

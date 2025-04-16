@@ -1,5 +1,6 @@
 using Godot;
-using System.Collections.Generic;
+using Godot.Collections;
+// using System.Collections.Generic;
 
 using ZAM.MenuUI;
 
@@ -49,7 +50,7 @@ namespace ZAM.Controller
 
         private bool battleOver = false;
         // private bool isControlActive = false;
-        private List<int> isTargetting = [];
+        private Array<int> isTargetting = [];
 
         // Delegate Events \\
         [Signal]

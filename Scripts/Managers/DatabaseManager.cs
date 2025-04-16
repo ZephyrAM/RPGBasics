@@ -73,7 +73,7 @@ namespace ZAM.Managers
 
             for (int i = 0; i < itemList.GetChildCount(); i++) {
                 Item tempItem = (Item)itemList.GetChild(i);
-                tempItem.SetUniqueID(ref uniqueIDCounter);
+                // tempItem.SetUniqueID(ref uniqueIDCounter);
                 itemDatabase[tempItem.ItemName] = tempItem;
             }
 

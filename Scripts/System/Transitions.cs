@@ -52,7 +52,7 @@ namespace ZAM.System
         {
             SavedGame gameInfo = SaveLoader.Instance.LoadGameInfo();
 
-            string newScenePath = ConstTerm.MAP_SCENE + gameInfo.SystemData.SceneName + ConstTerm.TSCN;
+            string newScenePath = ConstTerm.MAP_SCENE + gameInfo.SystemData.SavedSceneName.ToString() + ConstTerm.TSCN;
 
             Node moveToMap = ResourceLoader.Load<PackedScene>(newScenePath).Instantiate();
             MapSystem mapSystemNode = moveToMap.GetNode<MapSystem>(ConstTerm.MAPSYSTEM);
