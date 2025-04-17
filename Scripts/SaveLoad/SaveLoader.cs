@@ -95,7 +95,7 @@ public partial class SaveLoader : Node
         fileSave.StoreString(readSave.GetAsText()); // Save as encrypted file
         fileSave.Close();
         readSave.Close();
-        // DirAccess.RemoveAbsolute(resourceSavePath); // Remove temporary Resource save
+        DirAccess.RemoveAbsolute(resourceSavePath); // Remove temporary Resource save
     }
 
     public Task SaveAllData()
@@ -171,7 +171,7 @@ public partial class SaveLoader : Node
 
         Error dir = DirAccess.RenameAbsolute(textSavePath, resourceSavePath); // Rename .txt to .tres
         using SavedGame tempSave = ResourceLoader.Load(resourceSavePath) as SavedGame; // Load as Resource (.tres)
-        // DirAccess.RemoveAbsolute(resourceSavePath); // Remove temporary Resource save
+        DirAccess.RemoveAbsolute(resourceSavePath); // Remove temporary Resource save
 
         return tempSave;
     }

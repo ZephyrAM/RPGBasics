@@ -19,6 +19,7 @@ namespace ZAM.Interactions
 
         [ExportGroup("Interactions")]
         [Export] private Array<InteractType> actionType = [];
+        // [Export] private Dictionary<string, Dictionary<InteractType, string>> actionMap = []; // Needs work. Doesn't work in Editor, Dictionary only basic types.
         [Export] private int[] choicesGiven = [];
         [Export] private Dictionary<string, string> choiceText = [];
         // [Export] private Dictionary<string, Resource> itemList = [];

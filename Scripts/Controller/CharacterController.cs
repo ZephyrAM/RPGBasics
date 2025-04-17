@@ -62,6 +62,8 @@ namespace ZAM.Controller
 		[Signal]
 		public delegate void onStepAreaEventHandler();
 		[Signal]
+		public delegate void onCollisionCheckEventHandler(GodotObject collider);
+		[Signal]
 		public delegate void onInteractCheckEventHandler(Vector2 direction);
 		[Signal]
 		public delegate void onSelectChangeEventHandler();
@@ -306,7 +308,12 @@ namespace ZAM.Controller
 			}
 
 			Velocity = targetVelocity;
-			MoveAndSlide();
+			bool collide = MoveAndSlide();
+			if (collide) { 
+				if (GetLastSlideCollision().GetCollider() is CharacterBody2D) {
+					EmitSignal(SignalName.onCollisionCheck, GetLastSlideCollision().GetCollider());
+				}
+			}
 		}
 
 		public void ClickToMoveCheck()
@@ -336,6 +343,9 @@ namespace ZAM.Controller
 			ClickCollisionCheck();
 			bool collide = MoveAndSlide();
 			if (collide) {
+				if (GetLastSlideCollision().GetCollider() is CharacterBody2D) {
+					EmitSignal(SignalName.onCollisionCheck, GetLastSlideCollision().GetCollider());
+				}
 				if (GetLastSlideCollision().GetCollider() == mouseTarget) { UpdateRayCast(); }
 			}
 		}

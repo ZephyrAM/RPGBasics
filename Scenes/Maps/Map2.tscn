@@ -1109,6 +1109,8 @@ y_sort_enabled = true
 
 [node name="Interactable0" parent="MapSystem/Events" instance=ExtResource("14_sr6m2")]
 position = Vector2(-345, 152)
+IsInteractable = false
+ShouldChasePlayer = true
 IsAutoBattle = true
 battleGroup = ExtResource("12_gta72")
 

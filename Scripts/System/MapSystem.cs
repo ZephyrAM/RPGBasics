@@ -157,6 +157,7 @@ namespace ZAM.System
 
         private void SubSignals()
         {
+            playerInput.onCollisionCheck += async (collider) => await OnCollisionCheck(collider);
             playerInput.onInteractCheck += OnInteractCheck;
             playerInput.onSelectChange += OnSelectChange;
             playerInput.onTextProgress += OnTextProgress;
@@ -269,9 +270,9 @@ namespace ZAM.System
                 interactArray[r].ForceRaycastUpdate();
                 if (interactArray[r].IsColliding() && !textBox.Visible)
                 {
-                    if (interactArray[r].GetCollider() is Interactable)
+                    if (interactArray[r].GetCollider() is Interactable checkTarget)
                     {
-                        Interactable checkTarget = (Interactable)interactArray[r].GetCollider();
+                        // Interactable checkTarget = (Interactable)interactArray[r].GetCollider();
                         if (!checkTarget.CheckValidInteract()) { return; }
 
                         playerInput.SetIdleAnim();
@@ -316,7 +317,7 @@ namespace ZAM.System
 
         private void SetInteractTarget(int index)
         {
-            // GD.Print("Set interact target");
+            GD.Print("Set interact target");
             playerInput.SetInteractToggle(true);
             interactTarget = (Interactable)interactArray[index].GetCollider();
             
@@ -661,7 +662,7 @@ namespace ZAM.System
 
             // BGMPlayer.Instance.TransitionBGM(bgm, newBgm);
             // await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
-
+            await Task.Delay(10); // If missing, data.tree null error - though game still works as normal. Race condition?
             GetTree().Root.AddChild(battleNode);
             GetTree().Root.RemoveChild(GetParent());
 
@@ -769,6 +770,14 @@ namespace ZAM.System
             // GD.Print("Event complete");
             if (!interactTarget.IsRepeatable) { interactTarget.TurnOffEvent(); }
             RemoveInteractTarget();
+        }
+
+        private async Task OnCollisionCheck(GodotObject collider)
+        {
+            if (collider is Interactable) {
+                Interactable enemyBattle = collider as Interactable;
+                if (enemyBattle.IsAutoBattle) { await OnCatchPlayer(enemyBattle.GetBattleGroup(), enemyBattle); }
+            }
         }
 
         private void OnInteractCheck(Vector2 direction)
@@ -955,8 +964,11 @@ namespace ZAM.System
         {
             await LoadBattle(battleGroup);
             
-            toFree.GetMoveAgent().onCatchPlayer -= async (battleGroup, toFree) => await OnCatchPlayer(battleGroup, toFree);
-            chaseList.Remove(toFree);
+            if (toFree.ShouldChasePlayer) { 
+                toFree.GetMoveAgent().onCatchPlayer -= async (battleGroup, toFree) => await OnCatchPlayer(battleGroup, toFree);
+                chaseList.Remove(toFree);
+            }
+            
             toFree.QueueFree();
         }
 
