@@ -4,7 +4,7 @@ using System;
 
 namespace ZAM.MenuUI
 {
-    public partial class TextBox : PanelContainer
+    public partial class TextBox : Panel
     {
         [ExportGroup("Values")]
         [Export] private float textRate = 4;
@@ -35,7 +35,7 @@ namespace ZAM.MenuUI
 
         private void IfNull()
         {
-            marginBox   ??= GetNode<MarginContainer>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
+            marginBox   ??= GetNode<MarginContainer>(ConstTerm.MARGIN + ConstTerm.CONTAINER);
             vertBox     ??= marginBox.GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
 
             startLabel  ??= vertBox.GetNode<Label>(ConstTerm.START);

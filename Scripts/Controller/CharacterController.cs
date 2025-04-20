@@ -24,7 +24,7 @@ namespace ZAM.Controller
 
 		private Camera2D camera2D;
 		private CanvasLayer uiLayer = null;
-		private PanelContainer textBox = null;
+		private Panel textBox = null;
 		private PanelContainer choiceBox = null;
 		private VBoxContainer choiceList = null;
 		private ButtonUI activeControl = null;
@@ -114,7 +114,7 @@ namespace ZAM.Controller
 			uiLayer ??= GetNode<CanvasLayer>("../../" + ConstTerm.CANVAS_LAYER); // EDIT: Find better path solution
 
 			Node interactLayer = uiLayer.GetNode(ConstTerm.INTERACT_TEXT);
-			textBox ??= interactLayer.GetNode<PanelContainer>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
+			textBox ??= interactLayer.GetNode<Panel>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
 			choiceBox ??= interactLayer.GetNode<PanelContainer>(ConstTerm.CHOICEBOX + ConstTerm.CONTAINER);
 			choiceList ??= choiceBox.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
 

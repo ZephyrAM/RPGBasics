@@ -17,7 +17,7 @@ namespace ZAM.MapEvents
 
         public void Event0(Interactable interactor)
         {
-            eventNumber = interactor.Name.ToString()[interactor.Name.ToString().Length - 1] + ConstTerm.DIVIDER;
+            eventNumber = interactor.Name.ToString()[^1] + ConstTerm.DIVIDER;
             textSource = ConstTerm.MAP + mapNumber + ConstTerm.EVENT + eventNumber + ConstTerm.STEP;
 
             // Version 1 - Not Async

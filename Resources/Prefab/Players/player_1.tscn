@@ -38,9 +38,10 @@ Value = 10.0
 
 [node name="Sprite2D" parent="." index="1"]
 texture = SubResource("CanvasTexture_p1q2g")
+frame = 1
 
 [node name="AnimationTree" parent="." index="5"]
-parameters/Idle/blend_position = Vector2(0, 0)
+parameters/Idle/blend_position = Vector2(-0.981346, -0.0329671)
 
 [node name="Name" parent="." index="7"]
 text = "Player 1"

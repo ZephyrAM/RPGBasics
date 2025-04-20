@@ -204,6 +204,7 @@ public class ConstTerm
     public const string LIST = "List";
     public const string GRID = "Grid";
     public const string PANEL = "Panel";
+    public const string MARGIN = "Margin";
     public const string CONTAINER = "Container";
 
     public const string TEXTBOX = "TextBox";

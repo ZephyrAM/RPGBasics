@@ -203,6 +203,7 @@ namespace ZAM.System
 
                 partyInput.AddChild(tempChar);
                 playerTeam.Add(tempChar.GetNode<Battler>(ConstTerm.BATTLER));
+
                 playerTeam[n].onHitEnemy += OnHitEnemy;
                 playerTeam[n].onAbilityHitPlayer += OnAbilityHitPlayer;
                 playerTeam[n].onBattlerLevelUp += OnBattlerLevelUp;
@@ -373,6 +374,8 @@ namespace ZAM.System
 
             if (target >= targetTeam.Count || target < 0) { target = 0; }
 
+            SetActiveCursors(targetTeam, target, area);
+
             // if (partyInput.GetInputPhase() == ConstTerm.SKILL + ConstTerm.USE) {
             //     switch (activeAbility.TargetType)
             //     {
@@ -406,8 +409,6 @@ namespace ZAM.System
             // else if (partyInput.GetInputPhase() == ConstTerm.ATTACK) { area = ConstTerm.SINGLE; } // EDIT: Change target area to match attack parameters
 
             // target = TargetByDirection(change, target, direction, targetTeam);
-
-            SetActiveCursors(targetTeam, target, area);
 
             // targetOffset = targetTeam[target].GetHeight() / 2;
             // offset = new Vector2(0, targetOffset + cursorOffset);

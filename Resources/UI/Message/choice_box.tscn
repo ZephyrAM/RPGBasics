@@ -13,6 +13,10 @@ border_width_left = 4
 border_width_top = 4
 border_width_right = 4
 border_width_bottom = 4
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
 
 [node name="ChoiceBoxContainer" type="PanelContainer" node_paths=PackedStringArray("vertBox")]
 offset_left = 574.0

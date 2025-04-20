@@ -662,7 +662,7 @@ namespace ZAM.System
 
             // BGMPlayer.Instance.TransitionBGM(bgm, newBgm);
             // await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
-            await Task.Delay(10); // If missing, data.tree null error - though game still works as normal. Race condition?
+            // OnCatchPlayer often causes data.tree null error here - though game still works as normal. Race condition?
             GetTree().Root.AddChild(battleNode);
             GetTree().Root.RemoveChild(GetParent());
 
@@ -962,6 +962,7 @@ namespace ZAM.System
 
         private async Task OnCatchPlayer(PackedScene battleGroup, Interactable toFree)
         {
+            while (menuScreen.Visible) { await Task.Delay(60); } // If player is in the menu, wait before starting a battle.
             await LoadBattle(battleGroup);
             
             if (toFree.ShouldChasePlayer) { 

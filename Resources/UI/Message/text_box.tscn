@@ -13,12 +13,16 @@ border_width_left = 4
 border_width_top = 4
 border_width_right = 4
 border_width_bottom = 4
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
 
 [sub_resource type="LabelSettings" id="LabelSettings_8pyol"]
 font = ExtResource("1_ncj5p")
 font_size = 50
 
-[node name="TextBoxContainer" type="PanelContainer" node_paths=PackedStringArray("startLabel", "textLabel", "endLabel", "marginBox", "vertBox")]
+[node name="TextBoxContainer" type="Panel" node_paths=PackedStringArray("startLabel", "textLabel", "endLabel", "marginBox", "vertBox")]
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
@@ -31,14 +35,33 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_4dp2c")
 script = ExtResource("1_r1cok")
-startLabel = NodePath("MarginContainer/VBoxContainer/Start")
+startLabel = NodePath("NamePanel/Start")
 textLabel = NodePath("MarginContainer/VBoxContainer/Label")
 endLabel = NodePath("MarginContainer/VBoxContainer/End")
 marginBox = NodePath("MarginContainer")
 vertBox = NodePath("MarginContainer/VBoxContainer")
 
+[node name="NamePanel" type="PanelContainer" parent="."]
+layout_mode = 1
+offset_left = 14.0
+offset_top = -63.0
+offset_right = 222.0
+offset_bottom = 10.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_4dp2c")
+
+[node name="Start" type="Label" parent="NamePanel"]
+layout_mode = 2
+text = "Speaker"
+label_settings = SubResource("LabelSettings_8pyol")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 996.0
+offset_bottom = 296.0
 theme_override_constants/margin_left = 30
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 30
@@ -46,12 +69,6 @@ theme_override_constants/margin_bottom = 5
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-
-[node name="Start" type="Label" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 0
-text = "*"
-label_settings = SubResource("LabelSettings_8pyol")
 
 [node name="Label" type="RichTextLabel" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2

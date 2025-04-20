@@ -6,6 +6,10 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6cxpw"]
 bg_color = Color(0.6, 0.6, 0.6, 0.882353)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_33adc"]
 
@@ -73,7 +77,7 @@ errorSound = ExtResource("3_kk4is")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_2epyi")
+&"": SubResource("AnimationLibrary_2epyi")
 }
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
