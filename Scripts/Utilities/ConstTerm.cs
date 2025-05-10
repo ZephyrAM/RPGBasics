@@ -80,6 +80,7 @@ public class ConstTerm
     public const string TXT = ".txt";
     public const string TRES = ".tres";
     public const string TSCN = ".tscn";
+    public const string CFG = ".cfg";
 
     public const string PARAM = "parameters/";
     public const string BLEND = "/blend_position";
@@ -94,8 +95,6 @@ public class ConstTerm
     public const string PERCENT_VISIBLE = "visible_ratio";
     public const string COLUMNS = "columns";
     public const string COLLIDER_ID = "collider_id";
-
-    public const string UNIQUE_ID = "UniqueID";
 
 
     //=============================================================================
@@ -176,10 +175,10 @@ public class ConstTerm
     //=============================================================================
     // SECTION: Method Calls
     //=============================================================================
-    public const string ON_SAVEGAME = "OnSaveGame";
-    public const string ON_LOADGAME = "OnLoadGame";
-    public const string ON_SAVECONFIG = "OnSaveConfig";
-    public const string ON_LOADCONFIG = "OnLoadConfig";
+    public const string ON_SAVE = "OnSave";
+    public const string ON_LOAD = "OnLoad";
+    public const string GAME = "Game";
+    public const string FILE = "File";
 
     public const string TARGETINTERACT = "TargetInteraction";
     public const string UPDATEINTERACT = "UpdateInteraction";
@@ -308,6 +307,49 @@ public class ConstTerm
     public const string RESOLUTION = "Resolution";
 
     public const string KEYBINDS = "Keybinds";
+
+    //=============================================================================
+    // SECTION: Save Labels
+    //=============================================================================
+    public const string SAVED = "Saved";
+    public const string LOADING = "Loading";
+    public const string INDEX = "Index";
+
+    public const string RESERVE = "Reserve";
+    public const string POSITION = "Position";
+    public const string DIRECTION = "Direction";
+    public const string CURRENCY = "Currency";
+
+    public const string CURRENT = "Current";
+    public const string STAT_VALUES = "StatValues";
+    public const string LEVEL = "Level";
+
+    public const string DESCRIPTION = "Description";
+    public const string TYPE = "Type";
+    public const string AREA = "Area";
+    public const string NUMERIC = "Numeric";
+    public const string COST = "Cost";
+    public const string VALUE = "Value";
+    public const string DAMAGE = "Damage";
+    public const string CALL_ANIM = "CallAnimation";
+    
+    public const string GEAR_SLOTS = "GearSlots";
+    public const string IS = "Is";
+    public const string ID = "ID";
+    public const string UNIQUE = "Unique";
+
+    public const string ADD = "Add";
+    public const string PERCENT = "Percent";
+    public const string MODIFIER = "Modifier";
+    public const string EXISTS = "Exists";
+    public const string USEABLE = "Useable";
+    public const string IN = "In";
+    public const string OUT_OF = "OutOf";
+    public const string BATTLE = "Battle";
+    public const string DEAD = "Dead";
+    public const string CAN_STACK = "CanStack";
+
+    public const string REPEAT_STEP = "RepeatStep";
 
 
     //=============================================================================

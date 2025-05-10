@@ -129,7 +129,7 @@ namespace ZAM.Controller
                     CommandSelect(0, ConstTerm.VERT);
                     break;
                 case 3:
-                    EmitSignal(SignalName.onLoadMenu);
+                    EmitSignal(SignalName.onLoadMenu); // MapScene
                     break;
                 default:
                     break;

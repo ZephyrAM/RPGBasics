@@ -20,6 +20,7 @@ namespace ZAM.Stats
         [Export] private Sprite2D battlerSprite = null;
         [Export] private Texture2D battlerPortrait = null;
         [Export] private AnimationPlayer battlerAnim = null;
+
         [Export] private Node2D battlerCursor = null;
 
         [Export] private Health battlerHealth = null;
@@ -28,6 +29,7 @@ namespace ZAM.Stats
         [Export] private SkillList battlerSkills = null;
         [Export] private EquipList battlerEquipment = null;
 
+        private AnimationNodeStateMachinePlayback animState = null;
         private Array<EffectState> states = [];
         private Vector2 basePosition;
 
@@ -77,6 +79,8 @@ namespace ZAM.Stats
             battlerAnim ??= battlerBody.GetNode<AnimationPlayer>(ConstTerm.ANIM_PLAYER);
             battlerName ??= battlerBody.GetNode<Label>(ConstTerm.NAME);
 
+            animState = (AnimationNodeStateMachinePlayback)battlerAnim.Get(ConstTerm.PARAM + ConstTerm.PLAYBACK);
+
             // Check if following nodes exist. Not required for some (ex. NPC's)
             battlerCursor ??= battlerBody.GetNodeOrNull<Node2D>(ConstTerm.CURSOR + ConstTerm.TARGET);
 
@@ -109,6 +113,12 @@ namespace ZAM.Stats
 
             battlerHealth.SetHP(battlerHealth.GetMaxHP());
             battlerHealth.SetMP(battlerHealth.GetMaxMP());
+        }
+
+        public void SetDefaultAnim()
+        {
+            GetAnimPlayer().Set(ConstTerm.PARAM + ConstTerm.IDLE + ConstTerm.BLEND, new Vector2(-1, 0));
+            GetAnimState().Travel(ConstTerm.IDLE);
         }
 
 
@@ -192,6 +202,9 @@ namespace ZAM.Stats
         public AnimationPlayer GetAnimPlayer()
         { return battlerAnim; }
 
+        public AnimationNodeStateMachinePlayback GetAnimState()
+        { return animState; }
+
         public Health GetHealth()
         { return battlerHealth; }
 
@@ -263,46 +276,81 @@ namespace ZAM.Stats
 
         // GDScript BattlerData = GD.Load<GDScript>("res://Scripts/SaveLoad/battler_data.gd");
 
-        public void OnSaveGame(SavedGame saveData)
-        {
-            // GD.Print("Save " + GetCharID());
-            // if (GetCharID() == 0) { return; }
+        // public void OnSaveGame(SavedGame saveData)
+        // {
+        //     GD.Print("Save " + GetCharID());
+        //     if (GetCharID() == 0) { return; }
 
-            BattlerData newData = new()
-            {
-                CurrentHP = GetHealth().GetHP(),
-                CurrentMP = GetHealth().GetMP(),
-                StatValues = GetStats().SaveAllStats(),
-                CurrentExp = GetExperience().GetTotalExp(),
-                CurrentLevel = GetExperience().GetCurrentLevel(),
-                SkillList = GetSkillList().StoreSkills(),
-                EquipList = GetEquipList().StoreEquipList()
-            };
-            // GD.Print("Battler " + GetHealth().GetHP());
-            // GD.Print("Save - " + " " + GetCharID() + " battler HP at = " + saveData[GetCharID()].CurrentHP + "/" + newData.CurrentHP);
-            saveData.CharData[GetCharID()] = newData;
-            // GD.Print(saveData[GetCharID()].CurrentHP);
+        //     BattlerData newData = new()
+        //     {
+        //         CurrentHP = GetHealth().GetHP(),
+        //         CurrentMP = GetHealth().GetMP(),
+        //         StatValues = GetStats().SaveAllStats(),
+        //         CurrentExp = GetExperience().GetTotalExp(),
+        //         CurrentLevel = GetExperience().GetCurrentLevel(),
+        //         SkillList = GetSkillList().StoreSkills(),
+        //         EquipList = GetEquipList().StoreEquipList()
+        //     };
+        //     // GD.Print("Battler " + GetHealth().GetHP());
+        //     // GD.Print("Save - " + " " + GetCharID() + " battler HP at = " + saveData[GetCharID()].CurrentHP + "/" + newData.CurrentHP);
+        //     saveData.CharData[GetCharID()] = newData;
+        //     // GD.Print(saveData[GetCharID()].CurrentHP);
+        // }
+
+        // public void OnLoadGame(Dictionary<CharacterID, BattlerData> loadData)
+        // {
+        //     // GD.Print(this);
+        //     // GD.Print("Load " + GetCharID());
+        //     // GD.Print(loadData[GetCharID()].CurrentHP);
+        //     BattlerData saveData = loadData[GetCharID()];
+        //     if (saveData == null) { GD.Print("Battler data - NULL"); return; }
+
+        //     // GD.Print("Load - " + " " + GetCharID() + " battler HP at = " + saveData.CurrentHP + "/" + GetHealth().GetHP());
+
+        //     GetHealth().SetHP(saveData.CurrentHP);
+        //     GetHealth().SetMP(saveData.CurrentMP);
+        //     GetStats().LoadAllStats(saveData.StatValues);
+        //     GetExperience().SetExpTotal(saveData.CurrentExp);
+        //     GetExperience().SetCurrentLevel(saveData.CurrentLevel);
+        //     GetSkillList().SetSkills(saveData.SkillList);
+        //     GetEquipList().SetEquipList(saveData.EquipList);
+
+        //     // GD.Print(GetHealth().GetHP());
+        // }
+
+        public void OnSaveFile(ConfigFile saveData)
+        {
+            string sectionID = ConstTerm.BATTLER + battlerID + ConstTerm.DATA;
+
+            saveData.SetValue(sectionID, ConstTerm.CURRENT + ConstTerm.HP, GetHealth().GetHP());
+            saveData.SetValue(sectionID, ConstTerm.CURRENT + ConstTerm.MP, GetHealth().GetMP());
+            saveData.SetValue(sectionID, ConstTerm.STAT_VALUES, GetStats().GetStatSheet());
+            // GetStats().SaveAllStats(saveData, sectionID);
+
+            saveData.SetValue(sectionID, ConstTerm.CURRENT + ConstTerm.EXPERIENCE, GetExperience().GetTotalExp());
+            saveData.SetValue(sectionID, ConstTerm.CURRENT + ConstTerm.LEVEL, GetExperience().GetCurrentLevel());
+
+            GetSkillList().StoreSkills(saveData, sectionID);
+            saveData.SetValue(sectionID, ConstTerm.EQUIP + ConstTerm.LIST, GetEquipList().StoreEquipList());
         }
 
-        public void OnLoadGame(Dictionary<CharacterID, BattlerData> loadData)
+        public void OnLoadFile(ConfigFile loadData)
         {
-            // GD.Print(this);
-            // GD.Print("Load " + GetCharID());
-            // GD.Print(loadData[GetCharID()].CurrentHP);
-            BattlerData saveData = loadData[GetCharID()];
-            if (saveData == null) { GD.Print("Battler data - NULL"); return; }
+            if (loadData == null) { return; }
+            string sectionID = ConstTerm.BATTLER + battlerID + ConstTerm.DATA;
 
-            // GD.Print("Load - " + " " + GetCharID() + " battler HP at = " + saveData.CurrentHP + "/" + GetHealth().GetHP());
+            if (loadData.HasSection(sectionID)) {
+                GetHealth().SetHP((float)loadData.GetValue(sectionID, ConstTerm.CURRENT + ConstTerm.HP));
+                GetHealth().SetMP((float)loadData.GetValue(sectionID, ConstTerm.CURRENT + ConstTerm.MP));
+                GetStats().SetStatSheet((Dictionary<StatID, float>)loadData.GetValue(sectionID, ConstTerm.STAT_VALUES));
+                // GetStats().LoadAllStats(loadData, sectionID);
 
-            GetHealth().SetHP(saveData.CurrentHP);
-            GetHealth().SetMP(saveData.CurrentMP);
-            GetStats().LoadAllStats(saveData.StatValues);
-            GetExperience().SetExpTotal(saveData.CurrentExp);
-            GetExperience().SetCurrentLevel(saveData.CurrentLevel);
-            GetSkillList().SetSkills(saveData.SkillList);
-            GetEquipList().SetEquipList(saveData.EquipList);
+                GetExperience().SetExpTotal((float)loadData.GetValue(sectionID, ConstTerm.CURRENT + ConstTerm.EXPERIENCE));
+                GetExperience().SetCurrentLevel((int)loadData.GetValue(sectionID, ConstTerm.CURRENT + ConstTerm.LEVEL));
 
-            // GD.Print(GetHealth().GetHP());
+                GetSkillList().SetSkills(loadData, sectionID);
+                GetEquipList().SetEquipList((Dictionary<GearSlotID, ulong>)loadData.GetValue(sectionID, ConstTerm.EQUIP + ConstTerm.LIST));
+            }
         }
     }
 }

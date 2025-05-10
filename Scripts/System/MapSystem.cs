@@ -79,7 +79,6 @@ namespace ZAM.System
             SubSignals();
 
             menuInput.SetPlayer(playerInput);
-            menuScreen.SetupParty(playerParty.GetPartySize());
             menuScreen.SetupCommandList(menuInput.GetCommandOptions());
             SetupItemList();
             SetupUseList();
@@ -331,7 +330,7 @@ namespace ZAM.System
         {
             interactTarget.ResetInteractPhase();
             interactTarget.ResetDirection();
-            interactTarget.ResetEvent();
+            // interactTarget.ResetEvent();
 
             if (interactTarget.IsEvent && interactTarget.IsInteractable) {
                 interactTarget.onEventStart -= OnEventStart;
@@ -369,6 +368,8 @@ namespace ZAM.System
 
         private void UpdateMenuInfo()
         {
+            menuScreen.SetupParty(playerParty.GetPartySize());
+
             for (int i = 0; i < menuScreen.GetInfoSize(); i++)
             {
                 MemberInfo tempInfo = menuScreen.GetMemberInfo(i);
@@ -480,7 +481,7 @@ namespace ZAM.System
                 
                 Label newItem = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetEquipLabel().ResourcePath).Instantiate();
                 newItem.Text = item.ItemName;
-                newItem.SetMeta(ConstTerm.UNIQUE_ID, item.UniqueID);
+                newItem.SetMeta(ConstTerm.UNIQUE + ConstTerm.ID, item.UniqueID);
 
                 newItem.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
                 if (ItemBag.Instance.GetItemBag()[item] > 1) {
@@ -509,7 +510,7 @@ namespace ZAM.System
 
                 Label newEquip = (Label)ResourceLoader.Load<PackedScene>(menuScreen.GetEquipLabel().ResourcePath).Instantiate();
                 newEquip.Text = equip.ItemName;
-                newEquip.SetMeta(ConstTerm.UNIQUE_ID, equip.UniqueID);
+                newEquip.SetMeta(ConstTerm.UNIQUE + ConstTerm.ID, equip.UniqueID);
 
                 newEquip.CustomMinimumSize = new Vector2(menuInput.GetSkillItemWidth(), 0);
                 if (!equip.UseableOutOfBattle) {
@@ -644,7 +645,7 @@ namespace ZAM.System
         {
             // EDIT: this(MapSystem) node not found. 'Disposed'
             // GD.Print("Battle loading - save data");
-            SaveLoader.Instance.GatherBattlers();
+            SaveLoader.Instance.GatherBattlers(false);
             // GD.Print("Change player active control");
             playerParty.ChangePlayerActive(false);
             // GD.Print("Instantiate battle scene");
@@ -667,7 +668,7 @@ namespace ZAM.System
             GetTree().Root.RemoveChild(GetParent());
 
             // GD.Print("Battle loading - load data");
-            await SaveLoader.Instance.LoadBattlerData(SaveLoader.Instance.gameSession);
+            await SaveLoader.Instance.LoadBattlerData(false);
             battleNode.InitialHealthBars();
 
             Fader.Instance.FadeIn();
@@ -911,7 +912,7 @@ namespace ZAM.System
 
         private void OnItemSelect(int index)
         {
-            ulong id = (ulong)menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).GetMeta(ConstTerm.UNIQUE_ID);
+            ulong id = (ulong)menuScreen.GetItemPanel().GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).GetMeta(ConstTerm.UNIQUE + ConstTerm.ID);
             activeItem = ItemBag.Instance.GetItemFromBag(id);
             activeAbility = null;
 
@@ -982,25 +983,44 @@ namespace ZAM.System
         // SECTION: Save System
         //=============================================================================
 
-        public void OnSaveGame(SavedGame saveData)
-        {
-            SystemData newData = new()
-            {
-                SavedSceneName = mapId
-            };
+        // public void OnSaveGame(SavedGame saveData)
+        // {
+        //     if (saveData.SystemData == null) {
+        //         SystemData newData = new() {
+        //             SavedSceneName = mapId
+        //         };
 
-            saveData.SystemData = newData;
+        //         saveData.SystemData = newData;
+        //     } else {
+        //         saveData.SystemData.SavedSceneName = mapId;
+        //     }
+        // }
+
+        // public void OnLoadGame(SystemData loadData)
+        // {
+        //     SystemData saveData = loadData;
+        //     if (saveData == null) { GD.Print("System Data - NULL"); return; }
+
+        //     saveData.LoadCurrentMapID = mapId;
+
+        //     // Transitions newTransition = new();
+        //     // newTransition.MapSceneSwitch(ConstTerm.MAP_SCENE + saveData.SceneName + ConstTerm.TSCN, (Node2D)GetParent());
+        // }
+
+        public void OnSaveFile(ConfigFile saveData)
+        {
+            saveData.SetValue(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.SAVED + ConstTerm.MAP + ConstTerm.ID, (int)mapId);
         }
 
-        public void OnLoadGame(SystemData loadData)
+        public void OnLoadFile(ConfigFile loadData)
         {
-            SystemData saveData = loadData;
-            if (saveData == null) { GD.Print("System Data - NULL"); return; }
+            // Saves opening mapID for map specific info to load from. New map info loads from Transition method.
+            loadData.SetValue(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.LOADING + ConstTerm.MAP + ConstTerm.ID, (int)mapId);
+            // if (loadData == null) { return; }
 
-            saveData.LoadCurrentMapID = mapId;
-
-            // Transitions newTransition = new();
-            // newTransition.MapSceneSwitch(ConstTerm.MAP_SCENE + saveData.SceneName + ConstTerm.TSCN, (Node2D)GetParent());
+            // if (loadData.HasSection(ConstTerm.SYSTEM + ConstTerm.DATA)) {
+            //     if (loadData.HasSectionKey(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.))
+            // }
         }
 
         //=============================================================================

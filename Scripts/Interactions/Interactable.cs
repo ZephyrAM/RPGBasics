@@ -390,32 +390,64 @@ namespace ZAM.Interactions
         // SECTION: Save System
         //=============================================================================
 
-        public void OnSaveGame(SavedGame saveData)
-        {
-            InteractData newData = new()
-            {
-                DataIsEvent = IsEvent,
-                DataIsInteractable = IsInteractable,
-                NoRepeatStep = noRepeatStep
-            };
-            if (!saveData.InteractData.TryGetValue(saveData.SystemData.SavedSceneName, out Dictionary<string, InteractData> data)) {
-                data = [];
-                saveData.InteractData.Add(saveData.SystemData.SavedSceneName, data); }
+        // public void OnSaveGame(SavedGame saveData)
+        // {
+        //     InteractData newData = new()
+        //     {
+        //         DataIsEvent = IsEvent,
+        //         DataIsInteractable = IsInteractable,
+        //         NoRepeatStep = noRepeatStep
+        //     };
+        //     if (!saveData.InteractData.TryGetValue(saveData.SystemData.SavedSceneName, out Dictionary<string, InteractData> data)) {
+        //         data = [];
+        //         saveData.InteractData.Add(saveData.SystemData.SavedSceneName, data); }
 
-            // data[Name] = newData;
-            saveData.InteractData[saveData.SystemData.SavedSceneName][Name] = newData;
+        //     // data[Name] = newData;
+        //     saveData.InteractData[saveData.SystemData.SavedSceneName][Name] = newData;
+        // }
+
+        // public void OnLoadGame(Dictionary<MapID, Dictionary<string, InteractData>> loadData, int currentID)
+        // {
+        //     if (!loadData.ContainsKey((MapID)currentID)) { return; }
+
+        //     InteractData saveData = loadData[(MapID)currentID][Name];
+        //     if (saveData == null) { GD.Print("Interact Data - NULL"); return; }
+
+        //     IsEvent = saveData.DataIsEvent;
+        //     IsInteractable = saveData.DataIsInteractable;
+        //     noRepeatStep = saveData.NoRepeatStep;
+        // }
+
+        public void OnSaveFile(ConfigFile saveData)
+        {
+            int map = (int)saveData.GetValue(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.SAVED + ConstTerm.MAP + ConstTerm.ID);
+            string sectionID = ConstTerm.MAP + map + ConstTerm.INTERACT + Name + ConstTerm.DATA;
+
+            saveData.SetValue(sectionID, ConstTerm.IS + ConstTerm.EVENT, IsEvent);
+            saveData.SetValue(sectionID, ConstTerm.IS + ConstTerm.INTERACT, IsInteractable);
+            saveData.SetValue(sectionID, ConstTerm.REPEAT_STEP, noRepeatStep);
+            saveData.SetValue(sectionID, ConstTerm.CURRENT + ConstTerm.MOVE + ConstTerm.POSITION, currentMovePos);
+            if (currentMovePos > 0) {
+                saveData.SetValue(sectionID, ConstTerm.POSITION, GlobalPosition);
+                saveData.SetValue(sectionID, ConstTerm.DIRECTION, moveableBody.GetLookDirection());
+            }
         }
 
-        public void OnLoadGame(Dictionary<MapID, Dictionary<string, InteractData>> loadData, int currentID)
+        public void OnLoadFile(ConfigFile loadData)
         {
-            if (!loadData.ContainsKey((MapID)currentID)) { return; }
+            int map = (int)loadData.GetValue(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.LOADING + ConstTerm.MAP + ConstTerm.ID);
+            string sectionID = ConstTerm.MAP + map + ConstTerm.INTERACT + Name + ConstTerm.DATA;
 
-            InteractData saveData = loadData[(MapID)currentID][Name];
-            if (saveData == null) { GD.Print("Interact Data - NULL"); return; }
-
-            IsEvent = saveData.DataIsEvent;
-            IsInteractable = saveData.DataIsInteractable;
-            noRepeatStep = saveData.NoRepeatStep;
+            if (loadData.HasSection(sectionID)) {
+                IsEvent = (bool)loadData.GetValue(sectionID, ConstTerm.IS + ConstTerm.EVENT);
+                IsInteractable = (bool)loadData.GetValue(sectionID, ConstTerm.IS + ConstTerm.INTERACT);
+                noRepeatStep = (int)loadData.GetValue(sectionID, ConstTerm.REPEAT_STEP);
+                currentMovePos = (int)loadData.GetValue(sectionID, ConstTerm.CURRENT + ConstTerm.MOVE + ConstTerm.POSITION);
+                if (currentMovePos > 0) {
+                    GlobalPosition = (Vector2)loadData.GetValue(sectionID, ConstTerm.POSITION);
+                    moveableBody.SetLookDirection((Vector2)loadData.GetValue(sectionID, ConstTerm.DIRECTION));
+                }
+            }
         }
 
         //=============================================================================

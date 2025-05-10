@@ -38,7 +38,6 @@ Value = 10.0
 
 [node name="Sprite2D" parent="." index="1"]
 texture = SubResource("CanvasTexture_p1q2g")
-frame = 1
 
 [node name="AnimationTree" parent="." index="5"]
 parameters/Idle/blend_position = Vector2(-0.981346, -0.0329671)
@@ -51,7 +50,7 @@ battlerID = 1
 battlerClass = 1
 
 [node name="BaseStats" parent="Battler" index="1"]
-stats = Array[Object]([SubResource("Resource_lynlm"), SubResource("Resource_qbtqn"), SubResource("Resource_oa7rn"), SubResource("Resource_javyd"), SubResource("Resource_7vk6j")])
+stats = Array[ExtResource("2_1jf01")]([SubResource("Resource_lynlm"), SubResource("Resource_qbtqn"), SubResource("Resource_oa7rn"), SubResource("Resource_javyd"), SubResource("Resource_7vk6j")])
 
 [node name="SkillList" parent="Battler" index="3"]
 defaultSkills = PackedStringArray("Fire", "Fire Wave")

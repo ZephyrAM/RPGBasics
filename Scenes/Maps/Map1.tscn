@@ -944,12 +944,13 @@ battleAreas = [NodePath("Environment/Area2D")]
 menuUseButton = ExtResource("4_itk0w")
 eventScript = ExtResource("4_ia6gl")
 
-[node name="PartyManager" type="Node2D" parent="MapSystem" groups=["PartyData"]]
+[node name="PartyManager" type="Node2D" parent="MapSystem" node_paths=PackedStringArray("playerCamera") groups=["PartyData"]]
 y_sort_enabled = true
 position = Vector2(-383, -46)
 script = ExtResource("12_wsyri")
 partyMembers = Array[PackedScene]([ExtResource("13_m0t7d"), ExtResource("14_w08uj")])
 playerController = ExtResource("15_yuk0r")
+playerCamera = NodePath("../Camera2D")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="MapSystem"]
 navigation_polygon = SubResource("NavigationPolygon_wq6mi")

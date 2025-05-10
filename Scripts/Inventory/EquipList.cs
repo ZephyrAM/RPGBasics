@@ -145,18 +145,24 @@ namespace ZAM.Inventory
 
         public void SetEquipList(Dictionary<GearSlotID, ulong> list)
         {
-            SetupEquipList();
+            if (characterEquipment.Count <= 0) { SetupEquipList(); }
             foreach(GearSlotID data in list.Keys) {
                 ulong uniqueID = list[data];
                 Equipment bagEquip;
 
-                if (uniqueID > 0) { bagEquip = ItemBag.Instance.GetEquipBag().FirstOrDefault(gear => gear.UniqueID == uniqueID); }
+                if (uniqueID > 0) { bagEquip = ItemBag.Instance.GetEquipBag().First(gear => gear.UniqueID == uniqueID); }
                 else { bagEquip = null; }
 
                 if (bagEquip != null) { 
                     characterEquipment[data] = bagEquip;
+                    // EquipGear((int)data, bagEquip);
                 }
             }
         }
+
+        // public void StoreEquipList(ConfigFile saveData, string battlerID)
+        // {
+
+        // }
     }
 }

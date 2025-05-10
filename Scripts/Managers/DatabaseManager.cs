@@ -73,7 +73,7 @@ namespace ZAM.Managers
 
             for (int i = 0; i < itemList.GetChildCount(); i++) {
                 Item tempItem = (Item)itemList.GetChild(i);
-                // tempItem.SetUniqueID(ref uniqueIDCounter);
+                tempItem.SetUniqueID(ref uniqueIDCounter);
                 itemDatabase[tempItem.ItemName] = tempItem;
             }
 
@@ -131,5 +131,31 @@ namespace ZAM.Managers
 
         public Dictionary<string, Equipment> GetAccessoryDatabase()
         { return accessoryDatabase; }
+
+        //=============================================================================
+        // SECTION: Save System
+        //=============================================================================
+
+        public void OnSaveGame(SavedGame saveData)
+        {
+
+        }
+
+        public void OnLoadGame(SystemData loadData)
+        {
+
+        }
+
+        public void OnSaveFile(ConfigFile saveData)
+        {
+            saveData.SetValue(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.UNIQUE + ConstTerm.ID + ConstTerm.COUNT, uniqueIDCounter);
+        }
+
+        public void OnLoadFile(ConfigFile loadData)
+        {
+            if (loadData.HasSection(ConstTerm.SYSTEM + ConstTerm.DATA)) {
+                uniqueIDCounter = (ulong)loadData.GetValue(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.UNIQUE + ConstTerm.ID + ConstTerm.COUNT);
+            }
+        }
     }
 }

@@ -20,6 +20,7 @@ namespace ZAM.Controller
         [Export] private Vector2[] playerPositions;
 
         private AnimationPlayer playerAnim;
+        private Vector2 lookDirection = new (-1, 0);
 
         private GridContainer skillList;
         private GridContainer itemList;
@@ -623,6 +624,11 @@ namespace ZAM.Controller
             else { return playerTeamSize; }
         }
 
+        public void SetLookDirection(Vector2 currentDir)
+		{
+			lookDirection = currentDir;
+			playerAnim.Set(ConstTerm.PARAM + ConstTerm.IDLE + ConstTerm.BLEND, lookDirection);
+		}
 
         //=============================================================================
         // SECTION: External Access Methods

@@ -83,13 +83,13 @@ namespace ZAM.MenuUI
         public void SetupParty(int size)
         {
             if (infoList.GetChildCount() > 0) { 
-                for (int i = infoList.GetChildCount(); i > 0; i--)
-                { infoList.GetChild(i - 1).QueueFree(); }
+                foreach (Node child in infoList.GetChildren()) {
+                    child.QueueFree();
+                }
             }
 
             partyMembers = [];
-            for (int i = 0; i < size; i++)
-            {
+            for (int i = 0; i < size; i++) {
                 partyMembers.Add(memberInfoBox.Instantiate() as MemberInfo);
                 infoList.AddChild(partyMembers[i]);
             }

@@ -168,7 +168,7 @@ script = ExtResource("5_f5u6h")
 Stat = 1
 Value = 2.0
 
-[node name="DataManager" type="Node2D" node_paths=PackedStringArray("abilityList", "stateList", "classList", "itemList", "weaponList", "armorList", "accessoryList")]
+[node name="DataManager" type="Node2D" node_paths=PackedStringArray("abilityList", "stateList", "classList", "itemList", "weaponList", "armorList", "accessoryList") groups=["SystemData"]]
 process_mode = 4
 physics_interpolation_mode = 2
 script = ExtResource("1_vh6lm")
@@ -182,13 +182,14 @@ accessoryList = NodePath("AccessoryDatabase")
 
 [node name="AbilityDatabase" type="Node2D" parent="."]
 
-[node name="Defend" type="Node" parent="AbilityDatabase"]
+[node name="Defend" type="Node" parent="AbilityDatabase" node_paths=PackedStringArray("AddedState")]
 script = ExtResource("1_c011n")
 AbilityName = "Defend"
 AbilityDescription = "Reduce incoming damage for turn."
 TargetType = "Self"
 TargetArea = "Single"
 CallAnimation = "battle_anim/defend"
+AddedState = NodePath("../../StateDatabase/Defend")
 UseableInBattle = true
 
 [node name="Fire" type="Node" parent="AbilityDatabase"]

@@ -13,7 +13,7 @@ namespace ZAM.Stats
         [Export] private Battler battler = null;
         
         [ExportGroup("Stat Values")]
-        [Export] private Modifier [] stats;
+        [Export] private Array<Modifier> stats = [];
 
         [ExportGroup("Options")]
         [Export] private bool shouldUseAddModifiers = true;
@@ -50,7 +50,7 @@ namespace ZAM.Stats
         {
             if (battler.GetBattlerType() == ConstTerm.NPC) { return; }
             stat ??= [];
-            for (int s = 0; s < stats.Length; s++)
+            for (int s = 0; s < stats.Count; s++)
             {
                 stat.Add(stats[s].Stat);
             }
@@ -120,6 +120,11 @@ namespace ZAM.Stats
             return statSheet;
         }
 
+        public void SetStatSheet(Dictionary<StatID, float> loadSheet)
+        {
+            statSheet = loadSheet;
+        }
+
         public Dictionary<StatID, float> GetModifiedStatSheet()
         {
             for (int s = 1; s <= modifiedStatSheet.Count; s++)
@@ -134,21 +139,35 @@ namespace ZAM.Stats
         // SECTION: Save System
         //=============================================================================
 
-        public float[] SaveAllStats()
+        public Array<float> SaveAllStats()
         {
-            float[] saveStats = new float[statSheet.Count];
+            Array<float> saveStats = [];
             for (int n = 0; n < statSheet.Count; n++)
             {
-                saveStats[n] = statSheet[stat[n]];
+                saveStats.Add(statSheet[stat[n]]);
             }
             return saveStats;
         }
 
-        public void LoadAllStats(float[] loadStats)
+        public void LoadAllStats(Array<float> loadStats)
         {
             for (int n = 0; n < statSheet.Count; n++)
             {
                 statSheet[stat[n]] = loadStats[n];
+            }
+        }
+
+        public void SaveAllStats(ConfigFile saveData, string battlerID)
+        {
+            for (int n = 0; n < statSheet.Count; n++) {
+                saveData.SetValue(battlerID, stat[n].ToString() + ConstTerm.VALUE, statSheet[stat[n]]);
+            }
+        }
+
+        public void LoadAllStats(ConfigFile loadData, string battlerID)
+        {
+            for (int n = 0; n < statSheet.Count; n++) {
+                statSheet[stat[n]] = (float)loadData.GetValue(battlerID, stat[n].ToString() + ConstTerm.VALUE);
             }
         }
 

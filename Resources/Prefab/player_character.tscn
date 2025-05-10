@@ -113,6 +113,18 @@ tracks/1/keys = {
 "update": 0,
 "values": [Vector2(0, 0)]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [7]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_msahq"]
 _data = {
@@ -136,7 +148,7 @@ y_sort_enabled = true
 texture = SubResource("CanvasTexture_qxbvh")
 hframes = 3
 vframes = 3
-frame = 1
+frame = 7
 
 [node name="PointLight2D" type="PointLight2D" parent="Sprite2D"]
 visible = false
@@ -172,12 +184,14 @@ collision_mask = 21
 hit_from_inside = true
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
+callback_mode_process = 0
 tree_root = SubResource("AnimationNodeStateMachine_xs4vy")
 anim_player = NodePath("../AnimationPlayer")
 parameters/Idle/blend_position = Vector2(-1.03487, 0.395604)
 parameters/Walk/blend_position = Vector2(-0.963504, -0.0769231)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+callback_mode_discrete = 2
 libraries = {
 &"": SubResource("AnimationLibrary_msahq"),
 &"battle_anim": ExtResource("1_nlbc0"),

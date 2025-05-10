@@ -490,11 +490,16 @@ namespace ZAM.Interactions
             return navAgent;
         }
 
-        // public void SetLookDirection(Vector2 currentDir)
-        // {
-        //     lookDirection = currentDir;
-        //     animPlay.Set(ConstTerm.PARAM + ConstTerm.IDLE + ConstTerm.BLEND, lookDirection);
-        // }
+        public Vector2 GetLookDirection()
+        {
+            return lookDirection;
+        }
+
+        public void SetLookDirection(Vector2 currentDir)
+        {
+            lookDirection = currentDir;
+            animPlay.Set(ConstTerm.PARAM + ConstTerm.IDLE + ConstTerm.BLEND, lookDirection);
+        }
 
         public void FaceDirection(Vector2 direction)
         {

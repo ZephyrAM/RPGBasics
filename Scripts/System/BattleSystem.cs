@@ -301,9 +301,10 @@ namespace ZAM.System
             playerParty.ChangePlayerActive(true);
 
             // GD.Print("Map enter tree - load data");
-            await SaveLoader.Instance.LoadBattlerData(SaveLoader.Instance.gameSession);
+            await SaveLoader.Instance.LoadBattlerData(false);
             // GD.Print(SaveLoader.Instance.gameSession.CharData[playerParty.GetPlayerParty()[0].GetCharID()].CurrentHP);
             // GD.Print(playerParty.GetPlayerParty()[0].GetHealth().GetHP());
+            QueueFree();
         }
 
         public void SetBattleControlActive(bool active)
@@ -623,7 +624,7 @@ namespace ZAM.System
         private async void BattleWin()
         {
             // GD.Print("Battle end - save data");
-            SaveLoader.Instance.GatherBattlers();
+            SaveLoader.Instance.GatherBattlers(false);
             // GD.Print(SaveLoader.Instance.gameSession.CharData[playerParty.GetPlayerParty()[0].GetCharID()].CurrentHP);
             // GD.Print(playerParty.GetPlayerParty()[0].GetHealth().GetHP());
             // GD.Print(partyInput);
@@ -725,7 +726,7 @@ namespace ZAM.System
                 
                 Label newItem = (Label)ResourceLoader.Load<PackedScene>(labelSettings.ResourcePath).Instantiate();
                 newItem.Text = item.ItemName;
-                newItem.SetMeta(ConstTerm.UNIQUE_ID, item.UniqueID);
+                newItem.SetMeta(ConstTerm.UNIQUE + ConstTerm.ID, item.UniqueID);
 
                 newItem.CustomMinimumSize = new Vector2(partyInput.GetSkillItemWidth(), 0);
                 if (ItemBag.Instance.GetItemBag()[item] > 1) {
@@ -1072,7 +1073,7 @@ namespace ZAM.System
 
         private void OnItemSelect(int index)
         {
-            ulong id = (ulong)itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).GetMeta(ConstTerm.UNIQUE_ID);
+            ulong id = (ulong)itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChild(index).GetMeta(ConstTerm.UNIQUE + ConstTerm.ID);
             activeItem = ItemBag.Instance.GetItemFromBag(id);
             activeAbility = null;
 

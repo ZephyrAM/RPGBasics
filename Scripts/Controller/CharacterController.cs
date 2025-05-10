@@ -22,7 +22,7 @@ namespace ZAM.Controller
 		private AnimationTree charAnim = null;
 		private AnimationNodeStateMachinePlayback animPlay = null;
 
-		private Camera2D camera2D;
+		// private Camera2D camera2D;
 		private CanvasLayer uiLayer = null;
 		private Panel textBox = null;
 		private PanelContainer choiceBox = null;
@@ -39,7 +39,7 @@ namespace ZAM.Controller
 		private bool signalsDone = false;
 		private string activeInput = ConstTerm.KEY_GAMEPAD;
 
-		private Vector2 lookDirection = new Vector2(1, 0);
+		private Vector2 lookDirection = new(0, 1);
 		private Vector2 moveInput;
 		private Vector2 direction;
 		private float moveSpeed;
@@ -82,9 +82,8 @@ namespace ZAM.Controller
 
 		public override void _Ready()
 		{
-
 			// Set camera boundaries to limit player movement
-			camera2D = GetNode<Camera2D>("../../" + ConstTerm.CAMERA2D);
+			// camera2D = GetParent().GetOwner().GetChild(0).GetNode<Camera2D>(ConstTerm.CAMERA2D);
 			// menuUI = (CanvasLayer)GetParent().GetChild(0);
 
 			// cameraLowLimit = new Vector2(camera2D.LimitLeft, camera2D.LimitTop);
@@ -92,9 +91,9 @@ namespace ZAM.Controller
 
 
 			// Create follow camera for leader
-            RemoteTransform2D tempCamera = new RemoteTransform2D
-            { RemotePath = camera2D.GetPath() };
-            AddChild(tempCamera);
+            // RemoteTransform2D tempCamera = new RemoteTransform2D
+            // { RemotePath = camera2D.GetPath() };
+            // AddChild(tempCamera);
 
 			
 			IfNull();
@@ -102,6 +101,8 @@ namespace ZAM.Controller
 
 			moveSpeed = baseSpeed;
 			charSize = new Vector2(charSprite.Texture.GetWidth() / charSprite.Hframes, charSprite.Texture.GetHeight() / charSprite.Vframes);
+
+			SetLookDirection(lookDirection);
 		}
 
         // protected override void Dispose(bool disposing)
@@ -631,7 +632,7 @@ namespace ZAM.Controller
 			return Name;
 		}
 
-		public Vector2 GetFaceDirection()
+		public Vector2 GetFaceDirection() // In Use?
 		{
 			return lookDirection;
 		}

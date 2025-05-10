@@ -533,8 +533,7 @@ namespace ZAM.Controller
             config.SetValue(ConstTerm.GRAPHICS, ConstTerm.BORDERLESS, borderlessToggle);
             config.SetValue(ConstTerm.GRAPHICS, ConstTerm.RESOLUTION, resolutionIndex);
 
-            for (int k = 0; k < changedKeys.Count; k++)
-            {
+            for (int k = 0; k < changedKeys.Count; k++) {
                 // InputEventKey tempKey = (InputEventKey)InputMap.ActionGetEvents(changedKeys[k])[0];
                 config.SetValue(ConstTerm.KEYBINDS, changedKeys[k], InputMap.ActionGetEvents(changedKeys[k])[0]);
             }
@@ -546,18 +545,18 @@ namespace ZAM.Controller
         public void OnLoadConfig(ConfigFile config)
         {
             if (config == null) { return; }
-            if (!config.HasSection(ConstTerm.GRAPHICS)) { return; }
+            if (config.HasSection(ConstTerm.GRAPHICS)) {
+                borderlessToggle = (bool)config.GetValue(ConstTerm.GRAPHICS, ConstTerm.BORDERLESS);
+                resolutionIndex = (int)config.GetValue(ConstTerm.GRAPHICS, ConstTerm.RESOLUTION);
+            }
 
-            borderlessToggle = (bool)config.GetValue(ConstTerm.GRAPHICS, ConstTerm.BORDERLESS);
-            resolutionIndex = (int)config.GetValue(ConstTerm.GRAPHICS, ConstTerm.RESOLUTION);
-
-            if (!config.HasSection(ConstTerm.KEYBINDS)) { return; }
-            for (int k = 0; k < config.GetSectionKeys(ConstTerm.KEYBINDS).Length; k++)
-            {
-                string tempString = config.GetSectionKeys(ConstTerm.KEYBINDS)[k];
-                InputEventKey tempKey = (InputEventKey)InputMap.ActionGetEvents(tempString)[0];
-                InputEventKey tempCode = (InputEventKey)config.GetValue(ConstTerm.KEYBINDS, tempString);
-                tempKey.PhysicalKeycode = tempCode.PhysicalKeycode;
+            if (config.HasSection(ConstTerm.KEYBINDS)) {
+                for (int k = 0; k < config.GetSectionKeys(ConstTerm.KEYBINDS).Length; k++) {
+                    string tempString = config.GetSectionKeys(ConstTerm.KEYBINDS)[k];
+                    InputEventKey tempKey = (InputEventKey)InputMap.ActionGetEvents(tempString)[0];
+                    InputEventKey tempCode = (InputEventKey)config.GetValue(ConstTerm.KEYBINDS, tempString);
+                    tempKey.PhysicalKeycode = tempCode.PhysicalKeycode;
+                }
             }
         }
     }
