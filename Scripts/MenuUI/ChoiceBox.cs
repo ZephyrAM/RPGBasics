@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 using System;
 
 namespace ZAM.MenuUI
@@ -55,12 +56,12 @@ namespace ZAM.MenuUI
             Show();
         }
 
-        public void AddChoiceList(string [] choices)
+        public void AddChoiceList(Array<string> choices)
         {
-            for (int l = 0; l < choices.Length; l++)
+            for (int l = 0; l < choices.Count; l++)
             {
                 Label newChoice = (Label)choiceLabel.Instantiate();
-                newChoice.Text = choices[l];
+                newChoice.Text = Tr(choices[l]);
                 vertBox.AddChild(newChoice);
             }
         }

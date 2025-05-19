@@ -41,7 +41,7 @@ namespace ZAM.MenuUI
 
         public void AddText(string newText)
         {
-            collectLabel.Text = newText;
+            collectLabel.Text = $"Received {Tr(newText)}!";
             collectQueue.Remove(newText);
             Visible = true;
             animPlayer.Play(ConstTerm.FADE_IN);
@@ -49,13 +49,13 @@ namespace ZAM.MenuUI
 
         public async void CompleteCollectText()
         {
-            if (!isDisplayed && animPlayer.IsPlaying()) {
+            if (!isDisplayed && animPlayer.IsPlaying())
+            {
                 await ToSignal(animPlayer, AnimationPlayer.SignalName.AnimationFinished);
-                GD.Print(collectQueue[0]);
                 collectQueue.RemoveAt(0);
                 if (collectQueue.Count <= 0) { return; }
             }
-            GD.Print(collectQueue[0]);
+            // GD.Print(collectQueue[0]);
             AddText(collectQueue[0]);
         }
 

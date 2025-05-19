@@ -45,6 +45,7 @@ namespace ZAM.System
 
         public override void _Ready()
         {
+            TranslationServer.SetLocale("EN");
             SaveLoader.Instance.LoadConfig();
 
             IfNull();
@@ -267,6 +268,7 @@ namespace ZAM.System
             LoadStarterGear();
             Fader.Instance.FadeIn();
             QueueFree();
+            await SaveLoader.Instance.LoadAllData(false); // Saving initial map ID - all other loads should skip, as sections don't exist yet.
 
             return;
         }

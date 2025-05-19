@@ -424,6 +424,10 @@ Pause={
 ]
 }
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://Lang/translations.EN.translation", "res://Lang/translations.JP.translation")
+
 [layer_names]
 
 2d_physics/layer_1="walls"

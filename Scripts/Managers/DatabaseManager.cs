@@ -136,15 +136,15 @@ namespace ZAM.Managers
         // SECTION: Save System
         //=============================================================================
 
-        public void OnSaveGame(SavedGame saveData)
-        {
+        // public void OnSaveGame(SavedGame saveData)
+        // {
 
-        }
+        // }
 
-        public void OnLoadGame(SystemData loadData)
-        {
+        // public void OnLoadGame(SystemData loadData)
+        // {
 
-        }
+        // }
 
         public void OnSaveFile(ConfigFile saveData)
         {

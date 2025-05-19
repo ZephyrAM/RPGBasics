@@ -9,16 +9,16 @@ namespace ZAM.MapEvents
         public override void _Ready()
         {
             base._Ready();
-            mapNumber = "1" + ConstTerm.DIVIDER;
+            // mapNumber = "1" + ConstTerm.DIVIDER;
         }        
         //=============================================================================
         // SECTION: Event Methods
         //=============================================================================
 
-        public void Event0(Interactable interactor)
+        public void Event1(Interactable interactor)
         {
-            eventNumber = interactor.Name.ToString()[^1] + ConstTerm.DIVIDER;
-            textSource = ConstTerm.MAP + mapNumber + ConstTerm.EVENT + eventNumber + ConstTerm.STEP;
+            // eventNumber = interactor.Name.ToString()[^1] + ConstTerm.DIVIDER;
+            // textSource = ConstTerm.MAP + mapNumber + ConstTerm.EVENT + eventNumber + ConstTerm.STEP;
 
             // Version 1 - Not Async
             // GD.Print(interactor.GetStep());
@@ -34,10 +34,12 @@ namespace ZAM.MapEvents
                     interactor.AddMoveRoute();
                     break;
                 case 1:
-                    interactor.AddText(mapText[textSource + interactor.GetStep()][ConstTerm.EN]);
+                    // interactor.AddText(mapText[textSource + interactor.GetStep()][ConstTerm.EN]);
+                    interactor.AddText(MapID.Map1.ToString() + "." + MethodName.Event1 + "." + ConstTerm.TEXT + interactor.GetStep());
                     break;
                 case 2:
                     interactor.AddMoveRoute();
+                    interactor.GetMoveAgent().GetCollider().Disabled = false;
                     break;
                 default:
                     // GD.Print("still going..." + interactor.GetStep());
@@ -60,7 +62,7 @@ namespace ZAM.MapEvents
             // EmitSignal(SignalName.onEventComplete);
         }
 
-        public void Event1()
+        public void Event2()
         {
             // GD.Print("Event1 running!");
         }

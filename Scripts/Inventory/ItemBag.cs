@@ -445,25 +445,25 @@ namespace ZAM.Inventory
         //     }
         // }
 
-        public void OnSaveGame(SavedGame saveData)
-        {
-            // InventoryData newData = new()
-            // {
-            //     ItemBag = StoreItemBag(),
-            //     EquipBag = StoreEquipBag()
-            // };
+        // public void OnSaveGame(SavedGame saveData)
+        // {
+        //     InventoryData newData = new()
+        //     {
+        //         ItemBag = StoreItemBag(),
+        //         EquipBag = StoreEquipBag()
+        //     };
 
-            // saveData.InventoryData = newData;
-        }
+        //     saveData.InventoryData = newData;
+        // }
 
-        public void OnLoadGame(InventoryData loadData)
-        {
-            // InventoryData saveData = loadData;
-            // if (saveData == null) { GD.Print("Inventory Data - NULL"); return; }
+        // public void OnLoadGame(InventoryData loadData)
+        // {
+        //     InventoryData saveData = loadData;
+        //     if (saveData == null) { GD.Print("Inventory Data - NULL"); return; }
 
-            // SetItemBag(saveData.ItemBag);
-            // SetEquipBag(saveData.EquipBag);
-        }
+        //     SetItemBag(saveData.ItemBag);
+        //     SetEquipBag(saveData.EquipBag);
+        // }
 
         public void OnSaveFile(ConfigFile saveData)
         {

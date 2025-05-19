@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Text.RegularExpressions;
 // using System.Collections.Generic;
 
 namespace ZAM.MenuUI
@@ -66,7 +67,10 @@ namespace ZAM.MenuUI
             // textLabel.Text = text;
             // GD.Print(textLabel.Text);
             // GD.Print("Text visible / total lines: " + textLabel.GetVisibleLineCount() + " " + textLabel.GetLineCount());
-            AddText(name, text);
+            var varReg = MyRegex();
+            string getText = TranslationServer.Translate(text);
+            string outText = $"{getText}";
+            AddText(name, outText);
         }
 
         public async void AddText(string name, string nextText)
@@ -131,5 +135,9 @@ namespace ZAM.MenuUI
             if (active) { textTween.SetSpeedScale(textRate * 5); }
             else { textTween.SetSpeedScale(textRate); }
         }
+
+        [GeneratedRegex(@"\{\w+?\}")]
+        private static partial Regex MyRegex();
+
     }
 }

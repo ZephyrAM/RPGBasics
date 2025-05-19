@@ -1,7 +1,7 @@
 public enum InteractType
 {
-    TEXT = 0,
-    CHOICE = 1,
-    ITEM = 2,
-    MOVE = 3
+    Text = 0,
+    Choice = 1,
+    Item = 2,
+    Move = 3
 }

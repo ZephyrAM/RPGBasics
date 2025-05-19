@@ -12,6 +12,18 @@ namespace ZAM.Interactions
         // [Export] private Node2D eventNode = null;
         [Export] private Label objectName = null;
 
+        [ExportGroup("New")]
+        [Export] private Dictionary<string, Array<string>> newActionType = [];
+        [Export] private Dictionary<string, Array<string>> letterChoices = [];
+        [Export] private Dictionary<string, string> itemNames = [];
+        
+        private int lineStep = 0;
+        private string currentChoice = "";
+        private string actionSet = "start";
+        private string optionSet = "start";
+        private string textID = "";
+        
+
         [ExportGroup("Events")]
         [Export] private Node2D[] movePositions = [];
         [Export] private int eventStepCount = 0;
@@ -124,13 +136,26 @@ namespace ZAM.Interactions
             return IsInteractable;
         }
 
+        public void RestartInteract()
+        {
+            currentChoice = "";
+            actionSet = "start";
+            optionSet = "start";
+            lineStep = 0;
+        }
+
         public void TargetInteraction(Vector2 direction)
         {
             // GD.Print("Target Interaction");
             // LoadChoiceText();
             if (IsAutoBattle) { moveableBody.TriggerBattler(); return; }
+            MapID tempID = (MapID)(int)SaveLoader.Instance.gameFile.GetValue(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.LOADING + ConstTerm.MAP + ConstTerm.ID);
+            textID = tempID.ToString();
+            textID += "." + Name + ".";
 
-            if (!IsEvent) 
+            if (IsRepeatable) { RestartInteract(); }
+
+            if (!IsEvent)
             {
                 if (actionType.Count <= 0) { return; }
                 SetInteractPhase(ConstTerm.INTERACT);
@@ -139,48 +164,77 @@ namespace ZAM.Interactions
                 if (IsRepeatable) { stepNumber = 0; choiceStep = 0; }
                 IsPlaying = true;
 
-                StepInteract(0);
-            } else 
+                StepInteract();
+            }
+            else
             {
                 IsPlaying = true;
                 EmitSignal(SignalName.onEventStart); // -> MapSystem - OnEventStart
             }
         }
 
-        public void StepInteract(int adjust)
+        public void StepInteract() // EDIT: Needs new functions defined. Working on.
         {
-            // GD.Print(actionType[stepNumber + adjust]);
-            if (IsEvent) { GD.PushError("Event active! StepInteract invalid usage."); return; }
-
-            switch (actionType[stepNumber + adjust])
+            if (currentChoice == "") { actionSet = "start"; }
+            else { actionSet = "afterChoice" + currentChoice;}
+            GD.Print(currentChoice + lineStep);
+            switch (newActionType[actionSet][lineStep])
             {
-                case InteractType.TEXT:
+                case ConstTerm.TEXT:
                     AddText();
                     break;
-                case InteractType.CHOICE:
+                case ConstTerm.CHOICE:
                     AddChoiceText();
                     break;
-                case InteractType.ITEM:
-                    AddItemGive();
+                case ConstTerm.ITEM:
+                case ConstTerm.WEAPON:
+                case ConstTerm.ARMOR:
+                case ConstTerm.ACCESSORY:
+                    AddItemGive(newActionType[actionSet][lineStep]);
                     break;
-                case InteractType.MOVE:
+                case ConstTerm.MOVE:
                     AddMoveRoute();
                     break;
+                default:
+                    break;
             }
-            stepNumber += adjust;
         }
+
+        // public void StepInteract(int adjust)
+        // {
+        //     // GD.Print(actionType[stepNumber + adjust]);
+        //     if (IsEvent) { GD.PushError("Event active! StepInteract invalid usage."); return; }
+
+        //     switch (actionType[stepNumber + adjust])
+        //     {
+        //         case InteractType.Text:
+        //             AddText();
+        //             break;
+        //         case InteractType.Choice:
+        //             AddChoiceText();
+        //             break;
+        //         case InteractType.Item:
+        //             AddItemGive();
+        //             break;
+        //         case InteractType.Move:
+        //             AddMoveRoute();
+        //             break;
+        //     }
+        //     stepNumber += adjust;
+        // }
 
         public void AddText()
         {
             textBox.ResetTextRatio();
             // GD.Print(stepNumber);
-            string outText;
+            string outText = textID + newActionType[actionSet][lineStep] + currentChoice + lineStep; // MapID.InteractID.Text(letter)(number)
             // GD.Print("text" + stepNumber + alphabet[choiceOption] + " " + choiceActive);
-            if (choiceActive) { outText = choiceText[ConstTerm.TEXT + stepNumber + alphabet[choiceOption]]; }
-            else { outText = choiceText[ConstTerm.TEXT + stepNumber]; }
+            // if (choiceActive) { outText = choiceText[ConstTerm.TEXT + stepNumber + alphabet[choiceOption]]; }
+            // else { outText = choiceText[ConstTerm.TEXT + stepNumber]; }
             textBox.QueueText(objectName.Text, outText);
-            choiceActive = false;
-            choiceOption = 0;
+            EndStep(ConstTerm.TEXT);
+            // choiceActive = false;
+            // choiceOption = 0;
 
             EmitSignal(SignalName.onInteractPhase, ConstTerm.TEXT); // -> MapSystem - OnInteractPhase
         }
@@ -189,6 +243,7 @@ namespace ZAM.Interactions
         {
             textBox.ResetTextRatio();
             textBox.QueueText(objectName.Text, textOut);
+            EndStep(ConstTerm.TEXT);
 
             EmitSignal(SignalName.onInteractPhase, ConstTerm.TEXT);
         }
@@ -196,47 +251,76 @@ namespace ZAM.Interactions
         public void AddChoiceText()
         {
             // GD.Print(stepNumber);
-            string[] options = new string[choicesGiven[choiceStep]];
-            for (int c = 0; c < options.Length; c++)
-            {
-                options[c] = choiceText[ConstTerm.CHOICE + stepNumber + alphabet[c]];
+            Array<string> outText = [];
+            for (int c = 0; c < letterChoices[optionSet].Count; c++) {
+                string option = letterChoices[optionSet][c];
+                outText.Add(textID + newActionType[actionSet][lineStep] + currentChoice + option);
             }
-            choiceBox.AddChoiceList(options);
+            // string[] options = new string[choicesGiven[choiceStep]];
+            // for (int c = 0; c < options.Length; c++)
+            // {
+            //     options[c] = choiceText[ConstTerm.CHOICE + stepNumber + alphabet[c]];
+            // }
+            choiceBox.AddChoiceList(outText);
             choiceBox.Show();
-            choiceStep++;
-            choiceActive = true;
+            EndStep(ConstTerm.CHOICE);
+            // choiceStep++;
+            // choiceActive = true;
 
             EmitSignal(SignalName.onInteractPhase, ConstTerm.CHOICE);
         }
 
-        public void AddChoiceText(string textOut, string[] options)
+        public void AddChoiceText(string textOut, Array<string> options)
         {
             choiceBox.AddChoiceList(options);
             choiceBox.Show();
             choiceActive = true;
+            EndStep(ConstTerm.CHOICE);
 
             EmitSignal(SignalName.onInteractPhase, ConstTerm.CHOICE);
         }
 
-        public void AddItemGive()
+        public void AddItemGive(string itemType)
         {
-            string giveText;
-            ItemType giveType;
+            // string giveText;
+            // ItemType giveType;
             int count = 1;
+            string outText = textID + newActionType[actionSet][lineStep] + currentChoice + lineStep;
+            string itemName = itemNames[newActionType[actionSet][lineStep] + currentChoice + lineStep];
+            int searchType = 0; ;
 
-            if (choiceText.ContainsKey(ConstTerm.ITEM + stepNumber)) { giveText = ConstTerm.ITEM + stepNumber; giveType = ItemType.Item; }
-            else if (choiceText.ContainsKey(ConstTerm.WEAPON + stepNumber)) { giveText = ConstTerm.WEAPON + stepNumber; giveType = ItemType.Weapon; }
-            else if (choiceText.ContainsKey(ConstTerm.ARMOR + stepNumber)) { giveText = ConstTerm.ARMOR + stepNumber; giveType = ItemType.Armor; }
-            else { giveText = ConstTerm.ACCESSORY + stepNumber; giveType = ItemType.Accessory;}
+            switch (itemType)
+            {
+                case ConstTerm.ITEM:
+                    searchType = (int)ItemType.Item;
+                    break;
+                case ConstTerm.WEAPON:
+                    searchType = (int)ItemType.Weapon;
+                    break;
+                case ConstTerm.ARMOR:
+                    searchType = (int)ItemType.Armor;
+                    break;
+                case ConstTerm.ACCESSORY:
+                    searchType = (int)ItemType.Accessory;
+                    break;
+                default:
+                    break;
+            }
 
-            string outText = "Receieved " + choiceText[giveText] + "!"; // EDIT: Placeholder
+            // if (choiceText.ContainsKey(ConstTerm.ITEM + stepNumber)) { giveText = ConstTerm.ITEM + stepNumber; giveType = ItemType.Item; }
+            // else if (choiceText.ContainsKey(ConstTerm.WEAPON + stepNumber)) { giveText = ConstTerm.WEAPON + stepNumber; giveType = ItemType.Weapon; }
+            // else if (choiceText.ContainsKey(ConstTerm.ARMOR + stepNumber)) { giveText = ConstTerm.ARMOR + stepNumber; giveType = ItemType.Armor; }
+            // else { giveText = ConstTerm.ACCESSORY + stepNumber; giveType = ItemType.Accessory;}
+
+            // string outText = "Receieved " + choiceText[giveText] + "!"; // EDIT: Placeholder
             collectBox.QueueText(outText);
+            EndStep(ConstTerm.ITEM);
             ItemMessage();
             
-            choiceActive = false;
-            choiceOption = 0;
+            // choiceActive = false;
+            // choiceOption = 0;
 
-            EmitSignal(SignalName.onItemReceive, choiceText[giveText], (int)giveType, count); // -> MapSystem - OnItemReceive
+            EmitSignal(SignalName.onItemReceive, itemName, searchType, count); // -> MapSystem - OnItemReceive
 
             // EmitSignal(SignalName.onInteractPhase, ConstTerm.TEXT);
         }
@@ -248,6 +332,7 @@ namespace ZAM.Interactions
             // if (GetCurrPosition() >= movePositions.Length) { SetCurrPosition(0); } // Looping. Unneeded for structured events.
             // GD.Print("Move to point - " + GetCurrPosition());
             GetMoveAgent().MoveToTarget(movePositions[GetCurrPosition()]); // -> NPCMove
+            EndStep(ConstTerm.MOVE);
         }
 
 
@@ -257,8 +342,8 @@ namespace ZAM.Interactions
 
         public void GiveItem(string itemName, int itemType, int amount)
         {
-            string outText = "Receieved " + itemName + "!"; // EDIT: Placeholder
-            collectBox.QueueText(outText);
+            // string outText = itemName; // EDIT: Placeholder
+            collectBox.QueueText(itemName);
             // await ToSignal(collectBox, ) // EDIT: Work in awaiter for animation
 
             EmitSignal(SignalName.onItemReceive, itemName, itemType, amount); // -> MapSystem
@@ -276,15 +361,21 @@ namespace ZAM.Interactions
 
         public bool StepCheck()
         {
-            stepNumber++;
+            // stepNumber++;
             // GD.Print("Stepcheck = " + stepNumber);
             bool stepComplete;
-
-            if (IsEvent) { stepComplete = stepNumber >= eventStepCount; }
-            else { stepComplete = stepNumber >= actionType.Count; }
+    
+            if (IsEvent) { stepComplete = lineStep >= eventStepCount; }
+            else { stepComplete = lineStep >= newActionType[actionSet].Count; }
 
             if (stepComplete) { IsPlaying = false; }
             return stepComplete;
+        }
+
+        public void EndStep(string type)
+        {
+            if (type == ConstTerm.CHOICE) { lineStep = 0;  }
+            else { lineStep++; }
         }
 
         public void TurnOffEvent()
@@ -302,6 +393,11 @@ namespace ZAM.Interactions
         {
             choiceOption = index;
             choiceBox.SetChoiceOption(choiceOption);
+        }
+
+        public void UpdateChoice()
+        {
+            currentChoice += letterChoices[optionSet][choiceOption];
         }
 
         public void SetIsPlaying(bool value)
@@ -327,7 +423,7 @@ namespace ZAM.Interactions
 
         public void ResetEvent() // EDIT: Mainly testing purposes
         {
-            stepNumber = 0;
+            RestartInteract();
             SetCurrPosition(0);
             GetMoveAgent().GetCollider().Disabled = false;
         }       
@@ -368,7 +464,7 @@ namespace ZAM.Interactions
 
         public int GetStep()
         {
-            return stepNumber;
+            return lineStep;
         }
 
         public int GetCurrPosition()

@@ -302,7 +302,7 @@ namespace ZAM.System
                     playerInput.SetInputPhase(ConstTerm.DO_NOTHING);
                     mapEvents.Call(interactTarget.Name, interactTarget);
                 }
-                else { interactTarget.StepInteract(0); }
+                else { interactTarget.StepInteract(); }
             }
         }
 
@@ -310,7 +310,8 @@ namespace ZAM.System
         {
             // playerInput.SetInputPhase(ConstTerm.INTERACT);
             choiceBox.HideChoiceBox();
-            interactTarget.StepInteract(1);
+            interactTarget.UpdateChoice();
+            interactTarget.StepInteract();
             choiceCommand = 0;
         }
 

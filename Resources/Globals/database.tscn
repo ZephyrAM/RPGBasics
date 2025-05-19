@@ -258,7 +258,6 @@ script = ExtResource("6_ckdgg")
 ClassName = "Fighter"
 LevelUpValue = [SubResource("Resource_y44d7"), SubResource("Resource_5xr43"), SubResource("Resource_cpni4"), SubResource("Resource_rc876"), SubResource("Resource_4vcca")]
 LevelUpVariance = [SubResource("Resource_vbwvx"), SubResource("Resource_jnvjo"), SubResource("Resource_1e2uy"), SubResource("Resource_15jgn"), SubResource("Resource_ay28o")]
-LearnSkills = Array[Resource]([])
 
 [node name="Mage" type="Node" parent="ClassDatabase"]
 script = ExtResource("6_ckdgg")

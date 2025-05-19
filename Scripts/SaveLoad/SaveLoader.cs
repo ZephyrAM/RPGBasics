@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 public partial class SaveLoader : Node
 {
     public static SaveLoader Instance { get; private set; }
-    public SavedGame gameSession;
+    // public SavedGame gameSession;
     public ConfigFile gameFile;
 
     private string saveFolder = ConstTerm.GAME_FOLDER + ConstTerm.SAVE_FOLDER;
@@ -21,7 +21,7 @@ public partial class SaveLoader : Node
     public override void _Ready()
     {
         Instance = this;
-        Instance.gameSession = new();
+        // Instance.gameSession = new();
         Instance.gameFile = new();
 
         SetupSavePaths();
@@ -194,8 +194,10 @@ public partial class SaveLoader : Node
 
     public async Task LoadAllData(bool loadFromFile)
     {
-        if (!loadFromFile) { if (Instance.gameSession == null) { GD.Print("No current game data."); return; } } 
-        else { if (Instance.gameFile == null) { GD.Print("No save file data."); return; } }
+        // if (!loadFromFile) { if (Instance.gameSession == null) { GD.Print("No current game data."); return; } } 
+        // else { if (Instance.gameFile == null) { GD.Print("No save file data."); return; } }
+        if (!loadFromFile) { Instance.gameFile ??= new ConfigFile(); }
+        else { GD.PushWarning("No save data found."); return; }
 
         await LoadSystemData(loadFromFile);
         await LoadPartyData(loadFromFile);

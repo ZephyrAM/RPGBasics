@@ -15,7 +15,7 @@ namespace ZAM.Stats
         [Export] public Modifier[] LevelUpValue { get; private set; } = new Modifier[Enum.GetValues(typeof(StatID)).Length];
         [Export] public Modifier[] LevelUpVariance { get; private set; } = new Modifier[Enum.GetValues(typeof(StatID)).Length];
 
-        [Export] public LearnSkill[] LearnSkills { get; private set; }
+        // [Export] public LearnSkill[] LearnSkills { get; private set; }
 
         public ulong UniqueID { get; private set; } = 0;
 

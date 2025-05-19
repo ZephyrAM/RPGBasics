@@ -1009,8 +1009,20 @@ shape = SubResource("RectangleShape2D_b7hks")
 [node name="Events" type="Node2D" parent="MapSystem"]
 y_sort_enabled = true
 
-[node name="Interactable0" parent="MapSystem/Events" instance=ExtResource("15_2nx0r")]
+[node name="Interactable1" parent="MapSystem/Events" instance=ExtResource("15_2nx0r")]
 position = Vector2(224, 207)
+newActionType = Dictionary[String, Array]({
+"afterChoiceA": ["Text", "Text", "Item"],
+"afterChoiceB": ["Text", "Text", "Item"],
+"start": ["Text", "Text", "Choice"]
+})
+letterChoices = Dictionary[String, Array]({
+"start": ["A", "B"]
+})
+itemNames = Dictionary[String, String]({
+"ItemA2": "Potion",
+"ItemB2": "Potion"
+})
 actionType = Array[int]([0, 0, 1, 0, 0, 2])
 choicesGiven = PackedInt32Array(2)
 choiceText = Dictionary[String, String]({
@@ -1025,26 +1037,26 @@ choiceText = Dictionary[String, String]({
 })
 IsRepeatable = true
 
-[node name="Event0" parent="MapSystem/Events" node_paths=PackedStringArray("movePositions") instance=ExtResource("15_2nx0r")]
+[node name="Event1" parent="MapSystem/Events" node_paths=PackedStringArray("movePositions") instance=ExtResource("15_2nx0r")]
 position = Vector2(-401, 253)
 movePositions = [NodePath("Point0"), NodePath("Point1"), NodePath("Point2")]
 eventStepCount = 3
 IsEvent = true
 DoesMove = false
 
-[node name="Point0" type="Node2D" parent="MapSystem/Events/Event0"]
+[node name="Point0" type="Node2D" parent="MapSystem/Events/Event1"]
 top_level = true
 position = Vector2(-401, 253)
 
-[node name="Point1" type="Node2D" parent="MapSystem/Events/Event0"]
+[node name="Point1" type="Node2D" parent="MapSystem/Events/Event1"]
 top_level = true
 position = Vector2(-334, -60)
 
-[node name="Point2" type="Node2D" parent="MapSystem/Events/Event0"]
+[node name="Point2" type="Node2D" parent="MapSystem/Events/Event1"]
 top_level = true
 position = Vector2(166, 104)
 
-[node name="Point3" type="Node2D" parent="MapSystem/Events/Event0"]
+[node name="Point3" type="Node2D" parent="MapSystem/Events/Event1"]
 top_level = true
 position = Vector2(-66, -174)
 

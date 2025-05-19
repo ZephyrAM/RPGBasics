@@ -1108,14 +1108,14 @@ height = 30.0
 [node name="Events" type="Node2D" parent="MapSystem"]
 y_sort_enabled = true
 
-[node name="Interactable0" parent="MapSystem/Events" instance=ExtResource("14_sr6m2")]
+[node name="Interactable1" parent="MapSystem/Events" instance=ExtResource("14_sr6m2")]
 position = Vector2(-345, 152)
 IsInteractable = false
 ShouldChasePlayer = true
 IsAutoBattle = true
 battleGroup = ExtResource("12_gta72")
 
-[node name="Event0" parent="MapSystem/Events" instance=ExtResource("14_sr6m2")]
+[node name="Event1" parent="MapSystem/Events" instance=ExtResource("14_sr6m2")]
 position = Vector2(472, -89)
 eventStepCount = 2
 IsEvent = true
