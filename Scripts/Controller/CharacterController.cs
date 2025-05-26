@@ -7,7 +7,7 @@ using ZAM.MenuUI;
 
 namespace ZAM.Controller
 {
-	public partial class CharacterController : CharacterBody2D, IUIFunctions
+	public partial class CharacterController : BaseController, IUIFunctions
 	{
 		// Assigned Variables \\
 		[Export] private float baseSpeed = 350f;
@@ -15,6 +15,7 @@ namespace ZAM.Controller
 
 		// Setup Variables \\
 		// private RayCast2D interactRay = null;
+		private CharacterBody2D charBody = null;
 		private Array<RayCast2D> interactArray = [];
 		private Sprite2D charSprite = null;
 		private CollisionShape2D charCollider = null;
@@ -27,24 +28,24 @@ namespace ZAM.Controller
 		private Panel textBox = null;
 		private PanelContainer choiceBox = null;
 		private VBoxContainer choiceList = null;
-		private ButtonUI activeControl = null;
+		// private ButtonUI activeControl = null;
 
-		private ButtonUI mouseFocus = null;
+		// private ButtonUI mouseFocus = null;
 		private RayCast2D mouseCursor = null;
 		private bool mouseCheck = false;
 		private CharacterBody2D mouseTarget = null;
 
-		private int numColumn = 1;
+		// private int numColumn = 1;
 		private int choiceCommand = 0;
-		private bool signalsDone = false;
-		private string activeInput = ConstTerm.KEY_GAMEPAD;
+		// private bool signalsDone = false;
+		// private string activeInput = ConstTerm.KEY_GAMEPAD;
 
 		private Vector2 lookDirection = new(0, 1);
 		private Vector2 moveInput;
 		private Vector2 direction;
 		private float moveSpeed;
 
-		private string inputPhase = ConstTerm.WAIT;
+		// private string inputPhase = ConstTerm.WAIT;
 		private bool interactToggle = false;
 		private bool speedText = false;
 		private bool runToggle = false;
@@ -53,7 +54,7 @@ namespace ZAM.Controller
 		// private Vector2 cameraLowLimit, cameraHighLimit;
 
 		private int frameCounter = 0;
-		private bool isControlActive = true;
+		// private bool isControlActive = true;
 		private Vector2 charSize;
 		private float colliderHeight, colliderWidth;
 		// private Interactable interactTarget;
@@ -91,11 +92,11 @@ namespace ZAM.Controller
 
 
 			// Create follow camera for leader
-            // RemoteTransform2D tempCamera = new RemoteTransform2D
-            // { RemotePath = camera2D.GetPath() };
-            // AddChild(tempCamera);
+			// RemoteTransform2D tempCamera = new RemoteTransform2D
+			// { RemotePath = camera2D.GetPath() };
+			// AddChild(tempCamera);
 
-			
+
 			IfNull();
 			SetInputPhase(ConstTerm.MOVE);
 
@@ -103,6 +104,7 @@ namespace ZAM.Controller
 			charSize = new Vector2(charSprite.Texture.GetWidth() / charSprite.Hframes, charSprite.Texture.GetHeight() / charSprite.Vframes);
 
 			SetLookDirection(lookDirection);
+			ChangeActive(true);
 		}
 
         // protected override void Dispose(bool disposing)
@@ -110,9 +112,11 @@ namespace ZAM.Controller
         //     base.Dispose(disposing);
         // }
 
-        private void IfNull()
+        protected override void IfNull()
 		{
-			uiLayer ??= GetNode<CanvasLayer>("../../" + ConstTerm.CANVAS_LAYER); // EDIT: Find better path solution
+			charBody = GetParent<CharacterBody2D>();
+
+			uiLayer ??= charBody.GetNode<CanvasLayer>("../../" + ConstTerm.CANVAS_LAYER); // EDIT: Find better path solution
 
 			Node interactLayer = uiLayer.GetNode(ConstTerm.INTERACT_TEXT);
 			textBox ??= interactLayer.GetNode<Panel>(ConstTerm.TEXTBOX + ConstTerm.CONTAINER);
@@ -120,30 +124,30 @@ namespace ZAM.Controller
 			choiceList ??= choiceBox.GetNode<MarginContainer>(ConstTerm.MARGIN_CONTAINER).GetNode<VBoxContainer>(ConstTerm.VBOX_CONTAINER);
 
 			// interactRay ??= GetNode<RayCast2D>(ConstTerm.RAYCAST2D);
-			int rayCount = GetNode(ConstTerm.RAY_CHECK).GetChildren().Count;
+			int rayCount = charBody.GetNode(ConstTerm.RAY_CHECK).GetChildren().Count;
 			interactArray = [];
 			for (int r = 0; r <	rayCount; r++) {
-				interactArray.Add((RayCast2D)GetNode(ConstTerm.RAY_CHECK).GetChild(r)); 
-				interactArray[r].AddException(this);
+				interactArray.Add((RayCast2D)charBody.GetNode(ConstTerm.RAY_CHECK).GetChild(r)); 
+				interactArray[r].AddException(charBody);
 			}
 
-			charSprite ??= GetNode<Sprite2D>(ConstTerm.SPRITE2D);
-			charCollider ??= GetNode<CollisionShape2D>(ConstTerm.COLLIDER2D);
-			navAgent ??= GetNode<NavigationAgent2D>(ConstTerm.NAVAGENT2D);
-			charAnim ??= GetNode<AnimationTree>(ConstTerm.ANIM_TREE);
+			charSprite ??= charBody.GetNode<Sprite2D>(ConstTerm.SPRITE2D);
+			charCollider ??= charBody.GetNode<CollisionShape2D>(ConstTerm.COLLIDER2D);
+			navAgent ??= charBody.GetNode<NavigationAgent2D>(ConstTerm.NAVAGENT2D);
+			charAnim ??= charBody.GetNode<AnimationTree>(ConstTerm.ANIM_TREE);
 			animPlay ??= (AnimationNodeStateMachinePlayback)charAnim.Get(ConstTerm.PARAM + ConstTerm.PLAYBACK);
 
 			colliderHeight = charCollider.Shape.GetRect().Size.Y;
 			colliderWidth = charCollider.Shape.GetRect().Size.X;
 		}
 
-		private void SubLists(Container targetList)
-		{
-			for (int c = 0; c < targetList.GetChildCount(); c++) {
-				Node tempLabel = targetList.GetChild(c);
-				targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).MouseEntered += () => OnMouseEntered(targetList, tempLabel);
-				targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Pressed += OnMouseClick; }
-		}
+		// private void SubLists(Container targetList)
+		// {
+		// 	for (int c = 0; c < targetList.GetChildCount(); c++) {
+		// 		Node tempLabel = targetList.GetChild(c);
+		// 		targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).MouseEntered += () => OnMouseEntered(targetList, tempLabel);
+		// 		targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Pressed += OnMouseClick; }
+		// }
 
 		// private void UnSubLists(Container targetList)
 		// {
@@ -185,7 +189,7 @@ namespace ZAM.Controller
 
 		public override void _PhysicsProcess(double delta)
 		{
-			if (!isControlActive) { return; }
+			if (!controlActive) { return; }
 			PhaseCheck();
 		}
 
@@ -194,7 +198,7 @@ namespace ZAM.Controller
 			if (mouseCursor == null) {
                 mouseCursor = new() {
 					TargetPosition = new Vector2(0, 1),
-					GlobalPosition = GetGlobalMousePosition(),
+					GlobalPosition = charBody.GetGlobalMousePosition(),
                     HitFromInside = true };
                 mouseCursor.SetCollisionMaskValue(1, false);
 				mouseCursor.SetCollisionMaskValue(3, true);
@@ -203,7 +207,7 @@ namespace ZAM.Controller
 				GetTree().Root.GetChild(currentScene).GetChild(0).AddChild(mouseCursor); 
 			}
 
-			mouseCursor.GlobalPosition = GetGlobalMousePosition();
+			mouseCursor.GlobalPosition = charBody.GetGlobalMousePosition();
 			mouseCursor.ForceRaycastUpdate();
 
 			return mouseCursor.IsColliding();
@@ -218,8 +222,6 @@ namespace ZAM.Controller
 		public void PhaseCheck()
 		{
 			if (!interactToggle) { if (Input.IsActionJustPressed(ConstTerm.ACCEPT)) { UpdateRayCast(); } }
-
-			SaveCheck(); // EDIT: Temporary for debugging
 
 			switch (inputPhase)
 			{
@@ -249,20 +251,6 @@ namespace ZAM.Controller
 			}
 		}
 
-		private void SaveCheck()
-		{
-			// if (Input.IsActionJustPressed(ConstTerm.SAVE))
-			// {
-			// 	GD.Print("Saving game!");
-			// 	SaveLoader.Instance.SaveGame();
-			// }
-			// else if (Input.IsActionJustPressed(ConstTerm.LOAD))
-			// {
-			// 	GD.Print("Loading Game!");
-			// 	SaveLoader.Instance.LoadGame();
-			// }
-		}
-
 		private void MoveCheck()
 		{
 			if (Input.IsActionJustPressed(ConstTerm.MENU)) { SetInputPhase(ConstTerm.MENU); return; }
@@ -270,7 +258,7 @@ namespace ZAM.Controller
 			Vector2 moveToPos;
 			if (Input.IsActionPressed(ConstTerm.ACCEPT + ConstTerm.CLICK))
 			{
-				moveToPos = GetGlobalMousePosition();
+				moveToPos = charBody.GetGlobalMousePosition();
 				mouseCheck = MouseRayCheck();
 				if (mouseCheck) { mouseTarget = mouseCursor.GetCollider() as CharacterBody2D; }
 				// Godot.Collections.Dictionary result = GetWorld2D().DirectSpaceState.IntersectRay(PhysicsRayQueryParameters2D.Create(GlobalPosition, moveToPos));
@@ -308,11 +296,11 @@ namespace ZAM.Controller
 				EnemyCheck();
 			}
 
-			Velocity = targetVelocity;
-			bool collide = MoveAndSlide();
+			charBody.Velocity = targetVelocity;
+			bool collide = charBody.MoveAndSlide();
 			if (collide) { 
-				if (GetLastSlideCollision().GetCollider() is CharacterBody2D) {
-					EmitSignal(SignalName.onCollisionCheck, GetLastSlideCollision().GetCollider());
+				if (charBody.GetLastSlideCollision().GetCollider() is CharacterBody2D) {
+					EmitSignal(SignalName.onCollisionCheck, charBody.GetLastSlideCollision().GetCollider());
 				}
 			}
 		}
@@ -326,9 +314,9 @@ namespace ZAM.Controller
 
 			if (navAgent.IsNavigationFinished()) { NavFinished(); return; }
 
-			Vector2 currentPos = GlobalPosition;
+			Vector2 currentPos = charBody.GlobalPosition;
 			Vector2 nextPos = navAgent.GetNextPathPosition();
-			direction = (nextPos - GlobalPosition).Normalized();
+			direction = (nextPos - charBody.GlobalPosition).Normalized();
 			RunCheck();
 
 			Vector2 clickVelocity = currentPos.DirectionTo(nextPos) * moveSpeed;
@@ -337,17 +325,17 @@ namespace ZAM.Controller
 			charAnim.Set(ConstTerm.PARAM + ConstTerm.WALK + ConstTerm.BLEND, direction);
 			animPlay.Travel(ConstTerm.WALK);
 
-			Velocity = clickVelocity;
+			charBody.Velocity = clickVelocity;
 			SetLookDirection(direction);
 			EnemyCheck();
 
 			ClickCollisionCheck();
-			bool collide = MoveAndSlide();
+			bool collide = charBody.MoveAndSlide();
 			if (collide) {
-				if (GetLastSlideCollision().GetCollider() is CharacterBody2D) {
-					EmitSignal(SignalName.onCollisionCheck, GetLastSlideCollision().GetCollider());
+				if (charBody.GetLastSlideCollision().GetCollider() is CharacterBody2D) {
+					EmitSignal(SignalName.onCollisionCheck, charBody.GetLastSlideCollision().GetCollider());
 				}
-				if (GetLastSlideCollision().GetCollider() == mouseTarget) { UpdateRayCast(); }
+				if (charBody.GetLastSlideCollision().GetCollider() == mouseTarget) { UpdateRayCast(); }
 			}
 		}
 
@@ -399,7 +387,7 @@ namespace ZAM.Controller
 
 		private void CancelMouseMove(string newPhase)
 		{
-			navAgent.TargetPosition = GlobalPosition;
+			navAgent.TargetPosition = charBody.GlobalPosition;
 			NavFinished();
 			SetInputPhase(newPhase);
 		}
@@ -559,13 +547,13 @@ namespace ZAM.Controller
 		public void ChangeActive(bool change)
 		{
 			if (!change) { animPlay.Travel(ConstTerm.IDLE); }
-			isControlActive = change;
+			controlActive = change;
 		}
 
-		public bool IsControlActive()
-		{
-			return isControlActive;
-		}
+		// public bool IsControlActive()
+		// {
+		// 	return isControlActive;
+		// }
 
 		private int GetCommandCount(Container targetList)
 		{
@@ -583,19 +571,14 @@ namespace ZAM.Controller
 		// SECTION: Signal Methods
 		//=============================================================================
 
-		private void OnMouseEntered(Container currList, Node currLabel)
+		protected override void OnMouseEntered(Container currList, Node currLabel)
 		{
-			if (currList != choiceList) { return; }
+			base.OnMouseEntered(currList, currLabel);
 
-			activeControl = IUIFunctions.FocusOff(currList, choiceCommand);
-			choiceCommand = currLabel.GetIndex();
-
-			activeControl = IUIFunctions.FocusOn(currList, choiceCommand);
-			mouseFocus = currLabel.GetNode<ButtonUI>(ConstTerm.BUTTON);
 			EmitSignal(SignalName.onSelectChange);
 		}
 
-		private void OnMouseClick()
+		protected override void OnMouseClick()
 		{
 			switch (inputPhase)
 			{
@@ -617,10 +600,10 @@ namespace ZAM.Controller
 			return choiceCommand;
 		}
 
-		public string GetInputPhase()
-		{
-			return inputPhase;
-		}
+		// public string GetInputPhase()
+		// {
+		// 	return inputPhase;
+		// }
 
 		public Array<RayCast2D> GetInteractArray()
 		{
@@ -630,6 +613,11 @@ namespace ZAM.Controller
 		public string GetCharName()
 		{
 			return Name;
+		}
+
+		public CharacterBody2D GetCharBody()
+		{
+			return charBody;
 		}
 
 		public Vector2 GetFaceDirection() // In Use?
@@ -642,14 +630,14 @@ namespace ZAM.Controller
 			animPlay.Travel(ConstTerm.IDLE);
 		}
 
-		public void SetInputPhase(string phase)
-		{
-			inputPhase = phase;
-			if (phase == ConstTerm.CHOICE) {
-				SubLists(choiceList);
-				activeControl = IUIFunctions.FocusOn(choiceList, choiceCommand); 
-			}
-		}
+		// public void SetInputPhase(string phase)
+		// {
+		// 	inputPhase = phase;
+		// 	if (phase == ConstTerm.CHOICE) {
+		// 		SubLists(choiceList);
+		// 		activeControl = IUIFunctions.FocusOn(choiceList, choiceCommand);
+		// 	}
+		// }
 
 		public void SetInteractToggle(bool active)
 		{

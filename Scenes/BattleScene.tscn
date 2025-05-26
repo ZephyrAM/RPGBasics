@@ -1,13 +1,14 @@
-[gd_scene load_steps=10 format=3 uid="uid://chutyx7868wr6"]
+[gd_scene load_steps=11 format=3 uid="uid://chutyx7868wr6"]
 
 [ext_resource type="Script" uid="uid://dsk3qnoiapkdh" path="res://Scripts/Controller/BattleController.cs" id="1_0kd48"]
-[ext_resource type="Script" uid="uid://c81kbk26ddn3f" path="res://Scripts/System/BattleSystem.cs" id="1_ffriu"]
+[ext_resource type="Script" uid="uid://c81kbk26ddn3f" path="res://Scripts/Core/BattleSystem.cs" id="1_ffriu"]
 [ext_resource type="PackedScene" uid="uid://entel812wgun" path="res://Resources/UI/Menu/menu_use_button.tscn" id="3_mua63"]
 [ext_resource type="PackedScene" uid="uid://d1pd8qrdbce24" path="res://Resources/UI/Menu/equip_label.tscn" id="4_gr677"]
 [ext_resource type="AudioStream" uid="uid://ccp6w7yfnglkh" path="res://Resources/Audio/Music/I've Got Your Back! (Main Loop).ogg" id="4_h3jn6"]
 [ext_resource type="PackedScene" uid="uid://cxr2jmgq30pcn" path="res://Resources/UI/Nodes/cursor_target.tscn" id="6_ovrdp"]
-[ext_resource type="PackedScene" uid="uid://iy362h4v47pc" path="res://Resources/UI/Menu/grid_panel.tscn" id="7_a0nkt"]
+[ext_resource type="PackedScene" uid="uid://iy362h4v47pc" path="res://Resources/UI/Menu/Panels/grid_panel.tscn" id="7_a0nkt"]
 [ext_resource type="PackedScene" uid="uid://c5murpqijft2o" path="res://Resources/UI/Nodes/floating_text.tscn" id="8_x25aq"]
+[ext_resource type="PackedScene" uid="uid://bgs4oxmd0rgyx" path="res://Resources/UI/Layers/pause_menu.tscn" id="9_2tp6q"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o6fem"]
 bg_color = Color(0.239216, 0.341176, 0.52549, 1)
@@ -20,7 +21,7 @@ corner_radius_top_right = 15
 corner_radius_bottom_right = 15
 corner_radius_bottom_left = 15
 
-[node name="BattleSystem" type="Node2D" node_paths=PackedStringArray("partyInput", "baseCamera", "battleUI", "floatingText", "commandPanel", "skillPanel", "itemPanel")]
+[node name="BattleSystem" type="Node2D" node_paths=PackedStringArray("partyInput", "baseCamera", "battleUI", "floatingText", "commandPanel", "skillPanel", "itemPanel", "pauseScreen")]
 y_sort_enabled = true
 script = ExtResource("1_ffriu")
 partyInput = NodePath("PlayerParty")
@@ -31,6 +32,7 @@ floatingText = NodePath("BattleUI/FloatingValues")
 commandPanel = NodePath("BattleUI/CommandPanel")
 skillPanel = NodePath("BattleUI/SkillPanel")
 itemPanel = NodePath("BattleUI/ItemPanel")
+pauseScreen = NodePath("BattleUI/PauseMenu")
 statusList = ExtResource("3_mua63")
 labelSettings = ExtResource("4_gr677")
 
@@ -171,3 +173,5 @@ offset_right = 282.0
 offset_bottom = 185.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="PauseMenu" parent="BattleUI" instance=ExtResource("9_2tp6q")]

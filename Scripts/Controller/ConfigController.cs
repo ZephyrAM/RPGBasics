@@ -174,7 +174,7 @@ namespace ZAM.Controller
         private void OptionsAccept()
         {
             if (!AcceptInput()) { return; }
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
             SelectConfigOption();
         }
 
@@ -182,7 +182,7 @@ namespace ZAM.Controller
         {
             if (@event.IsActionPressed(ConstTerm.ACCEPT))
             {
-                AudioAccept();
+                // AudioAccept(); // Does nothing currently.
             }
             else if (@event.IsActionPressed(ConstTerm.LEFT))
             {
@@ -221,14 +221,13 @@ namespace ZAM.Controller
 
         private void GraphicsAccept()
         {
-            if (!AcceptInput()) { return; }
+            // if (!AcceptInput()) { return; } // No phase/window change. Not needed.
             SelectGraphicsOption();
         }
 
         private void KeybindsPhase(InputEvent @event)
         {
-            if (@event.IsActionPressed(ConstTerm.ACCEPT))
-            {
+            if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
                 KeybindsAccept();
             }
             else { PhaseControls(@event); }
@@ -238,6 +237,7 @@ namespace ZAM.Controller
         {
             if (!AcceptInput()) { return; }
             StartChangeKeybind(activeControl.GetParent<Label>().Text);
+            previousCommand.Add(currentCommand);
         }
 
         private void RebindPhase(InputEvent @event)
@@ -292,17 +292,17 @@ namespace ZAM.Controller
             if (GetInputPhase() == ConstTerm.OPTIONS) { ConfigClose(); return; }
             else { configPanel.HideConfig(); }
 
-            // base.CancelCycle(); // EDIT: 
+            base.CancelCycle();
 
-            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            // activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
 
-            string oldPhase = IUIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
-            SetInputPhase(oldPhase);
+            // string oldPhase = IUIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
+            // SetInputPhase(oldPhase);
 
-            activeList = configOptionsList; // EDIT: Only works with the two layer deep setup
-            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            // // activeList = configOptionsList; // EDIT: Only works with the two layer deep setup
+            // activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
         }
 
         private void SelectGraphicsOption()
@@ -317,8 +317,6 @@ namespace ZAM.Controller
                 case 1:
                     IUIFunctions.ChangeTarget(1, ref resolutionIndex, resolutionList.Count);
                     ChangeResolution();
-                    break;
-                case 2:
                     break;
                 default:
                     break;
@@ -418,6 +416,13 @@ namespace ZAM.Controller
 
         private void FinishChangeKeybind(InputEvent @event)
         {
+            if (@event.IsActionPressed(ConstTerm.ESCAPE))
+            {
+                configPanel.ChangeKeybindText(currentCommand);
+                base.CancelCycle();
+                return;
+            }
+
             GD.Print("Changing!");
             InputEventKey newKey = @event as InputEventKey;
             string tempLabel = configPanel.GetConfigList().GetChild<Label>(currentCommand).Text;
@@ -429,17 +434,18 @@ namespace ZAM.Controller
 
             // string oldPhase = previousPhase[^1];
             // previousPhase.RemoveAt(previousPhase.Count - 1);
-            SetInputPhase(ConstTerm.KEYBINDS);
-            CommandSelect(0, ConstTerm.VERT);
+            // SetInputPhase(ConstTerm.KEYBINDS);
+            // CommandSelect(0, ConstTerm.VERT);
+            base.CancelCycle();
         }
 
         private void SetNextConfig(string option)
         {
-            previousPhase.Add(GetInputPhase());
+            // previousPhase.Add(GetInputPhase());
             SetInputPhase(option);
 
             configPanel.SetConfigList(GetInputPhase());
-            activeList = configPanel.GetConfigList();
+            // activeList = configPanel.GetConfigList();
             SetNewCommand();
 
             scrollContainer.ScrollVertical = 0;

@@ -10,7 +10,7 @@ using ZAM.Inventory;
 
 using ZAM.MenuUI;
 
-namespace ZAM.System
+namespace ZAM.Core
 {
     public partial class StartScreen : Node, IUIFunctions
     {
@@ -269,6 +269,9 @@ namespace ZAM.System
             Fader.Instance.FadeIn();
             QueueFree();
             await SaveLoader.Instance.LoadAllData(false); // Saving initial map ID - all other loads should skip, as sections don't exist yet.
+            SaveLoader.Instance.LoadConfig();
+
+            // newGameScene.GetNode<MapSystem>(ConstTerm.MAPSYSTEM).GetPartyManager().GetPlayer().ChangeActive(true);
 
             return;
         }

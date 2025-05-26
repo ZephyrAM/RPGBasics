@@ -361,31 +361,39 @@ namespace ZAM.Inventory
 
         public void SetEquipBag(ConfigFile loadData)
         {
-            if (loadData.HasSection(ConstTerm.EQUIP + ConstTerm.DATA)) {
+            if (loadData.HasSection(ConstTerm.EQUIP + ConstTerm.DATA))
+            {
                 equipBag = [];
 
                 int count = (int)loadData.GetValue(ConstTerm.EQUIP + ConstTerm.DATA, ConstTerm.EQUIP + ConstTerm.COUNT);
-                for (int e = 0; e < count; e++) {
+                for (int e = 0; e < count; e++)
+                {
                     Equipment newEquip = new();
                     bool testUnique = (bool)loadData.GetValue(ConstTerm.EQUIP + e + ConstTerm.DATA, ConstTerm.EQUIP + ConstTerm.IS + ConstTerm.UNIQUE);
-                    if (!testUnique) {
+                    if (!testUnique)
+                    {
                         string equipName = (string)loadData.GetValue(ConstTerm.EQUIP + e + ConstTerm.DATA, ConstTerm.EQUIP + ConstTerm.NAME);
                         ItemType equipType = (ItemType)(int)loadData.GetValue(ConstTerm.EQUIP + e + ConstTerm.DATA, ConstTerm.EQUIP + ConstTerm.TYPE);
                         newEquip = GetEquipmentByType(equipName, equipType, newEquip);
-                    } else {
+                    }
+                    else
+                    {
                         newEquip.SetDetails(loadData, e);
                         newEquip.SetMechanics(loadData, e);
                         newEquip.SetStats(loadData, e);
                         newEquip.SetRestrictions(loadData, e);
                         newEquip.SetIsUnique(true);
 
-                        if (loadData.HasSectionKey(ConstTerm.EQUIP + e + ConstTerm.DATA, ConstTerm.STATE + ConstTerm.NAME)) {
+                        if (loadData.HasSectionKey(ConstTerm.EQUIP + e + ConstTerm.DATA, ConstTerm.STATE + ConstTerm.NAME))
+                        {
                             bool testState = (bool)loadData.GetValue(ConstTerm.EQUIP + e + ConstTerm.DATA, ConstTerm.STATE + ConstTerm.IS + ConstTerm.UNIQUE);
-                            if (!testState) {
+                            if (!testState)
+                            {
                                 string stateName = (string)loadData.GetValue(ConstTerm.EQUIP + e + ConstTerm.DATA, ConstTerm.STATE + ConstTerm.NAME);
                                 newEquip.SetAddedState(stateDatabase[stateName]);
                             }
-                            else {
+                            else
+                            {
                                 newEquip.AddedState.SetData(loadData, ConstTerm.EQUIP + e + ConstTerm.DATA);
                             }
                         }

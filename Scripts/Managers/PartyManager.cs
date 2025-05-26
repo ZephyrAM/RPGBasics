@@ -21,7 +21,7 @@ namespace ZAM.Managers
         private Array<string> partyMemberPaths = [];
         private Array<string> reserveMemberPaths = [];
 
-        private CharacterController characterController = null;
+        // private CharacterController characterController = null;
         private CharacterBody2D leaderMember = null;
         private Array<Battler> activeParty = [];
 
@@ -91,13 +91,13 @@ namespace ZAM.Managers
             // This whole section... \\
             ulong charId = target.GetInstanceId();
             target.SetScript(ResourceLoader.Load(scriptAssign.ResourcePath));
-            target = (Node2D)InstanceFromId(charId);
+            target = (CharacterController)InstanceFromId(charId);
 
             target._Ready();
             target.SetProcess(true);
             target.SetPhysicsProcess(true);
             target.SetProcessInput(true);
-            return target;
+            return target.GetParent();
             // ... is a blasted mess. \\
         }
 
@@ -136,9 +136,9 @@ namespace ZAM.Managers
 
             activeParty.Add(GetChild(0).GetNode<Battler>(ConstTerm.BATTLER));
 
-            leaderMember = SafeScriptAssign(tempLead, playerController) as CharacterBody2D;
+            leaderMember = SafeScriptAssign(tempLead.GetNode(ConstTerm.CHARACTER + ConstTerm.CONTROLLER), playerController) as CharacterBody2D;
             leaderMember.GetNode<Label>(ConstTerm.NAME).Visible = false;
-            characterController = leaderMember as CharacterController;
+            // characterController = leaderMember as CharacterController;
 
             LoadParty();
         }
@@ -182,7 +182,7 @@ namespace ZAM.Managers
 
             sceneParty.Add(tempLead);
             activeParty.Add(tempLead.GetNode<Battler>(ConstTerm.BATTLER));
-            leaderMember = (CharacterBody2D)SafeScriptAssign(tempLead, playerController);
+            leaderMember = (CharacterBody2D)SafeScriptAssign(tempLead.GetNode(ConstTerm.CHARACTER + ConstTerm.CONTROLLER), playerController);
             leaderMember.GetNode<Label>(ConstTerm.NAME).Visible = false;
 
             for (int p = 1; p < GetChildCount(); p++)
@@ -206,7 +206,7 @@ namespace ZAM.Managers
 
         public CharacterController GetPlayer()
         {
-            return (CharacterController)leaderMember;
+            return leaderMember.GetNode<CharacterController>(ConstTerm.CHARACTER + ConstTerm.CONTROLLER);
         }
 
         public CharacterBody2D SpawnBattleMember(int index)
@@ -339,7 +339,7 @@ namespace ZAM.Managers
                 saveData.SetValue(ConstTerm.RESERVE + ConstTerm.DATA, ConstTerm.RESERVE + m, GetReserveArray()[m].ResourcePath);
             }
 
-            saveData.SetValue(ConstTerm.PARTY + ConstTerm.DATA, ConstTerm.MAP + ConstTerm.POSITION, GetPlayer().GlobalPosition);
+            saveData.SetValue(ConstTerm.PARTY + ConstTerm.DATA, ConstTerm.MAP + ConstTerm.POSITION, GetPlayer().GetCharBody().GlobalPosition);
             saveData.SetValue(ConstTerm.PARTY + ConstTerm.DATA, ConstTerm.PLAYER + ConstTerm.DIRECTION, GetPlayer().GetFaceDirection());
             saveData.SetValue(ConstTerm.PARTY + ConstTerm.DATA, ConstTerm.CURRENCY, GetTotalCurrency());
         }
@@ -353,7 +353,7 @@ namespace ZAM.Managers
 
             if (loadData.HasSection(ConstTerm.PARTY + ConstTerm.DATA)) {
                 if (loadData.HasSectionKey(ConstTerm.PARTY + ConstTerm.DATA, ConstTerm.MAP + ConstTerm.POSITION)) {
-                    GetPlayer().GlobalPosition = (Vector2)loadData.GetValue(ConstTerm.PARTY + ConstTerm.DATA, ConstTerm.MAP + ConstTerm.POSITION);
+                    GetPlayer().GetCharBody().GlobalPosition = (Vector2)loadData.GetValue(ConstTerm.PARTY + ConstTerm.DATA, ConstTerm.MAP + ConstTerm.POSITION);
                 }
                 if (loadData.HasSectionKey(ConstTerm.PARTY + ConstTerm.DATA, ConstTerm.PLAYER + ConstTerm.DIRECTION)) {
                     GetPlayer().SetLookDirection((Vector2)loadData.GetValue(ConstTerm.PARTY + ConstTerm.DATA, ConstTerm.PLAYER + ConstTerm.DIRECTION));

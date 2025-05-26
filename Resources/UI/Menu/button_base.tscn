@@ -13,11 +13,14 @@ corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_33adc"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_17wb0"]
-bg_color = Color(0.6, 0.6, 0.6, 0.882353)
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n5e8m"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_go241"]
 bg_color = Color(0.45098, 0.580392, 0.941176, 0.882353)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_b7tir"]
 
@@ -66,7 +69,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/focus = SubResource("StyleBoxFlat_6cxpw")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_33adc")
-theme_override_styles/hover = SubResource("StyleBoxFlat_17wb0")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_n5e8m")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_go241")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_b7tir")
 action_mode = 0

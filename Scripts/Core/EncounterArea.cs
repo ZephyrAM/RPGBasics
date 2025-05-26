@@ -5,7 +5,7 @@ using System;
 using ZAM.Controller;
 using ZAM.Managers;
 
-namespace ZAM.System
+namespace ZAM.Core
 {
     public partial class EncounterArea : Area2D
     {
@@ -50,7 +50,7 @@ namespace ZAM.System
 
             if (!playerParty.IsNodeReady()) { await ToSignal(playerParty, SignalName.Ready); }
 
-            playerInput = playerParty.GetChild<CharacterController>(0);
+            playerInput = playerParty.GetChild(0).GetNode<CharacterController>(ConstTerm.CHARACTER + ConstTerm.CONTROLLER);
             SubSignals();
         }
 
@@ -94,7 +94,7 @@ namespace ZAM.System
 
         private void OnStepArea()
         {
-            if (OverlapsBody(playerInput)) 
+            if (OverlapsBody(playerInput.GetCharBody())) 
             { 
                 // battleCounter++;
                 // if (battleCounter == encounterFrequency)

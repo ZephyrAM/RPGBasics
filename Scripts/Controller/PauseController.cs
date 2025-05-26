@@ -125,11 +125,11 @@ namespace ZAM.Controller
                     GetTree().Quit();
                     break;
                 case 2:
-                    EmitSignal(SignalName.onSaveMenu);
+                    EmitSignal(SignalName.onSaveMenu); // MainScene
                     CommandSelect(0, ConstTerm.VERT);
                     break;
                 case 3:
-                    EmitSignal(SignalName.onLoadMenu); // MapScene
+                    EmitSignal(SignalName.onLoadMenu); // MainScene
                     break;
                 default:
                     break;
@@ -189,8 +189,10 @@ namespace ZAM.Controller
         // SECTION: External Access
         //=============================================================================
 
-        public void OpenPauseMenu()
+        public void OpenPauseMenu(bool canSave)
         {
+            commandList.GetNode(ConstTerm.SAVE).GetNode<ButtonUI>(ConstTerm.BUTTON).SetQuasiDisabled(!canSave);
+
             pauseScreen.Visible = true;
             GetTree().Paused = true;
 

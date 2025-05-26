@@ -1,10 +1,8 @@
-using System;
-using System.Linq;
 using Godot;
 
 using ZAM.Managers;
 
-namespace ZAM.System
+namespace ZAM.Core
 {
     public partial class Transitions : Area2D
     {
@@ -28,27 +26,29 @@ namespace ZAM.System
             // }
         }
 
-        // protected override void Dispose(bool disposing)
-        // {
-        //     base.Dispose(disposing);
-        //     UnSubSignals();
-        // }
+        protected override void Dispose(bool disposing)
+        {
+            UnSubSignals();
+        }
 
         private void SubSignals()
         {
             BodyEntered += OnBodyEntered;
         }
 
-        // private void UnSubSignals()
-        // {
-        //     BodyEntered -= OnBodyEntered;
-        // }
+        private void UnSubSignals()
+        {
+            BodyEntered -= OnBodyEntered;
+        }
 
         public async void LoadSavedScene(SceneTree sceneTree, Node oldScene)
         {
-            // ConfigFile gameInfo = SaveLoader.Instance.LoadGameInfo();
-            SaveLoader.Instance.LoadGame();
-            string newScenePath = ConstTerm.MAP_SCENE + 
+            if (oldScene.GetChild(0) is MapSystem) { oldScene.GetNode<MapSystem>(ConstTerm.MAPSYSTEM).StopAllChase(); }
+
+            SaveLoader.Instance.gameFile = SaveLoader.Instance.LoadGameInfo();
+            // SaveLoader.Instance.LoadGame();
+
+            string newScenePath = ConstTerm.MAP_SCENE +
             (MapID)(int)SaveLoader.Instance.gameFile.GetValue(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.SAVED + ConstTerm.MAP + ConstTerm.ID) + ConstTerm.TSCN;
 
             Node moveToMap = ResourceLoader.Load<PackedScene>(newScenePath).Instantiate();
@@ -107,7 +107,7 @@ namespace ZAM.System
             oldScene.QueueFree();
             await SaveLoader.Instance.LoadAllData(false);
 
-            mapSystemNode.GetPartyManager().GetPlayer().GlobalPosition = mapSystemNode.GetTransitions()[destinationID].GetSpawnPoint().GlobalPosition;
+            mapSystemNode.GetPartyManager().GetPlayer().GetCharBody().GlobalPosition = mapSystemNode.GetTransitions()[destinationID].GetSpawnPoint().GlobalPosition;
 
             Fader.Instance.FadeIn();
             await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
@@ -122,7 +122,7 @@ namespace ZAM.System
 
         private void OnBodyEntered(Node2D body)
         {
-            if (body == playerParty.GetPlayer())
+            if (body == playerParty.GetPlayer().GetCharBody())
             { MapSceneSwitch(ConstTerm.MAP_SCENE + destinationMapName.ToString() + ConstTerm.TSCN, currentMap); }
         }
     }

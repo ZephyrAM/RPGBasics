@@ -34,6 +34,7 @@ public class ConstTerm
     public const string CANCEL = "Cancel";
     public const string MENU = "Menu";
     public const string PAUSE = "Pause";
+    public const string ESCAPE = "Escape";
     
     public const string UP = "Up";
     public const string DOWN = "Down";
@@ -213,7 +214,6 @@ public class ConstTerm
     public const string HORIZ = "Horizontal";
     public const string VERT = "Vertical";
 
-    public const string CONTROLLER = "Controller";
     public const string EMPTY = "-Empty-";
     public const string COUNT = "Count";
     public const string EQUIPPED = "Equipped";
@@ -262,7 +262,8 @@ public class ConstTerm
     //=============================================================================
     public const string MAPSYSTEM = "MapSystem";
     public const string PARTYMANAGER = "PartyManager";
-    public const string MENU_CONTROLLER = "MenuController";
+    public const string CONTROLLER = "Controller";
+    public const string CHARACTER = "Character";
 
     public const string BATTLER = "Battler";
     public const string HEALTH = "Health";

@@ -116,18 +116,26 @@ namespace ZAM.Controller
             listDict.Add(ConstTerm.EQUIP + ConstTerm.USE, gearList);
         }
 
-        private void SubSignals()
+        private void SubSignals() // Calls Sub/Unsub on MenuOpen/Close. Persistent lists only.
         {
-            if (signalsDone) { return; }
+            // if (signalsDone) { return; }
 
             SubLists(commandList);
             SubLists(infoList);
-            SubLists(itemList);
-            SubLists(skillList);
+            // SubLists(itemList);
+            // SubLists(skillList);
             SubLists(useList);
             SubLists(equipList);
 
-            signalsDone = true;
+            // signalsDone = true;
+        }
+
+        private void UnSubSignals()
+        {
+            UnSubLists(commandList);
+            UnSubLists(infoList);
+            UnSubLists(useList);
+            UnSubLists(equipList);
         }
 
         // private void SubLists(Container targetList)
@@ -150,7 +158,6 @@ namespace ZAM.Controller
         public override void _PhysicsProcess(double delta)
         {
             if (!IsControlActive()) { return; }
-            SubSignals();
             
             if (Input.IsActionJustPressed(ConstTerm.MENU) || Input.IsActionJustPressed(ConstTerm.PAUSE)) { MenuClose(); }
         }
@@ -240,7 +247,7 @@ namespace ZAM.Controller
         private void CommandAccept()
         {
             if (!AcceptInput()) { return; }
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
             CommandOption(currentCommand);
         }
 
@@ -255,7 +262,7 @@ namespace ZAM.Controller
         private void MemberAccept()
         {
             if (!AcceptInput()) { return; }
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
 
             if (memberOption == ConstTerm.EQUIP) { SetInputPhase(ConstTerm.EQUIP + ConstTerm.SELECT); }
             else if (memberOption == ConstTerm.SKILL) { SetInputPhase(ConstTerm.SKILL + ConstTerm.SELECT); }
@@ -277,6 +284,8 @@ namespace ZAM.Controller
             SetInputPhase(ConstTerm.ITEM + ConstTerm.USE);
             EmitSignal(SignalName.onItemSelect, currentCommand);
             SetNewCommand();
+
+            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
         }
 
         private void ItemUsePhase(InputEvent @event) // inputPhase == ConstTerm.ITEM_USE
@@ -289,6 +298,7 @@ namespace ZAM.Controller
 
         private void ItemUseAccept()
         {
+            // if (!AcceptInput()) { return; } // Pushes new InputPhase if used. Not accurate.
             if (activeControl.OnButtonPressed()) { InvalidOption(); return; }
             // EDIT: Use Item
             EmitSignal(SignalName.onUseMember, memberSelect, currentCommand);
@@ -321,6 +331,7 @@ namespace ZAM.Controller
 
         private void SkillUseAccept()
         {
+            // if (!AcceptInput()) { return; } // Pushes new InputPhase if used. Not accurate.
             if (activeControl.OnButtonPressed()) { InvalidOption(); return; }
             // EDIT: Activate skill
             EmitSignal(SignalName.onUseMember, memberSelect, currentCommand);
@@ -338,6 +349,8 @@ namespace ZAM.Controller
         private void EquipSelectAccept()
         {
             if (!AcceptInput()) { return; }
+            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            
             SetInputPhase(ConstTerm.EQUIP + ConstTerm.USE);
             EmitSignal(SignalName.onEquipSlot, currentCommand);
 
@@ -354,6 +367,7 @@ namespace ZAM.Controller
 
         private void EquipUseAccept()
         {
+            // if (!AcceptInput()) { return; } // Pushes new InputPhase if used. Not accurate.
             if (activeControl.OnButtonPressed()) { InvalidOption(); return; }
             EmitSignal(SignalName.onGearEquip, currentCommand);
             CancelCycle();
@@ -511,7 +525,7 @@ namespace ZAM.Controller
                     break;
             }
             
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
             // SetNumColumn();
             SetNewCommand();
         }
@@ -527,16 +541,14 @@ namespace ZAM.Controller
         // SECTION: Signal Methods
         //=============================================================================
 
-        // private void OnMouseEntered(Container currList, Node currLabel)
-        // {
-        //     if (currList != activeList) { return; }
+        protected override void OnMouseEntered(Container currList, Node currLabel)
+        {
+            base.OnMouseEntered(currList, currLabel);
 
-        //     activeControl = IUIFunctions.FocusOff(currList, currentCommand);
-        //     currentCommand = currLabel.GetIndex();
-
-        //     activeControl = IUIFunctions.FocusOn(currList, currentCommand);
-        //     mouseFocus = currLabel.GetNode<ButtonUI>(ConstTerm.BUTTON);
-        // }
+            if (inputPhase == ConstTerm.EQUIP + ConstTerm.USE) {
+                EmitSignal(SignalName.onGearCompare);
+            }
+        }
 
         protected override void OnMouseClick()
         {
@@ -555,6 +567,9 @@ namespace ZAM.Controller
                     break;
                 case ConstTerm.SKILL + ConstTerm.SELECT:
                     SkillSelectAccept();
+                    break;
+                case ConstTerm.EQUIP + ConstTerm.SELECT:
+                    EquipSelectAccept();
                     break;
                 case ConstTerm.ITEM + ConstTerm.USE:
                     ItemUseAccept();
@@ -600,6 +615,7 @@ namespace ZAM.Controller
 
         public void MenuOpen()
         {
+            SubSignals();
             currentCommand = 0;
             
             ButtonUI initialFocus = commandList.GetChild(currentCommand).GetNode<ButtonUI>(ConstTerm.BUTTON);
@@ -613,6 +629,7 @@ namespace ZAM.Controller
 
         public void MenuClose()
         {
+            UnSubSignals();
             IUIFunctions.ResetMouseInput(commandList, out mouseFocus);
             ResetCommandPhase();
             

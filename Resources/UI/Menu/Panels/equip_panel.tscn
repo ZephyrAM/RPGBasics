@@ -1,0 +1,314 @@
+[gd_scene load_steps=9 format=3 uid="uid://bsfinibr274yp"]
+
+[ext_resource type="Script" uid="uid://b8m0be7g36lp4" path="res://Scripts/MenuUI/EquipInfo.cs" id="1_0mrto"]
+[ext_resource type="LabelSettings" uid="uid://b83ithfh3p166" path="res://Resources/UI/Styles/battle_label_settings.tres" id="2_dtid6"]
+[ext_resource type="PackedScene" uid="uid://e0e8caop08tx" path="res://Resources/UI/Menu/label_base.tscn" id="3_au2ed"]
+[ext_resource type="PackedScene" uid="uid://6ohqlnsimgok" path="res://Resources/UI/Menu/button_label.tscn" id="4_kaapm"]
+[ext_resource type="PackedScene" uid="uid://iy362h4v47pc" path="res://Resources/UI/Menu/Panels/grid_panel.tscn" id="5_m7mno"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_phvtk"]
+bg_color = Color(0.239216, 0.341176, 0.52549, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="LabelSettings" id="LabelSettings_6wltv"]
+font_size = 26
+shadow_size = 5
+shadow_color = Color(0, 0, 0, 0.392157)
+shadow_offset = Vector2(1, 3)
+
+[sub_resource type="LabelSettings" id="LabelSettings_4isgs"]
+font_size = 26
+shadow_size = 5
+shadow_color = Color(0, 0, 0, 0.392157)
+shadow_offset = Vector2(1, 3)
+
+[node name="EquipPanel" type="Panel" node_paths=PackedStringArray("charPortrait", "charName", "hpValue", "mpValue", "equipLists", "statLists", "changeList", "gearPanel")]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -310.0
+offset_right = 440.0
+offset_bottom = 290.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_phvtk")
+script = ExtResource("1_0mrto")
+charPortrait = NodePath("Portrait")
+charName = NodePath("CharacterName")
+hpValue = NodePath("HPValue")
+mpValue = NodePath("MPValue")
+equipLists = NodePath("EquipList")
+statLists = NodePath("StatList")
+changeList = NodePath("ChangeList")
+gearPanel = NodePath("GearPanel")
+
+[node name="Portrait" type="TextureRect" parent="."]
+layout_mode = 1
+offset_left = 25.0
+offset_top = 25.0
+offset_right = 155.0
+offset_bottom = 155.0
+mouse_filter = 2
+expand_mode = 5
+stretch_mode = 4
+
+[node name="CharacterName" type="Label" parent="."]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 160.0
+offset_right = 173.0
+offset_bottom = 202.0
+text = "Name"
+label_settings = ExtResource("2_dtid6")
+horizontal_alignment = 1
+
+[node name="HP" parent="." instance=ExtResource("3_au2ed")]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 5.0
+offset_top = -100.0
+offset_right = 60.0
+offset_bottom = -55.0
+grow_vertical = 2
+text = "HP:"
+horizontal_alignment = 2
+
+[node name="HPValue" parent="." instance=ExtResource("3_au2ed")]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 60.0
+offset_top = -100.0
+offset_right = 165.0
+offset_bottom = -55.0
+grow_vertical = 2
+text = "999999"
+label_settings = SubResource("LabelSettings_6wltv")
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="MP" parent="." instance=ExtResource("3_au2ed")]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 5.0
+offset_top = -55.0
+offset_right = 60.0
+offset_bottom = -10.0
+grow_vertical = 2
+text = "MP:"
+horizontal_alignment = 2
+
+[node name="MPValue" parent="." instance=ExtResource("3_au2ed")]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 60.0
+offset_top = -55.0
+offset_right = 165.0
+offset_bottom = -10.0
+grow_vertical = 2
+text = "999999"
+label_settings = SubResource("LabelSettings_4isgs")
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="EquipList" type="HSplitContainer" parent="."]
+layout_mode = 1
+offset_left = 175.0
+offset_top = 15.0
+offset_right = 480.0
+offset_bottom = 290.0
+theme_override_constants/separation = 20
+collapsed = true
+dragger_visibility = 1
+
+[node name="EquipLabel" type="VBoxContainer" parent="EquipList"]
+layout_mode = 2
+
+[node name="Label" parent="EquipList/EquipLabel" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "MainHand:"
+
+[node name="Label2" parent="EquipList/EquipLabel" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "OffHand:"
+
+[node name="Label3" parent="EquipList/EquipLabel" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "Helmet:"
+
+[node name="Label4" parent="EquipList/EquipLabel" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "Chest:"
+
+[node name="Label5" parent="EquipList/EquipLabel" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "Accessory:"
+
+[node name="Label6" parent="EquipList/EquipLabel" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "Accessory:"
+
+[node name="EquipValue" type="VBoxContainer" parent="EquipList"]
+layout_mode = 2
+
+[node name="Label" parent="EquipList/EquipValue" instance=ExtResource("4_kaapm")]
+layout_mode = 2
+text = "<Empty>"
+horizontal_alignment = 0
+
+[node name="Label2" parent="EquipList/EquipValue" instance=ExtResource("4_kaapm")]
+layout_mode = 2
+text = "<Empty>"
+horizontal_alignment = 0
+
+[node name="Label3" parent="EquipList/EquipValue" instance=ExtResource("4_kaapm")]
+layout_mode = 2
+text = "<Empty>"
+horizontal_alignment = 0
+
+[node name="Label4" parent="EquipList/EquipValue" instance=ExtResource("4_kaapm")]
+layout_mode = 2
+text = "<Empty>"
+horizontal_alignment = 0
+
+[node name="Label5" parent="EquipList/EquipValue" instance=ExtResource("4_kaapm")]
+layout_mode = 2
+text = "<Empty>"
+horizontal_alignment = 0
+
+[node name="Label6" parent="EquipList/EquipValue" instance=ExtResource("4_kaapm")]
+layout_mode = 2
+text = "<Empty>"
+horizontal_alignment = 0
+
+[node name="StatList" type="HSplitContainer" parent="."]
+layout_mode = 1
+offset_left = 550.0
+offset_top = 15.0
+offset_right = 790.0
+offset_bottom = 245.0
+theme_override_constants/separation = 20
+collapsed = true
+dragger_visibility = 1
+
+[node name="StatLabel" type="VBoxContainer" parent="StatList"]
+layout_mode = 2
+
+[node name="Label" parent="StatList/StatLabel" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "Strength:"
+
+[node name="Label2" parent="StatList/StatLabel" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "Stamina:"
+
+[node name="Label3" parent="StatList/StatLabel" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "Magic:"
+
+[node name="Label4" parent="StatList/StatLabel" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "Spirit:"
+
+[node name="Label5" parent="StatList/StatLabel" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "Agility:"
+
+[node name="StatValue" type="VBoxContainer" parent="StatList"]
+layout_mode = 2
+
+[node name="Label" parent="StatList/StatValue" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "99999"
+horizontal_alignment = 2
+
+[node name="Label2" parent="StatList/StatValue" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "99"
+horizontal_alignment = 2
+
+[node name="Label3" parent="StatList/StatValue" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "999"
+horizontal_alignment = 2
+
+[node name="Label4" parent="StatList/StatValue" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "9"
+horizontal_alignment = 2
+
+[node name="Label5" parent="StatList/StatValue" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "99"
+horizontal_alignment = 2
+
+[node name="ChangeList" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -100.0
+offset_top = 15.0
+offset_right = -10.0
+offset_bottom = 245.0
+grow_horizontal = 0
+
+[node name="Label" parent="ChangeList" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "+9999"
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="Label2" parent="ChangeList" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "-"
+
+[node name="Label3" parent="ChangeList" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "+"
+
+[node name="Label4" parent="ChangeList" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "-"
+
+[node name="Label5" parent="ChangeList" instance=ExtResource("3_au2ed")]
+layout_mode = 2
+text = "+"
+
+[node name="GearPanel" parent="." instance=ExtResource("5_m7mno")]
+visible = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -438.0
+offset_top = -298.0
+offset_right = 439.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="TextList" parent="GearPanel" index="0"]
+columns = 3
+
+[editable path="GearPanel"]

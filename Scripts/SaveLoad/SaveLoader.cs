@@ -159,13 +159,13 @@ public partial class SaveLoader : Node
     // SECTION: Load Methods
     //=============================================================================
 
-    public void LoadGame()
+    public async void LoadGame()
     {
         Instance.gameFile = LoadGameInfo();
         if (Instance.gameFile == null) { GD.PushWarning("No save data"); return; }
         
         // Instance.gameFile = gameSave;
-        // await LoadAllData(true);
+        await LoadAllData(true);
     }
 
     public ConfigFile LoadGameInfo()
@@ -197,7 +197,7 @@ public partial class SaveLoader : Node
         // if (!loadFromFile) { if (Instance.gameSession == null) { GD.Print("No current game data."); return; } } 
         // else { if (Instance.gameFile == null) { GD.Print("No save file data."); return; } }
         if (!loadFromFile) { Instance.gameFile ??= new ConfigFile(); }
-        else { GD.PushWarning("No save data found."); return; }
+        else if (Instance.gameFile == null) { GD.PushWarning("No save data found."); return; }
 
         await LoadSystemData(loadFromFile);
         await LoadPartyData(loadFromFile);

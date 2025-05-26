@@ -67,7 +67,7 @@ namespace ZAM.MenuUI
             // textLabel.Text = text;
             // GD.Print(textLabel.Text);
             // GD.Print("Text visible / total lines: " + textLabel.GetVisibleLineCount() + " " + textLabel.GetLineCount());
-            var varReg = MyRegex();
+            // var varReg = MyRegex(); // EDIT: Useful?
             string getText = TranslationServer.Translate(text);
             string outText = $"{getText}";
             AddText(name, outText);

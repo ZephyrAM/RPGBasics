@@ -23,6 +23,8 @@ namespace ZAM.Controller
         protected string activeInput = ConstTerm.KEY_GAMEPAD;
         protected string inputPhase = ConstTerm.WAIT;
 
+        protected Dictionary<Node, Callable> activeSignals = [];
+
         //=============================================================================
         // SECTION: Base Methods
         //=============================================================================
@@ -39,22 +41,47 @@ namespace ZAM.Controller
 
         public virtual void SubLists(Container targetList)
         {
-            for (int c = 0; c < targetList.GetChildCount(); c++)
+            // activeSignals = [];
+            foreach (Node child in targetList.GetChildren())
             {
-                Node tempLabel = targetList.GetChild(c);
-                targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).MouseEntered += () => OnMouseEntered(targetList, tempLabel);
-                targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Pressed += OnMouseClick;
+                activeSignals[child] = Callable.From(() => OnMouseEntered(targetList, child));
+                // child.GetNode<ButtonUI>(ConstTerm.BUTTON).MouseEntered += () => OnMouseEntered(targetList, child);
+                child.GetNode<ButtonUI>(ConstTerm.BUTTON).Pressed += OnMouseClick;
+                child.GetNode<ButtonUI>(ConstTerm.BUTTON).Connect(ButtonUI.SignalName.MouseEntered, activeSignals[child]);
+                // child.GetNode<ButtonUI>(ConstTerm.BUTTON).Connect(ButtonUI.SignalName.Pressed, Callable.From(OnMouseClick));
+
             }
+            // for (int c = 0; c < targetList.GetChildCount(); c++)
+            // {
+            //     Node tempLabel = targetList.GetChild(c);
+            //     activeSignals.Add(Callable.From(() => OnMouseEntered(targetList, tempLabel)));
+            //     // targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).MouseEntered += () => OnMouseEntered(targetList, tempLabel);
+            //     targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Pressed += OnMouseClick;
+            //     targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Connect(ButtonUI.SignalName.MouseEntered, activeSignals[c]);
+            //     // targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Connect(ButtonUI.SignalName.Pressed, Callable.From(OnMouseClick));
+            // }
         }
 
-        public virtual void UnSubSignals(Container targetList)
+        public virtual void UnSubLists(Container targetList)
         {
-            for (int c = 0; c < targetList.GetChildCount(); c++)
+            foreach (Node child in targetList.GetChildren())
             {
-                Node tempLabel = targetList.GetChild(c);
-                targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).MouseEntered -= () => OnMouseEntered(targetList, tempLabel);
-                targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Pressed -= OnMouseClick;
+                // child.GetNode<ButtonUI>(ConstTerm.BUTTON).MouseEntered -= () => OnMouseEntered(targetList, child);
+                child.GetNode<ButtonUI>(ConstTerm.BUTTON).Pressed -= OnMouseClick;
+                child.GetNode<ButtonUI>(ConstTerm.BUTTON).Disconnect(ButtonUI.SignalName.MouseEntered, activeSignals[child]);
+                // child.GetNode<ButtonUI>(ConstTerm.BUTTON).Disconnect(ButtonUI.SignalName.Pressed, Callable.From(OnMouseClick));
+                // child.GetNode<ButtonUI>(ConstTerm.BUTTON).Disconnect(ButtonUI.SignalName.MouseEntered, new Callable(child.GetNode<ButtonUI>(ConstTerm.BUTTON), MethodName.OnMouseEntered));
+
+                activeSignals.Remove(child);
             }
+            // for (int c = 0; c < targetList.GetChildCount(); c++)
+            // {
+            //     Node tempLabel = targetList.GetChild(c);
+            //     targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).MouseEntered -= () => OnMouseEntered(targetList, tempLabel);
+            //     targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Pressed -= OnMouseClick;
+            //     // targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Disconnect(ButtonUI.SignalName.MouseEntered, Callable.From(() => OnMouseEntered(targetList, tempLabel)));
+            //     // targetList.GetChild(c).GetNode<ButtonUI>(ConstTerm.BUTTON).Disconnect(ButtonUI.SignalName.Pressed, Callable.From(OnMouseClick));
+            // }
         }
 
         protected virtual void SetupListDict()
@@ -93,6 +120,7 @@ namespace ZAM.Controller
             if (activeControl.OnButtonPressed()) { InvalidOption(); return false; }
 
             previousPhase.Add(GetInputPhase());
+            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
             return true;
         }
 
@@ -132,7 +160,7 @@ namespace ZAM.Controller
         {
             previousCommand.Add(currentCommand);
             currentCommand = 0;
-            
+
             activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
         }
 
@@ -174,7 +202,7 @@ namespace ZAM.Controller
 
         protected virtual void OnMouseEntered(Container currList, Node currLabel)
         {
-            if (currList != activeList) { return; }
+            // if (currList != activeList) { return; }
 
             activeControl = IUIFunctions.FocusOff(currList, currentCommand);
             currentCommand = currLabel.GetIndex();
@@ -211,10 +239,19 @@ namespace ZAM.Controller
             return inputPhase;
         }
 
+        public string GetPrevPhase()
+        {
+            return previousPhase[^1];
+        }
+
         public virtual void SetInputPhase(string phase)
         {
             inputPhase = phase;
-            if (listDict.TryGetValue(phase, out Container value)) { activeList = value; }
+            if (listDict.TryGetValue(phase, out Container value))
+            {
+                activeList = value;
+                IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            }
             else { return; }
             SetNumColumn();
         }

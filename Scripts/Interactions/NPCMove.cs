@@ -58,7 +58,7 @@ namespace ZAM.Interactions
         [Signal]
         public delegate void onEndEventStepEventHandler(Interactable interactor);
         [Signal]
-        public delegate void onCatchPlayerEventHandler(PackedScene battle, Interactable toFree);
+        public delegate void onCatchPlayerEventHandler(Interactable toFree);
 
         //=============================================================================
         // SECTION: OnReady Methods
@@ -74,10 +74,10 @@ namespace ZAM.Interactions
             if (!npcInteract.ShouldChasePlayer) { DisableChaseArea(); }
         }
 
-        // public override void _ExitTree()
-        // {
-        //     UnSubSignals();
-        // }
+        protected override void Dispose(bool disposing)
+        {
+            UnSubSignals();
+        }
 
         public override void _PhysicsProcess(double delta)
         {
@@ -118,10 +118,10 @@ namespace ZAM.Interactions
             navAgent.Connect(NavigationAgent2D.SignalName.NavigationFinished, new Callable(this, MethodName.OnNavigationFinished));
         }
 
-        // private void UnSubSignals()
-        // {
-        //     sightArea.BodyEntered -= OnBodyEntered;
-        // }
+        private void UnSubSignals()
+        {
+            sightArea.BodyEntered -= OnBodyEntered;
+        }
 
         //=============================================================================
         // SECTION: Phase Methods

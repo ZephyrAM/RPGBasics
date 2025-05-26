@@ -1,6 +1,6 @@
 [gd_scene load_steps=24 format=4 uid="uid://cj0v8mojhj4a7"]
 
-[ext_resource type="Script" uid="uid://h7a2i3bvldf3" path="res://Scripts/System/MapSystem.cs" id="1_0i5bc"]
+[ext_resource type="Script" uid="uid://h7a2i3bvldf3" path="res://Scripts/Core/MapSystem.cs" id="1_0i5bc"]
 [ext_resource type="PackedScene" uid="uid://chutyx7868wr6" path="res://Scenes/BattleScene.tscn" id="2_kbl8o"]
 [ext_resource type="Script" uid="uid://6qlbh47fq67s" path="res://Scripts/MapEvents/Map1.cs" id="4_ia6gl"]
 [ext_resource type="PackedScene" uid="uid://entel812wgun" path="res://Resources/UI/Menu/menu_use_button.tscn" id="4_itk0w"]
@@ -10,7 +10,7 @@
 [ext_resource type="TileSet" uid="uid://8w563qvd783e" path="res://Assets/Graphics/Tilesets/terrain_tileset.tres" id="10_ckmcj"]
 [ext_resource type="PackedScene" uid="uid://c34w24y88bml6" path="res://Resources/UI/Nodes/transition.tscn" id="10_mirxo"]
 [ext_resource type="Script" uid="uid://csl0yuaxa1tre" path="res://Scripts/Managers/PartyManager.cs" id="12_wsyri"]
-[ext_resource type="Script" uid="uid://blw0m3p2vvjfj" path="res://Scripts/System/EncounterArea.cs" id="13_enujo"]
+[ext_resource type="Script" uid="uid://blw0m3p2vvjfj" path="res://Scripts/Core/EncounterArea.cs" id="13_enujo"]
 [ext_resource type="PackedScene" uid="uid://bjoehnkxwngcu" path="res://Resources/Prefab/Players/player_1.tscn" id="13_m0t7d"]
 [ext_resource type="PackedScene" uid="uid://csacs6oelr813" path="res://Resources/Prefab/Enemies/Groups/enemy_team_1.tscn" id="14_r0cwx"]
 [ext_resource type="PackedScene" uid="uid://bm6r0ypkntj5r" path="res://Resources/Prefab/Players/player_2.tscn" id="14_w08uj"]

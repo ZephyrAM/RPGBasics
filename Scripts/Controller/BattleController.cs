@@ -76,6 +76,8 @@ namespace ZAM.Controller
         public delegate void onItemUseEventHandler(int index);
         [Signal]
         public delegate void onBattleFinishEventHandler();
+        [Signal]
+        public delegate void onPauseMenuEventHandler();
 
         // [Signal]
         // public delegate void onSaveGameEventHandler();
@@ -93,20 +95,26 @@ namespace ZAM.Controller
 
         public override void _Input(InputEvent @event)
         {
+            if (@event.IsActionPressed(ConstTerm.PAUSE)) {
+                EmitSignal(SignalName.onPauseMenu);
+            }
+
             if (!IsControlActive()) { return; }
             if (!signalsDone) { SubSignals(); }
-            if (battleOver && @event != null) {
+            if (battleOver && @event != null)
+            {
                 if (@event is InputEventMouseMotion) { return; }
                 EmitSignal(SignalName.onBattleFinish);
             }
 
-            if (IsPlayerTurn() == true) {
+            if (IsPlayerTurn() == true)
+            {
                 PhaseCheck(@event);
                 // Data test commands \\
                 if (Input.IsActionJustPressed(ConstTerm.SAVE)) // EDIT: Temporary for debugging
                 {
                     GD.Print("Saving game!");
-                    SaveLoader.Instance.SaveGame();          
+                    SaveLoader.Instance.SaveGame();
                     // EmitSignal(SignalName.onSaveGame);
                 }
                 else if (Input.IsActionJustPressed(ConstTerm.LOAD))

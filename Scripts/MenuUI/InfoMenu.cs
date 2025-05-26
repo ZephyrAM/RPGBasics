@@ -129,6 +129,11 @@ namespace ZAM.MenuUI
             return optionsList;
         }
 
+        public VBoxContainer GetMemberList()
+        {
+            return infoList;
+        }
+
         public PanelContainer GetSkillPanel()
         {
             return skillPanel;

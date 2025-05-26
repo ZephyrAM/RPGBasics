@@ -1,7 +1,15 @@
-[gd_scene load_steps=3 format=4 uid="uid://bbux2y8i6h2ei"]
+[gd_scene load_steps=5 format=4 uid="uid://bbux2y8i6h2ei"]
 
 [ext_resource type="TileSet" uid="uid://8w563qvd783e" path="res://Assets/Graphics/Tilesets/terrain_tileset.tres" id="1_h5rr4"]
+[ext_resource type="PackedScene" uid="uid://ceex1ny35kacf" path="res://Resources/UI/Menu/button_base.tscn" id="2_hiv1h"]
 [ext_resource type="PackedScene" uid="uid://bjoehnkxwngcu" path="res://Resources/Prefab/Players/player_1.tscn" id="2_pap8s"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ap2nr"]
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0, 0, 0, 1)
 
 [node name="GridBattleSystem" type="Node2D"]
 
@@ -28,14 +36,102 @@ offset_bottom = 450.0
 color = Color(0.291617, 0.390071, 0.226341, 1)
 
 [node name="Ground" type="TileMapLayer" parent="Environment"]
+visible = false
 tile_map_data = PackedByteArray("AAACAAAAAAAWABkAAAD6//3/AAAWABkAAAD6//7/AAAWABkAAAD6////AAAWABkAAAD6/wAAAAAWABkAAAD6/wEAAAAWABkAAAD6/wIAAAAWABkAAAD7//3/AAAWABkAAAD7//7/AAAWABkAAAD7////AAAWABkAAAD7/wAAAAAWABkAAAD7/wEAAAAWABkAAAD7/wIAAAAWABkAAAD8//3/AAAWABkAAAD8//7/AAAWABkAAAD8////AAAWABkAAAD8/wAAAAAWABkAAAD8/wEAAAAWABkAAAD8/wIAAAAWABkAAAD9//3/AAAWABkAAAD9//7/AAAWABkAAAD9////AAAWABkAAAD9/wAAAAAWABkAAAD9/wEAAAAWABkAAAD9/wIAAAAWABkAAAD+//3/AAAWABkAAAD+//7/AAAWABkAAAD+////AAAWABkAAAD+/wAAAAAWABkAAAD+/wEAAAAWABkAAAD+/wIAAAAWABkAAAD///3/AAAWABkAAAD///7/AAAWABkAAAD/////AAAWABkAAAD//wAAAAAWABkAAAD//wEAAAAWABkAAAD//wIAAAAWABkAAAAAAP3/AAAWABkAAAAAAP7/AAAWABkAAAAAAP//AAAWABkAAAAAAAAAAAAWABkAAAAAAAEAAAAWABkAAAAAAAIAAAAWABkAAAABAP3/AAAWABkAAAABAP7/AAAWABkAAAABAP//AAAWABkAAAABAAAAAAAWABkAAAABAAEAAAAWABkAAAABAAIAAAAWABkAAAACAP3/AAAWABkAAAACAP7/AAAWABkAAAACAP//AAAWABkAAAACAAEAAAAWABkAAAACAAIAAAAWABkAAAADAP3/AAAWABkAAAADAP7/AAAWABkAAAADAP//AAAWABkAAAADAAAAAAAWABkAAAADAAEAAAAWABkAAAADAAIAAAAWABkAAAAEAP3/AAAWABkAAAAEAP7/AAAWABkAAAAEAP//AAAWABkAAAAEAAAAAAAWABkAAAAEAAEAAAAWABkAAAAEAAIAAAAWABkAAAAFAP3/AAAWABkAAAAFAP7/AAAWABkAAAAFAP//AAAWABkAAAAFAAAAAAAWABkAAAAFAAEAAAAWABkAAAAFAAIAAAAWABkAAAD3//z/AAAWABkAAAD3//3/AAAWABkAAAD3//7/AAAWABkAAAD3////AAAWABkAAAD3/wAAAAAWABkAAAD3/wEAAAAWABkAAAD3/wIAAAAWABkAAAD3/wMAAAAWABkAAAD3/wQAAAAWABkAAAD4//z/AAAWABkAAAD4//3/AAAWABkAAAD4//7/AAAWABkAAAD4////AAAWABkAAAD4/wAAAAAWABkAAAD4/wEAAAAWABkAAAD4/wIAAAAWABkAAAD4/wMAAAAWABkAAAD4/wQAAAAWABkAAAD5//z/AAAWABkAAAD5//3/AAAWABkAAAD5//7/AAAWABkAAAD5////AAAWABkAAAD5/wAAAAAWABkAAAD5/wEAAAAWABkAAAD5/wIAAAAWABkAAAD5/wMAAAAWABkAAAD5/wQAAAAWABkAAAD6//z/AAAWABkAAAD6/wMAAAAWABkAAAD6/wQAAAAWABkAAAD7//z/AAAWABkAAAD7/wMAAAAWABkAAAD7/wQAAAAWABkAAAD8//z/AAAWABkAAAD8/wMAAAAWABkAAAD8/wQAAAAWABkAAAD9//z/AAAWABkAAAD9/wMAAAAWABkAAAD9/wQAAAAWABkAAAD+//z/AAAWABkAAAD+/wMAAAAWABkAAAD+/wQAAAAWABkAAAD///z/AAAWABkAAAD//wMAAAAWABkAAAD//wQAAAAWABkAAAAAAPz/AAAWABkAAAAAAAMAAAAWABkAAAAAAAQAAAAWABkAAAABAPz/AAAWABkAAAABAAMAAAAWABkAAAABAAQAAAAWABkAAAACAPz/AAAWABkAAAACAAMAAAAWABkAAAACAAQAAAAWABkAAAADAPz/AAAWABkAAAADAAMAAAAWABkAAAADAAQAAAAWABkAAAAEAPz/AAAWABkAAAAEAAMAAAAWABkAAAAEAAQAAAAWABkAAAAFAPz/AAAWABkAAAAFAAMAAAAWABkAAAAFAAQAAAAWABkAAAAGAPz/AAAWABkAAAAGAP3/AAAWABkAAAAGAP7/AAAWABkAAAAGAP//AAAWABkAAAAGAAAAAAAWABkAAAAGAAEAAAAWABkAAAAGAAIAAAAWABkAAAAGAAMAAAAWABkAAAAGAAQAAAAWABkAAAAHAPz/AAAWABkAAAAHAP3/AAAWABkAAAAHAP7/AAAWABkAAAAHAP//AAAWABkAAAAHAAAAAAAWABkAAAAHAAEAAAAWABkAAAAHAAIAAAAWABkAAAAHAAMAAAAWABkAAAAHAAQAAAAWABkAAAAIAPz/AAAWABkAAAAIAP3/AAAWABkAAAAIAP7/AAAWABkAAAAIAP//AAAWABkAAAAIAAAAAAAWABkAAAAIAAEAAAAWABkAAAAIAAIAAAAWABkAAAAIAAMAAAAWABkAAAAIAAQAAAAWABkAAAA=")
 tile_set = ExtResource("1_h5rr4")
 
-[node name="ColorRect" type="ColorRect" parent="Environment"]
-offset_left = 479.0
-offset_top = -254.0
-offset_right = 575.0
-offset_bottom = -158.0
+[node name="BattleGrid" type="Node2D" parent="Environment"]
+
+[node name="Button" parent="Environment/BattleGrid" instance=ExtResource("2_hiv1h")]
+show_behind_parent = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 480.0
+offset_top = -250.0
+offset_right = 570.0
+offset_bottom = -160.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_ap2nr")
+
+[node name="ColorRect" type="Node2D" parent="Environment/BattleGrid"]
+
+[node name="ColorRect2" type="ColorRect" parent="Environment/BattleGrid"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 480.0
+offset_top = -160.0
+offset_right = 570.0
+offset_bottom = -70.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button" parent="Environment/BattleGrid/ColorRect2" instance=ExtResource("2_hiv1h")]
+show_behind_parent = false
+layout_mode = 0
+anchors_preset = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_ap2nr")
+
+[node name="ColorRect3" type="ColorRect" parent="Environment/BattleGrid"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 480.0
+offset_top = -70.0
+offset_right = 570.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button" parent="Environment/BattleGrid/ColorRect3" instance=ExtResource("2_hiv1h")]
+show_behind_parent = false
+layout_mode = 0
+anchors_preset = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_ap2nr")
+
+[node name="ColorRect4" type="ColorRect" parent="Environment/BattleGrid"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 480.0
+offset_top = 20.0
+offset_right = 570.0
+offset_bottom = 110.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button" parent="Environment/BattleGrid/ColorRect4" instance=ExtResource("2_hiv1h")]
+show_behind_parent = false
+layout_mode = 0
+anchors_preset = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_ap2nr")
+
+[node name="ColorRect5" type="ColorRect" parent="Environment/BattleGrid"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 480.0
+offset_top = 110.0
+offset_right = 570.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button" parent="Environment/BattleGrid/ColorRect5" instance=ExtResource("2_hiv1h")]
+show_behind_parent = false
+layout_mode = 0
+anchors_preset = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_ap2nr")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -110)
@@ -45,4 +141,4 @@ editor_draw_limits = true
 editor_draw_drag_margin = true
 
 [node name="CharacterBody2D" parent="." instance=ExtResource("2_pap8s")]
-position = Vector2(530, -250)
+position = Vector2(520, -240)

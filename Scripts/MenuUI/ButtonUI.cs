@@ -16,6 +16,9 @@ namespace ZAM.MenuUI
         private bool isDisabled = false;
         private float soundVolume = 100;
 
+        // [Signal]
+        // public delegate void OnSignalChangeEventHandler(bool visible);
+
         //=============================================================================
         // SECTION: Base Methods
         //=============================================================================
@@ -28,9 +31,23 @@ namespace ZAM.MenuUI
             BGMPlayer.Instance.SetSoundVolume(soundPlayer);
         }
 
+        // public override void _ExitTree()
+        // {
+        //     base._ExitTree();
+        //     for (int s = 0; s < GetIncomingConnections().Count; s++)
+        //     {
+        //         StringName signalName = (StringName)GetIncomingConnections()[s]["signal"];
+        //         Callable signalCallable = (Callable)GetIncomingConnections()[s]["callable"];
+        //         GD.Print(signalCallable.Target);
+        //         if (signalCallable.Target == null) { continue; }
+        //         Disconnect(signalName, signalCallable);
+        //     }
+        // }
+
         private void SubSignals()
         {
             // Connect(SignalName.Pressed, new Callable(this, MethodName.OnButtonPressed));
+            // Connect(SignalName.VisibilityChanged, new Callable(this, MethodName.OnVisibleChanged)); // EDIT: Testing for signal connections.
         }
 
         //=============================================================================
@@ -57,10 +74,6 @@ namespace ZAM.MenuUI
             return soundPlayer;
         }
 
-        //=============================================================================
-        // SECTION: Signal Methods
-        //=============================================================================
-
         public bool OnButtonPressed()
         {
             bool isUIDisabled = GetIsDisabled();
@@ -81,6 +94,17 @@ namespace ZAM.MenuUI
 
             return isUIDisabled;
         }
+
+        //=============================================================================
+        // SECTION: Signal Methods
+        //=============================================================================
+
+        // private void OnVisibleChanged()
+        // {
+        //     GD.Print(GetSignalConnectionList(SignalName.MouseEntered));
+        //     // EmitSignal(SignalName.OnSignalChange, Visible);
+        // }
+
 
         //=============================================================================
         // SECTION: Save System
