@@ -77,6 +77,7 @@ namespace ZAM.Interactions
         protected override void Dispose(bool disposing)
         {
             UnSubSignals();
+            base.Dispose(disposing);
         }
 
         public override void _PhysicsProcess(double delta)
@@ -115,7 +116,8 @@ namespace ZAM.Interactions
         private void SubSignals()
         {
             sightArea.BodyEntered += OnBodyEntered;
-            navAgent.Connect(NavigationAgent2D.SignalName.NavigationFinished, new Callable(this, MethodName.OnNavigationFinished));
+            // navAgent.NavigationFinished += OnNavAgentFinished;
+            // navAgent.Connect(NavigationAgent2D.SignalName.NavigationFinished, new Callable(this, MethodName.OnNavigationFinished));
         }
 
         private void UnSubSignals()
@@ -273,7 +275,7 @@ namespace ZAM.Interactions
 
         private void LineOfSightCheck()
         {
-            if (GetChaseTarget() == null) { return;}
+            if (GetChaseTarget() == null) { return; }
 
             sightCountTimer++;
             if (sightCountTimer >= sightMaxTimer) {
@@ -406,7 +408,7 @@ namespace ZAM.Interactions
         }
 
         private void StartChase()
-        {           
+        {
             if (npcInteract.ShouldChasePlayer)
             {
                 returnPosition = charBody.GlobalPosition;
@@ -538,8 +540,10 @@ namespace ZAM.Interactions
         private void OnBodyEntered(Node2D body)
         {
             if (npcInteract.GetInteractPhase() == ConstTerm.CHASE) { return; }
+            if (body.GetChildCount() <= 0) { return; }
 
-            if (body.GetScript().AsGodotObject() == playerControlTest){
+            if (body.GetNode(ConstTerm.CHARACTER + ConstTerm.CONTROLLER).GetScript().AsGodotObject() == playerControlTest)
+            {
                 if (playerParty == null) { SetPlayer(body); }
                 if (CheckChaseSight()) { StartChase(); }
             }

@@ -1,6 +1,7 @@
 public class ConstTerm
 {
     public const string ENCRYPT_KEY = "_*RPGBasics*_";
+    public const string SAVRYPT = "ExtraCrypt";
 
     //=============================================================================
     // SECTION: Animations
@@ -54,6 +55,9 @@ public class ConstTerm
     public const string FINISHED_SIGNAL = "finished";
     public const string PROCESS_FRAME = "process_frame";
 
+    public const string ENTERED = "Entered";
+    public const string EXITED = "Exited";
+
 
     //=============================================================================
     // SECTION: Damage Types
@@ -76,7 +80,6 @@ public class ConstTerm
     public const string SAVE_TYPE = ".saveGame";
 
     public const string CFG_FILE = "config.cfg";
-    public const string LANG_FILE = "InteractTextData.json";
 
     public const string TXT = ".txt";
     public const string TRES = ".tres";

@@ -89,9 +89,10 @@ namespace ZAM.Core
             // hasLoaded = true;
         }
 
-        public override void _ExitTree()
+        protected override void Dispose(bool disposing)
         {
             UnSubSignals();
+            base.Dispose(disposing);
         }
 
         // public override void _EnterTree()
@@ -232,6 +233,7 @@ namespace ZAM.Core
             //     chaseList[i].GetMoveAgent().onCatchPlayer -= async (toFree) => await OnCatchPlayer(toFree); }
             foreach (Interactable chaser in chaseList.Keys)
             {
+                if (chaser == null) { continue; }
                 chaser.GetMoveAgent().Disconnect(NPCMove.SignalName.onCatchPlayer, chaseList[chaser]);
                 chaseList.Remove(chaser);
             }

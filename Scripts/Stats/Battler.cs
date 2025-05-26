@@ -35,6 +35,8 @@ namespace ZAM.Stats
 
         public bool IsDead { get; set; } = false;
 
+        private Dictionary<string, Callable> mouseSignal = [];
+
         // Delegate Events \\
         [Signal]
         public delegate void onHitEnemyEventHandler(Battler user);
@@ -63,11 +65,11 @@ namespace ZAM.Stats
             SubSignals();
         }
 
-        // protected override void Dispose(bool disposing)
-        // {
-        //     base.Dispose(disposing);
-        //     UnSubSignals();
-        // }
+        protected override void Dispose(bool disposing)
+        {
+            UnSubSignals();
+            base.Dispose(disposing);
+        }
 
         //=============================================================================
         // SECTION: OnReady Methods
@@ -94,17 +96,25 @@ namespace ZAM.Stats
         private void SubSignals()
         {
             battlerExp.onLevelUp += OnLevelUp;
-            battlerBody.MouseEntered += () => OnMouseOver(true);
-            battlerBody.MouseExited += () => OnMouseOver(false);
+            mouseSignal[ConstTerm.MOUSE + ConstTerm.ENTERED] = Callable.From(() => OnMouseOver(true));
+            mouseSignal[ConstTerm.MOUSE + ConstTerm.EXITED] = Callable.From(() => OnMouseOver(false));
+            battlerBody.Connect(CharacterBody2D.SignalName.MouseEntered, mouseSignal[ConstTerm.MOUSE + ConstTerm.ENTERED]);
+            battlerBody.Connect(CharacterBody2D.SignalName.MouseExited, mouseSignal[ConstTerm.MOUSE + ConstTerm.EXITED]);
+            // battlerBody.MouseEntered += () => OnMouseOver(true);
+            // battlerBody.MouseExited += () => OnMouseOver(false);
             // battlerBody.Connect(CharacterBody2D.SignalName.MouseEntered, new Callable(this, MethodName.OnMouseOver));
         }
 
-        // private void UnSubSignals()
-        // {
-        //     battlerExp.onLevelUp -= OnLevelUp;
-        //     battlerBody.MouseEntered -= () => OnMouseOver(true);
-        //     battlerBody.MouseExited -= () => OnMouseOver(false);
-        // }
+        private void UnSubSignals()
+        {
+            battlerExp.onLevelUp -= OnLevelUp;
+            battlerBody.Disconnect(CharacterBody2D.SignalName.MouseEntered, mouseSignal[ConstTerm.MOUSE + ConstTerm.ENTERED]);
+            battlerBody.Disconnect(CharacterBody2D.SignalName.MouseExited, mouseSignal[ConstTerm.MOUSE + ConstTerm.EXITED]);
+            mouseSignal.Remove(ConstTerm.MOUSE + ConstTerm.ENTERED);
+            mouseSignal.Remove(ConstTerm.MOUSE + ConstTerm.EXITED);
+            // battlerBody.MouseEntered -= () => OnMouseOver(true);
+            // battlerBody.MouseExited -= () => OnMouseOver(false);
+        }
 
         private void SetupHPMP()
         {

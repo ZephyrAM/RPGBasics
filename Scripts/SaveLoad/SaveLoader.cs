@@ -71,11 +71,11 @@ public partial class SaveLoader : Node
         GetTree().CallGroup(ConstTerm.CONFIG + ConstTerm.DATA, ConstTerm.ON_LOAD + ConstTerm.CONFIG, GetConfigFile());
     }
 
-    public string GetLangFile()
-    {
-        string language = ConstTerm.EN; // EDIT: Adjust to pull current language.
-        return ConstTerm.GAME_FOLDER + ConstTerm.LANG_FOLDER + language + ConstTerm.FOLDER + ConstTerm.LANG_FILE;
-    }
+    // public string GetLangFile()
+    // {
+    //     string language = ConstTerm.EN; // EDIT: Adjust to pull current language.
+    //     return ConstTerm.GAME_FOLDER + ConstTerm.LANG_FOLDER + language + ConstTerm.FOLDER + ConstTerm.LANG_FILE;
+    // }
 
     //=============================================================================
     // SECTION: Save Methods
@@ -97,7 +97,7 @@ public partial class SaveLoader : Node
         fileSave.StoreString(readSave.GetAsText()); // Save as encrypted file
         fileSave.Close();
         readSave.Close();
-        // DirAccess.RemoveAbsolute(preSavePath); // Remove temporary Resource save
+        DirAccess.RemoveAbsolute(preSavePath); // Remove temporary Resource save
     }
 
     public Task SaveAllData(bool saveToFile)
@@ -186,7 +186,7 @@ public partial class SaveLoader : Node
         Error checkSave = loadedSave.Load(preSavePath);
 
         if (checkSave != Error.Ok) { GD.PushError("No save file to load!"); }
-        // DirAccess.RemoveAbsolute(preSavePath);
+        DirAccess.RemoveAbsolute(preSavePath);
         return loadedSave;
 
         // return tempSave;

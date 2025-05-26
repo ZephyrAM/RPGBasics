@@ -595,7 +595,7 @@ namespace ZAM.Controller
             }
         }
 
-        public void OnBattlerSelect(bool hover, string team, int target) // EDIT: Add cursor targetting
+        public void BattlerSelect(bool hover, string team, int target) // EDIT: Add cursor targetting
         {
             if (hover) { isTargetting.Add(target);  }
             else { isTargetting.Remove(target); return; }            

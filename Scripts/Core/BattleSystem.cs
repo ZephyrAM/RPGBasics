@@ -51,6 +51,8 @@ namespace ZAM.Core
         private Item activeItem;
         // private Array<Item> itemList = [];
 
+        private Dictionary<Battler, Callable> partyBattlerSignals = [];
+        private Dictionary<Battler, Callable> enemyBattlerSignals = [];
         private Array<Battler> battler, enemyTeam, playerTeam = null;
         private VBoxContainer enemyList, playerList = null;
         // private Array<Battler> battler = null;
@@ -215,7 +217,9 @@ namespace ZAM.Core
                 playerTeam[n].onAbilityHitPlayer += OnAbilityHitPlayer;
                 playerTeam[n].onBattlerLevelUp += OnBattlerLevelUp;
                 int b = n;
-                partyInput.GetChild(n).GetNode<Battler>(ConstTerm.BATTLER).onMouseTarget += (hover) => OnMouseBattlerTarget(hover, ConstTerm.PLAYER, b);
+                partyBattlerSignals[playerTeam[n]] = Callable.From((bool hover) => OnMouseBattlerTarget(hover, ConstTerm.PLAYER, b));
+                // partyInput.GetChild(n).GetNode<Battler>(ConstTerm.BATTLER).onMouseTarget += (hover) => OnMouseBattlerTarget(hover, ConstTerm.PLAYER, b);
+                playerTeam[n].Connect(Battler.SignalName.onMouseTarget, partyBattlerSignals[playerTeam[n]]);
                 // partyInput.GetChild(n).GetNode<Battler>(ConstTerm.BATTLER).onMouseClick += () => OnMouseBattlerClick(ConstTerm.PLAYER);
 
                 // UI Bars \\
@@ -271,7 +275,9 @@ namespace ZAM.Core
                 teamBattlers.Add(teamNode.GetChild<CharacterBody2D>(tempList[n]).GetNode<Battler>(ConstTerm.BATTLER));
                 teamBattlers[n].onHitPlayer += OnHitPlayer;
                 int b = n;
-                teamBattlers[n].onMouseTarget += (hover) => OnMouseBattlerTarget(hover, ConstTerm.ENEMY, b);
+                enemyBattlerSignals[teamBattlers[n]] = Callable.From((bool hover) => OnMouseBattlerTarget(hover, ConstTerm.ENEMY, b));
+                // teamBattlers[n].onMouseTarget += (hover) => OnMouseBattlerTarget(hover, ConstTerm.ENEMY, b);
+                teamBattlers[n].Connect(Battler.SignalName.onMouseTarget, enemyBattlerSignals[teamBattlers[n]]);
                 // teamBattlers[n].onMouseClick += () => OnMouseBattlerClick(ConstTerm.ENEMY);
 
                 string tempName = teamBattlers[n].GetNameLabel().Text;
@@ -821,6 +827,8 @@ namespace ZAM.Core
                     {
                         killTargets.Add(defender);
                         defender.onHitPlayer -= OnHitPlayer;
+                        defender.Disconnect(Battler.SignalName.onMouseTarget, enemyBattlerSignals[defender]);
+                        enemyBattlerSignals.Remove(defender);
 
                         enemyList.GetChild(n).QueueFree();
                         // n--;
@@ -843,6 +851,9 @@ namespace ZAM.Core
                 if (defender.GetHealth().GetHP() <= 0)
                 {
                     defender.onHitPlayer -= OnHitPlayer;
+                    defender.Disconnect(Battler.SignalName.onMouseTarget, enemyBattlerSignals[defender]);
+                    enemyBattlerSignals.Remove(defender);
+
                     KillTarget(defender, enemyTeam, playerTeam);
 
                     enemyList.GetChild(currTarget).QueueFree();
@@ -871,6 +882,9 @@ namespace ZAM.Core
                 defender.onHitEnemy -= OnHitEnemy;
                 defender.onAbilityHitPlayer -= OnAbilityHitPlayer;
                 defender.onBattlerLevelUp -= OnBattlerLevelUp;
+                defender.Disconnect(Battler.SignalName.onMouseTarget, partyBattlerSignals[defender]);
+                partyBattlerSignals.Remove(defender);
+
                 KillTarget(defender, playerTeam, enemyTeam);
 
                 playerList.GetChild(target).QueueFree();
@@ -994,7 +1008,7 @@ namespace ZAM.Core
         {
             if (team != partyInput.GetTargetTeam()) { return; }
 
-            partyInput.OnBattlerSelect(hover, team, member);
+            partyInput.BattlerSelect(hover, team, member);
         }
 
         // private void OnMouseBattlerClick(string team)
