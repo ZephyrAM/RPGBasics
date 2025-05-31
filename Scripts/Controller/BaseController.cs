@@ -39,6 +39,12 @@ namespace ZAM.Controller
             SetupListDict();
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            UnSubSignals();
+            base.Dispose(disposing);
+        }
+
         public virtual void SubLists(Container targetList)
         {
             // activeSignals = [];
@@ -89,16 +95,27 @@ namespace ZAM.Controller
 
         }
 
+        protected virtual void UnSubSignals()
+        {
+            
+        }
+
         //=============================================================================
         // SECTION: Phase Handling - Input
         //=============================================================================
 
         protected virtual bool PhaseCheck(InputEvent @event)
         {
-            if (@event is InputEventMouse && activeInput == ConstTerm.KEY_GAMEPAD) { activeInput = ConstTerm.MOUSE;
-                Input.MouseMode = Input.MouseModeEnum.Visible; if (mouseFocus != null) { mouseFocus.MouseFilter = Control.MouseFilterEnum.Stop; } }
-            else if (@event is not InputEventMouse && activeInput == ConstTerm.MOUSE) { activeInput = ConstTerm.KEY_GAMEPAD;
-                Input.MouseMode = Input.MouseModeEnum.Hidden; if (mouseFocus != null) { mouseFocus.MouseFilter = Control.MouseFilterEnum.Ignore; } }
+            if (@event is InputEventMouse && activeInput == ConstTerm.KEY_GAMEPAD)
+            {
+                activeInput = ConstTerm.MOUSE;
+                Input.MouseMode = Input.MouseModeEnum.Visible; if (mouseFocus != null) { mouseFocus.MouseFilter = Control.MouseFilterEnum.Stop; }
+            }
+            else if (@event is not InputEventMouse && activeInput == ConstTerm.MOUSE)
+            {
+                activeInput = ConstTerm.KEY_GAMEPAD;
+                Input.MouseMode = Input.MouseModeEnum.Hidden; if (mouseFocus != null) { mouseFocus.MouseFilter = Control.MouseFilterEnum.Ignore; }
+            }
 
             if (!IsControlActive()) { return false; }
             // switch (inputPhase)
@@ -107,10 +124,16 @@ namespace ZAM.Controller
             //         break;
             // }
 
-            if (@event is InputEventMouseButton) { 
-                if (@event.IsActionPressed(ConstTerm.CANCEL + ConstTerm.CLICK)) {
-                    CancelCycle(); } }
-            
+            if (inputPhase == ConstTerm.REBIND) { goto SkipCancel; }
+            if (@event is InputEventMouseButton)
+            {
+                if (@event.IsActionPressed(ConstTerm.CANCEL + ConstTerm.CLICK))
+                {
+                    CancelCycle();
+                }
+            }
+
+            SkipCancel:
             return true;
         }
 
@@ -203,6 +226,7 @@ namespace ZAM.Controller
         protected virtual void OnMouseEntered(Container currList, Node currLabel)
         {
             // if (currList != activeList) { return; }
+            activeList = currList;
 
             activeControl = IUIFunctions.FocusOff(currList, currentCommand);
             currentCommand = currLabel.GetIndex();
@@ -254,6 +278,16 @@ namespace ZAM.Controller
             }
             else { return; }
             SetNumColumn();
+        }
+
+        public virtual void ChangeActiveList(Container list) // For use with multiple, simultaneously active lists
+        {
+            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+
+            activeList = list;
+            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
         }
 
         public int GetCommand()

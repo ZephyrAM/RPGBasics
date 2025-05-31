@@ -54,6 +54,8 @@ namespace ZAM.Interactions
         private Vector2 returnPosition = Vector2.Zero;
         private Vector2 blockedDirection = Vector2.Zero;
 
+        private Callable navFinish;
+
         // Delegate Events \\
         [Signal]
         public delegate void onEndEventStepEventHandler(Interactable interactor);
@@ -117,12 +119,14 @@ namespace ZAM.Interactions
         {
             sightArea.BodyEntered += OnBodyEntered;
             // navAgent.NavigationFinished += OnNavAgentFinished;
-            // navAgent.Connect(NavigationAgent2D.SignalName.NavigationFinished, new Callable(this, MethodName.OnNavigationFinished));
+            navFinish = new Callable(this, MethodName.OnNavigationFinished);
+            navAgent.Connect(NavigationAgent2D.SignalName.NavigationFinished, navFinish);
         }
 
         private void UnSubSignals()
         {
             sightArea.BodyEntered -= OnBodyEntered;
+            navAgent.Disconnect(NavigationAgent2D.SignalName.NavigationFinished, navFinish);
         }
 
         //=============================================================================

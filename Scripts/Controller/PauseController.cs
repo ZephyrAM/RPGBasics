@@ -48,6 +48,13 @@ namespace ZAM.Controller
             }
         }
 
+        protected override void UnSubSignals()
+        {
+            UnSubLists(commandList);
+            configInput.onCloseConfigOptions -= OnCloseConfigOptions;
+        }
+
+
         protected override void SetupListDict()
         {
             listDict.Add(ConstTerm.COMMAND, commandList);

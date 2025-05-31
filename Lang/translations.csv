@@ -1,5 +1,5 @@
 Language,en,jp
-Map1.Interactable1.Text0,"Hello!",Konwa!
+Map1.Interactable1.Text0,Hello!,Konwa!
 Map1.Interactable1.Text1,"You must be new around here, yes?",Anata wa kono chiiki ni kita no ga hajimetedesu yo ne?
 Map1.Interactable1.ChoiceA,Yes,Hai
 Map1.Interactable1.ChoiceB,No,Iie
@@ -11,3 +11,8 @@ Map1.Interactable1.ItemA2,Potion,Pōshon
 Map1.Interactable1.ItemB2,Potion,Pōshon
 Map1.Event1.Text1,Testing CSV import!,CSV inpōto o tesuto shite imasu!
 Map2.Event1.Text0,Don't forget to equip new gear!,Atarashī sōbi o wasurezu ni sōbi shite kudasai!
+,,
+Label.NewGame,New Game,Atarashī gēmu
+Label.Continue,Continue,Tsuduki
+Label.Settings,Settings,Settei
+Label.ExitGame,Exit Game,Gēmu shūryō

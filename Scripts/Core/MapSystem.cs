@@ -45,6 +45,7 @@ namespace ZAM.Core
         private Array<RayCast2D> interactArray = [];
         private RayCast2D mouseRay = null;
         private Interactable interactTarget;
+        private Callable collideSignal;
 
         private Array<Transitions> travelList = [];
         private Dictionary<Interactable, Callable> chaseList = [];
@@ -157,7 +158,8 @@ namespace ZAM.Core
 
         private void SubSignals()
         {
-            playerInput.onCollisionCheck += async (collider) => await OnCollisionCheck(collider);
+            collideSignal = Callable.From(async (GodotObject collider) => await OnCollisionCheck(collider));
+            playerInput.Connect(CharacterController.SignalName.onCollisionCheck, collideSignal);
             playerInput.onInteractCheck += OnInteractCheck;
             playerInput.onSelectChange += OnSelectChange;
             playerInput.onTextProgress += OnTextProgress;
@@ -200,8 +202,9 @@ namespace ZAM.Core
             }
         }
 
-        private void UnSubSignals() // EDIT: Necessary? 
+        private void UnSubSignals()
         {
+            // playerInput.Disconnect(CharacterController.SignalName.onCollisionCheck, collideSignal);
             playerInput.onInteractCheck -= OnInteractCheck;
             playerInput.onSelectChange -= OnSelectChange;
             playerInput.onTextProgress -= OnTextProgress;
@@ -1018,17 +1021,18 @@ namespace ZAM.Core
             ShowCompareValues(menuInput.GetCommand());
         }
 
-        private async Task OnCatchPlayer(Interactable toFree)
+        private async Task OnCatchPlayer(Interactable chaser)
         {
             while (menuScreen.Visible) { await Task.Delay(60); } // If player is in the menu, wait before starting a battle.
-            await LoadBattle(toFree.GetBattleGroup());
+            await LoadBattle(chaser.GetBattleGroup());
             
-            if (toFree.ShouldChasePlayer) { 
-                toFree.GetMoveAgent().onCatchPlayer -= async (toFree) => await OnCatchPlayer(toFree);
-                chaseList.Remove(toFree);
+            if (chaser.ShouldChasePlayer) {
+                // chaser.GetMoveAgent().onCatchPlayer -= async (chaser) => await OnCatchPlayer(chaser);
+                chaser.GetMoveAgent().Disconnect(NPCMove.SignalName.onCatchPlayer, chaseList[chaser]);
+                chaseList.Remove(chaser);
             }
             
-            toFree.QueueFree();
+            chaser.QueueFree();
         }
 
         private async void OnBattleTrigger(PackedScene battleGroup)

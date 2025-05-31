@@ -31,6 +31,8 @@ public class ConstTerm
     //=============================================================================
     // SECTION: Input Keys
     //=============================================================================
+    public const string NONE = "None";
+    
     public const string ACCEPT = "Accept";
     public const string CANCEL = "Cancel";
     public const string MENU = "Menu";

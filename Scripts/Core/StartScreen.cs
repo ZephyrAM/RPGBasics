@@ -12,7 +12,7 @@ using ZAM.MenuUI;
 
 namespace ZAM.Core
 {
-    public partial class StartScreen : Node, IUIFunctions
+    public partial class StartScreen : Node
     {
         [Export] private PackedScene newGame = null;
         [Export] private AudioStream bgm = null;

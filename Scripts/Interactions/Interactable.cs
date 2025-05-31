@@ -177,7 +177,7 @@ namespace ZAM.Interactions
         {
             if (currentChoice == "") { actionSet = "start"; }
             else { actionSet = "afterChoice" + currentChoice;}
-            GD.Print(currentChoice + lineStep);
+            // GD.Print(currentChoice + lineStep);
             switch (newActionType[actionSet][lineStep])
             {
                 case ConstTerm.TEXT:

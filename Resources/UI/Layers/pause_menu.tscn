@@ -51,12 +51,12 @@ theme_override_constants/separation = -2
 
 [node name="Config" parent="PauseContainer/CommandList" instance=ExtResource("2_kmcq6")]
 layout_mode = 2
-text = "Config"
+text = "Label.Settings"
 label_settings = SubResource("LabelSettings_5a6ch")
 
 [node name="Exit" parent="PauseContainer/CommandList" instance=ExtResource("2_kmcq6")]
 layout_mode = 2
-text = "Exit Game"
+text = "Label.ExitGame"
 label_settings = SubResource("LabelSettings_5a6ch")
 
 [node name="Save" parent="PauseContainer/CommandList" instance=ExtResource("2_kmcq6")]

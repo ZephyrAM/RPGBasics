@@ -1,11 +1,12 @@
 using Godot;
 using Godot.Collections;
-// using System.Collections.Generic;
 
 namespace ZAM.MenuUI
 {
     public partial class ConfigInfo : PanelContainer
     {
+        [Export] private PanelContainer keybindsPanel = null;
+
         [ExportGroup("ConfigLists")]
         [Export] private VBoxContainer audioList = null;
         [Export] private VBoxContainer graphicsList = null;
@@ -17,9 +18,13 @@ namespace ZAM.MenuUI
         private VBoxContainer graphicsValueList = null;
         private VBoxContainer keybindsCommandList = null;
         private VBoxContainer keybindsValueList = null;
+        private VBoxContainer keybindsSecondValueList = null;
+        private VBoxContainer gamepadBindsValueList = null;
 
         private Container activeCommandList = null;
         private Container activeValueList = null;
+
+        private string prevBindLabel = "";
 
         //=============================================================================
         // SECTION: Basic Methods
@@ -27,8 +32,9 @@ namespace ZAM.MenuUI
 
         public override void _Ready()
         {
-            Visible = false;
+            HideConfig();
             IfNull();
+            GD.Print(InputMap.ActionGetEvents("Up"));
         }
 
         private void IfNull()
@@ -41,6 +47,8 @@ namespace ZAM.MenuUI
 
             keybindsCommandList = keybindsList.GetNode<GridContainer>(ConstTerm.GRID + ConstTerm.CONTAINER).GetChild<VBoxContainer>(0);
             keybindsValueList = keybindsList.GetNode<GridContainer>(ConstTerm.GRID + ConstTerm.CONTAINER).GetChild<VBoxContainer>(1);
+            keybindsSecondValueList = keybindsList.GetNode<GridContainer>(ConstTerm.GRID + ConstTerm.CONTAINER).GetChild<VBoxContainer>(2);
+            gamepadBindsValueList = keybindsList.GetNode<GridContainer>(ConstTerm.GRID + ConstTerm.CONTAINER).GetChild<VBoxContainer>(3);
         }
 
         //=============================================================================
@@ -51,7 +59,7 @@ namespace ZAM.MenuUI
         {
             audioList.Visible = false;
             graphicsList.Visible = false;
-            keybindsList.Visible = false;
+            // keybindsList.Visible = false;
         }
 
         public void SetConfigList(string option)
@@ -71,7 +79,7 @@ namespace ZAM.MenuUI
                     break;
                 case ConstTerm.KEYBINDS:
                     activeCommandList = keybindsCommandList;
-                    ShowConfig(keybindsList);
+                    ShowKeyConfig();
                     break;
                 default:
                     break;
@@ -85,8 +93,14 @@ namespace ZAM.MenuUI
 
         public Array<Container> GetAllLists()
         {
-            Array<Container> commandLists = [audioCommandList, graphicsCommandList, keybindsCommandList];
+            Array<Container> commandLists = [audioCommandList, graphicsCommandList, keybindsValueList, keybindsSecondValueList, gamepadBindsValueList];
             return commandLists;
+        }
+
+        public Array<Container> GetBindLists()
+        {
+            Array<Container> bindLists = [keybindsValueList, keybindsSecondValueList, gamepadBindsValueList];
+            return bindLists;
         }
 
         //=============================================================================
@@ -97,8 +111,8 @@ namespace ZAM.MenuUI
         {
             float oldValue = audioValueList.GetChild<Label>(option).Text.ToFloat();
             float newVolume;
-            
-            if (option == 0) { newVolume = Mathf.Clamp(oldValue + value, 0, BGMPlayer.Instance.GetMaxMaster() * 100);  }
+
+            if (option == 0) { newVolume = Mathf.Clamp(oldValue + value, 0, BGMPlayer.Instance.GetMaxMaster() * 100); }
             else { newVolume = Mathf.Clamp(oldValue + value, 0, BGMPlayer.Instance.GetMaxVolume()); }
 
             audioValueList.GetChild<Label>(option).Text = newVolume.ToString();
@@ -114,15 +128,121 @@ namespace ZAM.MenuUI
             graphicsValueList.GetChild<Label>(option).Text = index.x.ToString() + "x" + index.y.ToString();
         }
 
-        public void ChangeKeybindText(int option)
+        public void AwaitKeybindText(int option, Container list)
         {
-            InputEventKey tempKey = (InputEventKey)InputMap.ActionGetEvents(keybindsCommandList.GetChild<Label>(option).Text)[0];
-            keybindsValueList.GetChild<Label>(option).Text = tempKey.PhysicalKeycode.ToString();
+            prevBindLabel = list.GetChild<Label>(option).Text;
+            list.GetChild<Label>(option).Text = "_";
         }
 
-        public void AwaitKeybindText(int option)
+        public bool ChangeKeybindText(InputEvent @event, int option, Container list)
         {
-            keybindsValueList.GetChild<Label>(option).Text = "  ";
+            if (@event == null)
+            {
+                list.GetChild<Label>(option).Text = prevBindLabel;
+                return true;
+            }
+
+
+            int listIndex = GetBindLists().IndexOf(list);
+            string tempLabel = keybindsCommandList.GetChild<Label>(option).Text;
+
+            switch (listIndex)
+            {
+                case 0:
+                case 1:
+                    if (@event is InputEventKey || @event is InputEventMouseButton)
+                    {
+                        if (prevBindLabel == ConstTerm.NONE)
+                        {
+                            if (@event is InputEventKey isKey)
+                            {
+                                InputEventKey kbKey = new() { PhysicalKeycode = isKey.PhysicalKeycode };
+                                InputMap.ActionAddEvent(tempLabel, kbKey);
+                                list.GetChild<Label>(option).Text = kbKey.PhysicalKeycode.ToString();
+                                goto ValidKey;
+                            }
+                            else if (@event is InputEventMouseButton isButton)
+                            {
+                                InputEventMouseButton mKey = new() { ButtonIndex = isButton.ButtonIndex };
+                                InputMap.ActionAddEvent(tempLabel, mKey);
+                                list.GetChild<Label>(option).Text = mKey.ButtonIndex.ToString();
+                                goto ValidKey;
+                            }
+                        }
+                        else
+                        {
+                            foreach (InputEvent key in InputMap.ActionGetEvents(tempLabel))
+                            {
+                                if (key is InputEventKey isKey)
+                                {
+                                    if (isKey.PhysicalKeycode.ToString() == prevBindLabel)
+                                    {
+                                        InputEventKey kbKey = @event as InputEventKey;
+                                        InputEventKey actualKey = isKey;
+                                        actualKey.PhysicalKeycode = kbKey.PhysicalKeycode;
+                                        list.GetChild<Label>(option).Text = kbKey.PhysicalKeycode.ToString();
+                                        goto ValidKey;
+                                    }
+                                }
+                                else if (key is InputEventMouseButton isButton)
+                                {
+                                    if (isButton.ButtonIndex.ToString() == prevBindLabel)
+                                    {
+                                        InputEventMouseButton mKey = @event as InputEventMouseButton;
+                                        InputEventMouseButton actualButton = isButton;
+                                        actualButton.ButtonIndex = mKey.ButtonIndex;
+                                        list.GetChild<Label>(option).Text = actualButton.ButtonIndex.ToString();
+                                        goto ValidKey;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else { goto InvalidKey; }
+                    break;
+                case 2:
+                    if (@event is InputEventJoypadButton)
+                    {
+                        if (prevBindLabel == ConstTerm.NONE)
+                        {
+                            InputEventJoypadButton eventButton = @event as InputEventJoypadButton;
+                            InputEventJoypadButton gpKey = new() { ButtonIndex = eventButton.ButtonIndex };
+                            InputMap.ActionAddEvent(tempLabel, gpKey);
+                            list.GetChild<Label>(option).Text = gpKey.ButtonIndex.ToString();
+                            goto ValidKey;
+                        }
+                        else
+                        {
+                            foreach (InputEvent button in InputMap.ActionGetEvents(tempLabel))
+                            {
+                                if (button is InputEventJoypadButton isButton)
+                                {
+                                    if (isButton.ButtonIndex.ToString() == prevBindLabel)
+                                    {
+                                        InputEventJoypadButton gpKey = @event as InputEventJoypadButton;
+                                        InputEventJoypadButton actualButton;
+                                        actualButton = isButton;
+                                        actualButton.ButtonIndex = gpKey.ButtonIndex;
+                                        list.GetChild<Label>(option).Text = actualButton.ButtonIndex.ToString();
+                                        goto ValidKey;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else { goto InvalidKey; }
+                    break;
+                default:
+                    GD.PushError($"Invalid keybind list number {listIndex}.");
+                    break;
+            }
+
+        InvalidKey:
+            // list.GetChild<Label>(option).Text = prevBindLabel;
+            return false;
+
+        ValidKey:
+            return true;
         }
 
         //=============================================================================
@@ -132,12 +252,18 @@ namespace ZAM.MenuUI
         public void HideConfig()
         {
             Visible = false;
+            keybindsPanel.Visible = false;
         }
 
         public void ShowConfig(Container option)
         {
             option.Visible = true;
             Visible = true;
+        }
+
+        public void ShowKeyConfig()
+        {
+            keybindsPanel.Visible = true;
         }
 
         public void SetupConfigValues((int, int) currentResolution)
@@ -151,8 +277,26 @@ namespace ZAM.MenuUI
 
             for (int c = 0; c < keybindsCommandList.GetChildCount(); c++)
             {
-                InputEventKey tempKey = (InputEventKey)InputMap.ActionGetEvents(keybindsCommandList.GetChild<Label>(c).Text)[0];
-                keybindsValueList.GetChild<Label>(c).Text = tempKey.PhysicalKeycode.ToString();
+                Array<InputEventKey> tempKey = [];
+                foreach (InputEvent key in InputMap.ActionGetEvents(keybindsCommandList.GetChild<Label>(c).Text))
+                {
+                    if (key is InputEventKey newKey) { tempKey.Add(newKey); }
+                }
+                string tempString = tempKey[0].PhysicalKeycode.ToString();
+                keybindsValueList.GetChild<Label>(c).Text = tempString;
+                if (tempKey.Count > 1) {
+                    tempString = tempKey[1].PhysicalKeycode.ToString();
+                } else {
+                    tempString = ConstTerm.NONE;
+                }
+                keybindsSecondValueList.GetChild<Label>(c).Text = tempString;
+
+                Array<InputEventJoypadButton> tempButton = [];
+                foreach (InputEvent button in InputMap.ActionGetEvents(keybindsCommandList.GetChild<Label>(c).Text))
+                {
+                    if (button is InputEventJoypadButton newButton) { tempButton.Add(newButton); }
+                }
+                gamepadBindsValueList.GetChild<Label>(c).Text = tempButton[0].ButtonIndex.ToString();
             }
         }
     }

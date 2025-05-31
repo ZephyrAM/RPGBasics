@@ -9,10 +9,12 @@ namespace ZAM.Controller
 {
     public partial class ConfigController : BaseController, IUIFunctions
     {
+        [Export] private Label listName = null;
         [Export] private ConfigInfo configPanel = null;
         [Export] private Container configOptions = null;
         [Export] private VBoxContainer configOptionsList = null;
         [Export] private ScrollContainer scrollContainer = null;
+        [Export] private ScrollContainer keyScrollContainer = null;
 
         // private Container activeList = null;
         // private ButtonUI activeControl = null;
@@ -68,9 +70,11 @@ namespace ZAM.Controller
 
         private void SubSignals()
         {
-            if (!signalsDone) {
+            if (!signalsDone)
+            {
                 SubLists(configOptionsList);
-                for (int c = 0; c < configPanel.GetAllLists().Count; c++) {
+                for (int c = 0; c < configPanel.GetAllLists().Count; c++)
+                {
                     SubLists(configPanel.GetAllLists()[c]);
                 }
 
@@ -78,6 +82,14 @@ namespace ZAM.Controller
                 configPanel.SetupConfigValues(resolutionList[resolutionIndex]);
                 signalsDone = true;
             }
+        }
+
+        protected override void UnSubSignals()
+        {
+            UnSubLists(configOptionsList);
+            for (int c = 0; c < configPanel.GetAllLists().Count; c++) {
+                    UnSubLists(configPanel.GetAllLists()[c]);
+                }
         }
 
         protected override void SetupListDict()
@@ -227,8 +239,17 @@ namespace ZAM.Controller
 
         private void KeybindsPhase(InputEvent @event)
         {
-            if (@event.IsActionPressed(ConstTerm.ACCEPT)) {
+            if (@event.IsActionPressed(ConstTerm.ACCEPT))
+            {
                 KeybindsAccept();
+            }
+            else if (@event.IsActionPressed(ConstTerm.LEFT))
+            {
+                ChangeKeybindList(-1);
+            }
+            else if (@event.IsActionPressed(ConstTerm.RIGHT))
+            {
+                ChangeKeybindList(1);
             }
             else { PhaseControls(@event); }
         }
@@ -243,10 +264,7 @@ namespace ZAM.Controller
         private void RebindPhase(InputEvent @event)
         {
             if (!@event.IsPressed()) { return; }
-            if (@event is InputEventKey)
-            {
-                FinishChangeKeybind(@event);
-            }
+            FinishChangeKeybind(@event);
         }
 
         // private void PhaseControls(InputEvent @event)
@@ -363,6 +381,32 @@ namespace ZAM.Controller
             SetNextConfig(nextPhase);
         }
 
+        private void ChangeKeybindList(int change)
+        {
+            int index = configPanel.GetBindLists().IndexOf(activeList);
+            index += change;
+
+            if (index >= configPanel.GetBindLists().Count) { index = 0; }
+            else if (index < 0) { index = configPanel.GetBindLists().Count - 1; }
+
+            ChangeActiveList(configPanel.GetBindLists()[index]);
+        }
+
+        private void CancelKeybind()
+        {
+            int currList = configPanel.GetBindLists().IndexOf(activeList);
+            string oldPhase = IUIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
+            SetInputPhase(oldPhase);
+
+            activeList = configPanel.GetBindLists()[currList];
+            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+
+            foreach (Container list in configPanel.GetBindLists())
+            {
+                IUIFunctions.ToggleMouseFilter(list, Control.MouseFilterEnum.Stop, out mouseFocus);
+            }
+        }
+
         //=============================================================================
         // SECTION: Command Handling
         //=============================================================================
@@ -409,26 +453,29 @@ namespace ZAM.Controller
             // InputEventKey tempKey = (InputEventKey)InputMap.ActionGetEvents(key)[0];
             // GD.Print(tempKey.PhysicalKeycode);
 
-            configPanel.AwaitKeybindText(currentCommand);
+            configPanel.AwaitKeybindText(currentCommand, activeList);
             // previousPhase.Add(configPhase);
             SetInputPhase(ConstTerm.REBIND);
+
+            foreach (Container list in configPanel.GetBindLists())
+            {
+                IUIFunctions.ToggleMouseFilter(list, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            }
         }
 
         private void FinishChangeKeybind(InputEvent @event)
-        {
-            if (@event.IsActionPressed(ConstTerm.ESCAPE))
+        { 
+            // EDIT: Make mouse clicks invalid instead of cancel
+            if (@event.IsActionPressed(ConstTerm.ESCAPE) || @event.IsActionPressed(ConstTerm.ACCEPT + ConstTerm.CLICK) || @event.IsActionPressed(ConstTerm.CANCEL + ConstTerm.CLICK))
             {
-                configPanel.ChangeKeybindText(currentCommand);
-                base.CancelCycle();
+                configPanel.ChangeKeybindText(null, currentCommand, activeList);
+                CancelKeybind();
                 return;
             }
 
-            GD.Print("Changing!");
-            InputEventKey newKey = @event as InputEventKey;
             string tempLabel = configPanel.GetConfigList().GetChild<Label>(currentCommand).Text;
-            InputEventKey tempKey = (InputEventKey)InputMap.ActionGetEvents(tempLabel)[0];
-            tempKey.PhysicalKeycode = newKey.PhysicalKeycode;
-            configPanel.ChangeKeybindText(currentCommand);
+            bool keyCheck = configPanel.ChangeKeybindText(@event, currentCommand, activeList);
+            if (!keyCheck) { return; }
 
             if (!changedKeys.Contains(tempLabel)) { changedKeys.Add(tempLabel); }
 
@@ -436,12 +483,14 @@ namespace ZAM.Controller
             // previousPhase.RemoveAt(previousPhase.Count - 1);
             // SetInputPhase(ConstTerm.KEYBINDS);
             // CommandSelect(0, ConstTerm.VERT);
-            base.CancelCycle();
+            CancelKeybind();
         }
 
         private void SetNextConfig(string option)
         {
             // previousPhase.Add(GetInputPhase());
+            Label tempLabel = (Label)activeList.GetChild(currentCommand);
+            listName.Text = tempLabel.Text;
             SetInputPhase(option);
 
             configPanel.SetConfigList(GetInputPhase());
@@ -449,6 +498,7 @@ namespace ZAM.Controller
             SetNewCommand();
 
             scrollContainer.ScrollVertical = 0;
+            keyScrollContainer.ScrollVertical = 0;
         }
 
         //=============================================================================

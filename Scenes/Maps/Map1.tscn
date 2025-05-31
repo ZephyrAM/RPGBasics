@@ -1040,7 +1040,7 @@ IsRepeatable = true
 [node name="Event1" parent="MapSystem/Events" node_paths=PackedStringArray("movePositions") instance=ExtResource("15_2nx0r")]
 position = Vector2(-401, 253)
 movePositions = [NodePath("Point0"), NodePath("Point1"), NodePath("Point2")]
-eventStepCount = 3
+eventStepCount = 4
 IsEvent = true
 DoesMove = false
 

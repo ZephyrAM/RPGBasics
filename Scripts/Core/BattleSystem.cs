@@ -734,7 +734,6 @@ namespace ZAM.Core
         private void SetupItemList()
         {
             if (!CheckHasItems()) { return; }
-            ;
 
             foreach (Node child in itemPanel.GetNode(ConstTerm.TEXT + ConstTerm.LIST).GetChildren())
             { child.QueueFree(); }

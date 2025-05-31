@@ -84,6 +84,7 @@ namespace ZAM.MenuUI
             ShowTextBox();
 
             ChangeState(StateType.ACTIVE);
+            // EDIT: If text speed set to Instant - load text, skip to end.
             textTween = CreateTween();
             textTween.TweenProperty(textLabel, ConstTerm.PERCENT_VISIBLE, 1, textLabel.Text.Length / textRate).SetTrans(Tween.TransitionType.Linear);
 

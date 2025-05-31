@@ -35,6 +35,12 @@ namespace ZAM.Core
             IfNull();
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            UnSubSignals();
+            base.Dispose(disposing);
+        }
+
         // public override void _ExitTree()
         // {
         //     UnSubSignals();
@@ -60,11 +66,11 @@ namespace ZAM.Core
             playerInput.onStepArea += OnStepArea;
         }
 
-        // private void UnSubSignals()
-        // {
-        //     BodyEntered -= OnBodyEntered;
-        //     playerInput.onStepArea -= OnStepArea;
-        // }
+        private void UnSubSignals()
+        {
+            // BodyEntered -= OnBodyEntered;
+            playerInput.onStepArea -= OnStepArea;
+        }
 
         private PackedScene GetEnemyGroup()
         {

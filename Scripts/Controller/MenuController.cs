@@ -130,7 +130,7 @@ namespace ZAM.Controller
             // signalsDone = true;
         }
 
-        private void UnSubSignals()
+        protected override void UnSubSignals()
         {
             UnSubLists(commandList);
             UnSubLists(infoList);

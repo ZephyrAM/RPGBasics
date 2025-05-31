@@ -28,14 +28,16 @@ corner_radius_top_right = 15
 corner_radius_bottom_right = 15
 corner_radius_bottom_left = 15
 
-[node name="ConfigMenu" type="Node" node_paths=PackedStringArray("configPanel", "configOptions", "configOptionsList", "scrollContainer") groups=["ConfigData"]]
+[node name="ConfigMenu" type="Node" node_paths=PackedStringArray("listName", "configPanel", "configOptions", "configOptionsList", "scrollContainer", "keyScrollContainer") groups=["ConfigData"]]
 script = ExtResource("1_8fv22")
+listName = NodePath("ConfigPanel/Label")
 configPanel = NodePath("ConfigPanel")
 configOptions = NodePath("ConfigOptions")
 configOptionsList = NodePath("ConfigOptions/MarginContainer/ConfigOptionsList")
 scrollContainer = NodePath("ConfigPanel/MarginContainer/ScrollContainer")
+keyScrollContainer = NodePath("KeybindsPanel/MarginContainer/ScrollContainer")
 
-[node name="ConfigPanel" type="PanelContainer" parent="." node_paths=PackedStringArray("audioList", "graphicsList", "keybindsList")]
+[node name="ConfigPanel" type="PanelContainer" parent="." node_paths=PackedStringArray("keybindsPanel", "audioList", "graphicsList", "keybindsList")]
 visible = false
 anchors_preset = 8
 anchor_left = 0.5
@@ -43,21 +45,28 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -200.0
-offset_top = -150.0
+offset_top = -200.0
 offset_right = 200.0
-offset_bottom = 160.0
+offset_bottom = 110.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_kaets")
 script = ExtResource("1_4ketw")
+keybindsPanel = NodePath("../KeybindsPanel")
 audioList = NodePath("MarginContainer/ScrollContainer/Audio")
 graphicsList = NodePath("MarginContainer/ScrollContainer/Graphics")
-keybindsList = NodePath("MarginContainer/ScrollContainer/Keybinds")
+keybindsList = NodePath("../KeybindsPanel/MarginContainer/ScrollContainer/Keybinds")
+
+[node name="Label" parent="ConfigPanel" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+size_flags_vertical = 0
+text = "ListName"
+horizontal_alignment = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="ConfigPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 5
+theme_override_constants/margin_top = 45
 theme_override_constants/margin_right = 10
 
 [node name="ScrollContainer" type="ScrollContainer" parent="ConfigPanel/MarginContainer"]
@@ -69,11 +78,6 @@ visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
-
-[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio" instance=ExtResource("2_mewfc")]
-layout_mode = 2
-text = "Volume"
-horizontal_alignment = 1
 
 [node name="GridContainer" type="GridContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Audio"]
 layout_mode = 2
@@ -117,11 +121,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Graphics" instance=ExtResource("2_mewfc")]
-layout_mode = 2
-text = "Graphics"
-horizontal_alignment = 1
-
 [node name="GridContainer" type="GridContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Graphics"]
 layout_mode = 2
 columns = 2
@@ -160,14 +159,9 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds" instance=ExtResource("2_mewfc")]
-layout_mode = 2
-text = "Keybinds"
-horizontal_alignment = 1
-
 [node name="GridContainer" type="GridContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds"]
 layout_mode = 2
-columns = 2
+columns = 3
 
 [node name="CommandList" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer"]
 layout_mode = 2
@@ -206,34 +200,250 @@ text = "Run"
 layout_mode = 2
 text = "Menu"
 
-[node name="ValueList" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer"]
+[node name="KeyList" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer"]
 custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 size_flags_horizontal = 6
 theme_override_constants/separation = 0
 
-[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
 layout_mode = 2
 
-[node name="Label2" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+[node name="Label2" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
 layout_mode = 2
 
-[node name="Label3" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+[node name="Label3" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
 layout_mode = 2
 
-[node name="Label4" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+[node name="Label4" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
 layout_mode = 2
 
-[node name="Label5" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+[node name="Label5" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
 layout_mode = 2
 
-[node name="Label6" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+[node name="Label6" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
 layout_mode = 2
 
-[node name="Label7" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+[node name="Label7" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
 layout_mode = 2
 
-[node name="Label8" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ValueList" instance=ExtResource("5_jrggd")]
+[node name="Label8" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="ControlList" type="VBoxContainer" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_constants/separation = 0
+
+[node name="Label" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label2" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label3" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label4" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label5" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label6" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label7" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label8" parent="ConfigPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="KeybindsPanel" type="PanelContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -430.0
+offset_top = -200.0
+offset_right = 470.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_kaets")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="KeybindsPanel"]
+layout_mode = 2
+
+[node name="Label" parent="KeybindsPanel/VBoxContainer" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+size_flags_vertical = 0
+text = "Keybinds"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="KeybindsPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="KeyMouse" parent="KeybindsPanel/VBoxContainer/HBoxContainer" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+size_flags_horizontal = 10
+text = "Key/Mouse"
+
+[node name="Gamepad" parent="KeybindsPanel/VBoxContainer/HBoxContainer" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Gamepad"
+
+[node name="MarginContainer" type="MarginContainer" parent="KeybindsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 90
+theme_override_constants/margin_right = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="KeybindsPanel/MarginContainer"]
+layout_mode = 2
+follow_focus = true
+
+[node name="Keybinds" type="VBoxContainer" parent="KeybindsPanel/MarginContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="GridContainer" type="GridContainer" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds"]
+layout_mode = 2
+columns = 4
+
+[node name="CommandList" type="VBoxContainer" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Up" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+text = "Up"
+horizontal_alignment = 1
+
+[node name="Down" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+text = "Down"
+horizontal_alignment = 1
+
+[node name="Left" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="Right" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+text = "Right"
+horizontal_alignment = 1
+
+[node name="Run" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+text = "Run"
+horizontal_alignment = 1
+
+[node name="Accept" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+text = "Accept"
+horizontal_alignment = 1
+
+[node name="Cancel" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+text = "Cancel"
+horizontal_alignment = 1
+
+[node name="Menu" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/CommandList" instance=ExtResource("2_mewfc")]
+layout_mode = 2
+text = "Menu"
+horizontal_alignment = 1
+
+[node name="KeyList" type="VBoxContainer" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_constants/separation = 0
+
+[node name="Label" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label2" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label3" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label4" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label5" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label6" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label7" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label8" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="KeyList2" type="VBoxContainer" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_constants/separation = 0
+
+[node name="Label" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList2" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label2" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList2" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label3" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList2" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label4" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList2" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label5" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList2" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label6" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList2" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label7" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList2" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label8" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/KeyList2" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="ControlList" type="VBoxContainer" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+theme_override_constants/separation = 0
+
+[node name="Label" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label2" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label3" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label4" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label5" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label6" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label7" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
+layout_mode = 2
+
+[node name="Label8" parent="KeybindsPanel/MarginContainer/ScrollContainer/Keybinds/GridContainer/ControlList" instance=ExtResource("5_jrggd")]
 layout_mode = 2
 
 [node name="ConfigOptions" type="PanelContainer" parent="."]
@@ -243,10 +453,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 300.0
-offset_top = -150.0
-offset_right = 500.0
-offset_bottom = 250.0
+offset_left = 540.0
+offset_top = -200.0
+offset_right = 740.0
+offset_bottom = 200.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_1fx2g")

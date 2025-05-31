@@ -17,6 +17,7 @@ namespace ZAM.MapEvents
 
         public void Event1(Interactable interactor)
         {
+            GD.Print(interactor.GetStep());
             // eventNumber = interactor.Name.ToString()[^1] + ConstTerm.DIVIDER;
             // textSource = ConstTerm.MAP + mapNumber + ConstTerm.EVENT + eventNumber + ConstTerm.STEP;
 
@@ -39,7 +40,11 @@ namespace ZAM.MapEvents
                     break;
                 case 2:
                     interactor.AddMoveRoute();
+                    break;
+                case 3:
                     interactor.GetMoveAgent().GetCollider().Disabled = false;
+                    interactor.EndStep(ConstTerm.MOVE);
+                    OnEndEventStep(interactor);
                     break;
                 default:
                     // GD.Print("still going..." + interactor.GetStep());

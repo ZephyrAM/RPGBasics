@@ -147,6 +147,12 @@ namespace ZAM.Controller
             signalsDone = true;
         }
 
+        protected override void UnSubSignals()
+        {
+            UnSubLists(commandList);
+            UnSubLists(itemList);
+        }
+
         // public void SubLists(Container targetList)
         // {
         //     for (int c = 0; c < targetList.GetChildCount(); c++)
