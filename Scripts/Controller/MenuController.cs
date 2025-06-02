@@ -158,8 +158,8 @@ namespace ZAM.Controller
         public override void _PhysicsProcess(double delta)
         {
             if (!IsControlActive()) { return; }
-            
-            if (Input.IsActionJustPressed(ConstTerm.MENU) || Input.IsActionJustPressed(ConstTerm.PAUSE)) { MenuClose(); }
+            // EDIT: If on base menu screen, Esc closes and pulls up Pause screen immediately. BUG
+            if (Input.IsActionJustPressed(ConstTerm.MENU) || Input.IsActionJustPressed(ConstTerm.ESCAPE)) { MenuClose(); }
         }
 
         //=============================================================================

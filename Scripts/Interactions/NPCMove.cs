@@ -229,11 +229,11 @@ namespace ZAM.Interactions
 
             navAgent.TargetPosition = playerParty.GlobalPosition;
 
-            battleCountTimer++;
-            if (battleCountTimer >= battleMaxTimer) {
-                battleCountTimer = 0;
-                CheckBattleCollision();
-            }
+            // battleCountTimer++; // EDIT: Necessary code block?
+            // if (battleCountTimer >= battleMaxTimer) {
+            //     battleCountTimer = 0;
+            //     CheckBattleCollision();
+            // }
 
             NavToTarget(baseSpeed * 1.5f);
 
@@ -287,24 +287,24 @@ namespace ZAM.Interactions
             }
         }
 
-        private void CheckBattleCollision()
-        {
-            if (hasCollided) { return; }
-            if (charBody.GetLastSlideCollision() != null && charBody.GetLastSlideCollision().GetCollider() == playerParty) { // EDIT: Needs improvement
-                // GD.Print("Caught player!");
-                if (npcInteract.GetBattleGroup() != null) {
-                    TriggerBattler();
-                }
-                else { npcInteract.SetInteractPhase(ConstTerm.RETURN); }
-            }
-        }
+        // private void CheckBattleCollision()
+        // {
+        //     if (hasCollided) { return; }
+        //     if (charBody.GetLastSlideCollision() != null && charBody.GetLastSlideCollision().GetCollider() == playerParty) { // EDIT: Needs improvement
+        //         // GD.Print("Caught player!");
+        //         if (npcInteract.GetBattleGroup() != null) {
+        //             TriggerBattler();
+        //         }
+        //         else { npcInteract.SetInteractPhase(ConstTerm.RETURN); }
+        //     }
+        // }
 
-        public void TriggerBattler()
-        {
-            hasCollided = true;
-            npcInteract.SetInteractPhase(ConstTerm.DO_NOTHING);
-            EmitSignal(SignalName.onCatchPlayer, npcInteract.GetBattleGroup(), GetParent() as Interactable); // Mapsystem -> OnCatchPlayer
-        }
+        // public void TriggerBattler()
+        // {
+        //     hasCollided = true;
+        //     npcInteract.SetInteractPhase(ConstTerm.DO_NOTHING);
+        //     EmitSignal(SignalName.onCatchPlayer, GetParent() as Interactable); // Mapsystem -> OnCatchPlayer
+        // }
 
         //=============================================================================
         // SECTION: Move Checks

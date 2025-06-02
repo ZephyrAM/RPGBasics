@@ -46,6 +46,7 @@ namespace ZAM.Core
         private RayCast2D mouseRay = null;
         private Interactable interactTarget;
         private Callable collideSignal;
+        private bool enemyCatch = false;
 
         private Array<Transitions> travelList = [];
         private Dictionary<Interactable, Callable> chaseList = [];
@@ -89,6 +90,13 @@ namespace ZAM.Core
             // // GD.Print("Map ready - save data");
             // hasLoaded = true;
         }
+
+        public override void _EnterTree()
+        {
+            enemyCatch = false;
+            base._EnterTree();
+        }
+
 
         protected override void Dispose(bool disposing)
         {
@@ -158,7 +166,7 @@ namespace ZAM.Core
 
         private void SubSignals()
         {
-            collideSignal = Callable.From(async (GodotObject collider) => await OnCollisionCheck(collider));
+            collideSignal = Callable.From((CharacterBody2D collider) => OnCollisionCheck(collider));
             playerInput.Connect(CharacterController.SignalName.onCollisionCheck, collideSignal);
             playerInput.onInteractCheck += OnInteractCheck;
             playerInput.onSelectChange += OnSelectChange;
@@ -189,17 +197,17 @@ namespace ZAM.Core
                 battleAreas[a].onBattleTrigger += OnBattleTrigger;
             }
 
-            chaseList = [];
-            for (int i = 0; i < mapEvents.GetChildCount(); i++)
-            {
-                Interactable tempActor = (Interactable)mapEvents.GetChild(i);
-                if (tempActor.ShouldChasePlayer)
-                {
-                    chaseList[tempActor] = Callable.From(async () => await OnCatchPlayer(tempActor));
-                    // tempActor.GetMoveAgent().onCatchPlayer += async (toFree) => await OnCatchPlayer(toFree);
-                    tempActor.GetMoveAgent().Connect(NPCMove.SignalName.onCatchPlayer, chaseList[tempActor]);
-                }
-            }
+            // chaseList = [];
+            // for (int i = 0; i < mapEvents.GetChildCount(); i++)
+            // {
+            //     Interactable tempActor = (Interactable)mapEvents.GetChild(i);
+            //     if (tempActor.ShouldChasePlayer)
+            //     {
+            //         chaseList[tempActor] = Callable.From((Interactable chaser) => OnCatchPlayer(chaser));
+            //         // tempActor.GetMoveAgent().onCatchPlayer += async (toFree) => await OnCatchPlayer(toFree);
+            //         tempActor.GetMoveAgent().Connect(NPCMove.SignalName.onCatchPlayer, chaseList[tempActor]);
+            //     }
+            // }
         }
 
         private void UnSubSignals()
@@ -234,12 +242,12 @@ namespace ZAM.Core
 
             // for (int i = 0; i < chaseList.Count; i++) {
             //     chaseList[i].GetMoveAgent().onCatchPlayer -= async (toFree) => await OnCatchPlayer(toFree); }
-            foreach (Interactable chaser in chaseList.Keys)
-            {
-                if (chaser == null) { continue; }
-                chaser.GetMoveAgent().Disconnect(NPCMove.SignalName.onCatchPlayer, chaseList[chaser]);
-                chaseList.Remove(chaser);
-            }
+            // foreach (Interactable chaser in chaseList.Keys)
+            // {
+            //     if (chaser == null) { continue; }
+            //     chaser.GetMoveAgent().Disconnect(NPCMove.SignalName.onCatchPlayer, chaseList[chaser]);
+            //     chaseList.Remove(chaser);
+            // }
         }
 
         // public override void _EnterTree()
@@ -336,7 +344,7 @@ namespace ZAM.Core
 
         private void SetInteractTarget(int index)
         {
-            GD.Print("Set interact target");
+            // GD.Print("Set interact target");
             playerInput.SetInteractToggle(true);
             interactTarget = (Interactable)interactArray[index].GetCollider();
             
@@ -718,7 +726,6 @@ namespace ZAM.Core
 
             // BGMPlayer.Instance.TransitionBGM(bgm, newBgm);
             // await ToSignal(Fader.Instance.GetAnimPlayer(), ConstTerm.ANIM_FINISHED);
-            // OnCatchPlayer often causes data.tree null error here - though game still works as normal. Race condition?
             GetTree().Root.AddChild(battleNode);
             GetTree().Root.RemoveChild(GetParent());
 
@@ -801,6 +808,25 @@ namespace ZAM.Core
             UpdateUseList(user);
         }
 
+        private async void CatchPlayer(Interactable chaser)
+        {
+            if (enemyCatch) { return; }
+            enemyCatch = true;
+            chaser.SetInteractPhase(ConstTerm.DO_NOTHING); // EDIT: Does nothing?
+
+            while (menuScreen.Visible) { await Task.Delay(60); } // If player is in the menu, wait before starting a battle.
+            await LoadBattle(chaser.GetBattleGroup());
+
+            // if (chaser.ShouldChasePlayer)
+            // {
+            //     // chaser.GetMoveAgent().onCatchPlayer -= async (chaser) => await OnCatchPlayer(chaser);
+            //     chaser.GetMoveAgent().Disconnect(NPCMove.SignalName.onCatchPlayer, chaseList[chaser]);
+            //     chaseList.Remove(chaser);
+            // }
+
+            chaser.QueueFree();
+        }
+
 
         //=============================================================================
         // SECTION: Signal Methods
@@ -828,11 +854,14 @@ namespace ZAM.Core
             RemoveInteractTarget();
         }
 
-        private async Task OnCollisionCheck(GodotObject collider)
+        private void OnCollisionCheck(CharacterBody2D collider)
         {
-            if (collider is Interactable) {
+            if (enemyCatch) { return; }
+
+            if (collider is Interactable)
+            {
                 Interactable enemyBattle = collider as Interactable;
-                if (enemyBattle.IsAutoBattle) { await OnCatchPlayer(enemyBattle); }
+                if (enemyBattle.IsAutoBattle) { CatchPlayer(enemyBattle); }
             }
         }
 
@@ -1019,20 +1048,6 @@ namespace ZAM.Core
         private void OnGearCompare()
         {
             ShowCompareValues(menuInput.GetCommand());
-        }
-
-        private async Task OnCatchPlayer(Interactable chaser)
-        {
-            while (menuScreen.Visible) { await Task.Delay(60); } // If player is in the menu, wait before starting a battle.
-            await LoadBattle(chaser.GetBattleGroup());
-            
-            if (chaser.ShouldChasePlayer) {
-                // chaser.GetMoveAgent().onCatchPlayer -= async (chaser) => await OnCatchPlayer(chaser);
-                chaser.GetMoveAgent().Disconnect(NPCMove.SignalName.onCatchPlayer, chaseList[chaser]);
-                chaseList.Remove(chaser);
-            }
-            
-            chaser.QueueFree();
         }
 
         private async void OnBattleTrigger(PackedScene battleGroup)

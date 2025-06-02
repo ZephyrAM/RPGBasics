@@ -1,7 +1,7 @@
 using Godot;
 using Godot.Collections;
 using System;
-using System.Collections.Generic;
+// using System.Collections.Generic;
 
 using ZAM.MenuUI;
 
@@ -31,7 +31,8 @@ namespace ZAM.Controller
         // private bool signalsDone = false;
         private bool borderlessToggle = false;
 
-        private List<(int, int)> resolutionList = [(640, 480), (800, 600), (1280, 720), (1360, 768), (1600, 900), (1920, 1080), (2560, 1080), (3440, 1440)];
+        private Array<Vector2> resolutionList = [new Vector2(640, 480), new Vector2(800, 600), new Vector2(1280, 720), new Vector2(1360, 768),
+        new Vector2(1600, 900), new Vector2(1920, 1080), new Vector2(2560, 1080), new Vector2(3440, 1440)];
         // private (int, int) currentResolution;
         private int resolutionIndex = 4;
         // private int resolutionIndex = 0;
@@ -443,7 +444,7 @@ namespace ZAM.Controller
         private void ChangeResolution()
         {
             configPanel.ChangeResolutionText(1, resolutionList[resolutionIndex]); // EDIT: Set commands to numbers somewhere?
-            GetWindow().Size = new Vector2I(resolutionList[resolutionIndex].Item1, resolutionList[resolutionIndex].Item2);
+            GetWindow().Size = new Vector2I((int)resolutionList[resolutionIndex].X, (int)resolutionList[resolutionIndex].Y);
             GetWindow().MoveToCenter();
         }
 
@@ -464,7 +465,7 @@ namespace ZAM.Controller
         }
 
         private void FinishChangeKeybind(InputEvent @event)
-        { 
+        {
             // EDIT: Make mouse clicks invalid instead of cancel
             if (@event.IsActionPressed(ConstTerm.ESCAPE) || @event.IsActionPressed(ConstTerm.ACCEPT + ConstTerm.CLICK) || @event.IsActionPressed(ConstTerm.CANCEL + ConstTerm.CLICK))
             {
@@ -472,8 +473,8 @@ namespace ZAM.Controller
                 CancelKeybind();
                 return;
             }
-
-            string tempLabel = configPanel.GetConfigList().GetChild<Label>(currentCommand).Text;
+            
+            string tempLabel = configPanel.GetConfigList().GetChild<Label>(currentCommand).Text + "_" + configPanel.GetBindLists().IndexOf(activeList);
             bool keyCheck = configPanel.ChangeKeybindText(@event, currentCommand, activeList);
             if (!keyCheck) { return; }
 
@@ -590,8 +591,11 @@ namespace ZAM.Controller
             config.SetValue(ConstTerm.GRAPHICS, ConstTerm.RESOLUTION, resolutionIndex);
 
             for (int k = 0; k < changedKeys.Count; k++) {
-                // InputEventKey tempKey = (InputEventKey)InputMap.ActionGetEvents(changedKeys[k])[0];
-                config.SetValue(ConstTerm.KEYBINDS, changedKeys[k], InputMap.ActionGetEvents(changedKeys[k])[0]);
+                string[] temp = changedKeys[k].Split('_');
+                string action = temp[0];
+                int id = temp[1].ToInt();
+
+                config.SetValue(ConstTerm.KEYBINDS, changedKeys[k], InputMap.ActionGetEvents(action)[id]);
             }
             changedKeys = [];
 
@@ -608,9 +612,12 @@ namespace ZAM.Controller
 
             if (config.HasSection(ConstTerm.KEYBINDS)) {
                 for (int k = 0; k < config.GetSectionKeys(ConstTerm.KEYBINDS).Length; k++) {
-                    string tempString = config.GetSectionKeys(ConstTerm.KEYBINDS)[k];
-                    InputEventKey tempKey = (InputEventKey)InputMap.ActionGetEvents(tempString)[0];
-                    InputEventKey tempCode = (InputEventKey)config.GetValue(ConstTerm.KEYBINDS, tempString);
+                    string[] temp = config.GetSectionKeys(ConstTerm.KEYBINDS)[k].Split('_');
+                    string action = temp[0];
+                    int id = temp[1].ToInt();
+
+                    InputEventKey tempKey = (InputEventKey)InputMap.ActionGetEvents(action)[id];
+                    InputEventKey tempCode = (InputEventKey)config.GetValue(ConstTerm.KEYBINDS, config.GetSectionKeys(ConstTerm.KEYBINDS)[k]);
                     tempKey.PhysicalKeycode = tempCode.PhysicalKeycode;
                 }
             }

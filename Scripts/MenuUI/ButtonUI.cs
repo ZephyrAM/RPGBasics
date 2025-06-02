@@ -16,9 +16,6 @@ namespace ZAM.MenuUI
         private bool isDisabled = false;
         private float soundVolume = 100;
 
-        // [Signal]
-        // public delegate void OnSignalChangeEventHandler(bool visible);
-
         //=============================================================================
         // SECTION: Base Methods
         //=============================================================================
@@ -26,7 +23,6 @@ namespace ZAM.MenuUI
         public override void _Ready()
         {
             SetAnchorsPreset(LayoutPreset.FullRect);
-            SubSignals();
 
             BGMPlayer.Instance.SetSoundVolume(soundPlayer);
         }
@@ -44,12 +40,6 @@ namespace ZAM.MenuUI
         //     }
         // }
 
-        private void SubSignals()
-        {
-            // Connect(SignalName.Pressed, new Callable(this, MethodName.OnButtonPressed));
-            // Connect(SignalName.VisibilityChanged, new Callable(this, MethodName.OnVisibleChanged)); // EDIT: Testing for signal connections.
-        }
-
         //=============================================================================
         // SECTION: External Access
         //=============================================================================
@@ -58,7 +48,8 @@ namespace ZAM.MenuUI
         {
             isDisabled = shouldDisable;
 
-            if (GetParent().IsClass(ConstTerm.CANVAS_ITEM)) {
+            if (GetParent().IsClass(ConstTerm.CANVAS_ITEM))
+            {
                 if (isDisabled) { GetParent().Set(CanvasItem.PropertyName.Modulate, new Color(ConstTerm.GREY)); }
                 else { GetParent().Set(CanvasItem.PropertyName.Modulate, new Color(ConstTerm.WHITE)); }
             }
@@ -94,7 +85,7 @@ namespace ZAM.MenuUI
 
             return isUIDisabled;
         }
-
+        
         //=============================================================================
         // SECTION: Signal Methods
         //=============================================================================

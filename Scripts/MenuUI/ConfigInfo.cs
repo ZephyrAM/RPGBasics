@@ -34,7 +34,6 @@ namespace ZAM.MenuUI
         {
             HideConfig();
             IfNull();
-            GD.Print(InputMap.ActionGetEvents("Up"));
         }
 
         private void IfNull()
@@ -123,9 +122,9 @@ namespace ZAM.MenuUI
             graphicsValueList.GetChild<Label>(option).Text = value.ToString();
         }
 
-        public void ChangeResolutionText(int option, (int x, int y) index)
+        public void ChangeResolutionText(int option, Vector2 index)
         {
-            graphicsValueList.GetChild<Label>(option).Text = index.x.ToString() + "x" + index.y.ToString();
+            graphicsValueList.GetChild<Label>(option).Text = index.X.ToString() + "x" + index.Y.ToString();
         }
 
         public void AwaitKeybindText(int option, Container list)
@@ -145,6 +144,20 @@ namespace ZAM.MenuUI
 
             int listIndex = GetBindLists().IndexOf(list);
             string tempLabel = keybindsCommandList.GetChild<Label>(option).Text;
+
+            // If event used on different action, play error sound, wait for further input.
+            for (int l = 0; l < list.GetChildCount(); l++)
+            {
+                bool result = InputMap.EventIsAction(@event, activeCommandList.GetChild<Label>(l).Text) && l != option;
+                if (result)
+                {
+                    ButtonUI tempButton = list.GetChild(0).GetNode<ButtonUI>(ConstTerm.BUTTON);
+                    tempButton.SetQuasiDisabled(true);
+                    tempButton.OnButtonPressed();
+                    tempButton.SetQuasiDisabled(false);
+                    goto InvalidKey;
+                }
+            }
 
             switch (listIndex)
             {
@@ -171,7 +184,7 @@ namespace ZAM.MenuUI
                         }
                         else
                         {
-                            foreach (InputEvent key in InputMap.ActionGetEvents(tempLabel))
+                            foreach (InputEvent key in InputMap.ActionGetEvents(tempLabel)) // Search events for selected Action to replace correct one
                             {
                                 if (key is InputEventKey isKey)
                                 {
@@ -266,14 +279,14 @@ namespace ZAM.MenuUI
             keybindsPanel.Visible = true;
         }
 
-        public void SetupConfigValues((int, int) currentResolution)
+        public void SetupConfigValues(Vector2 currentResolution)
         {
             audioValueList.GetChild<Label>(0).Text = BGMPlayer.Instance.GetVolume(ConstTerm.MASTER).ToString();
             audioValueList.GetChild<Label>(1).Text = BGMPlayer.Instance.GetVolume(ConstTerm.BGM).ToString();
             audioValueList.GetChild<Label>(2).Text = BGMPlayer.Instance.GetVolume(ConstTerm.SOUND).ToString();
 
             graphicsValueList.GetChild<Label>(0).Text = GetWindow().Mode == Window.ModeEnum.Fullscreen ? true.ToString() : false.ToString();
-            graphicsValueList.GetChild<Label>(1).Text = currentResolution.Item1.ToString() + "x" + currentResolution.Item2.ToString();
+            graphicsValueList.GetChild<Label>(1).Text = currentResolution.X.ToString() + "x" + currentResolution.Y.ToString();
 
             for (int c = 0; c < keybindsCommandList.GetChildCount(); c++)
             {

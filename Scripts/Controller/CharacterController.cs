@@ -63,7 +63,7 @@ namespace ZAM.Controller
 		[Signal]
 		public delegate void onStepAreaEventHandler();
 		[Signal]
-		public delegate void onCollisionCheckEventHandler(GodotObject collider);
+		public delegate void onCollisionCheckEventHandler(CharacterBody2D collider);
 		[Signal]
 		public delegate void onInteractCheckEventHandler(Vector2 direction);
 		[Signal]

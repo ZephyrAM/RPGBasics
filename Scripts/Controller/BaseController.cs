@@ -41,7 +41,7 @@ namespace ZAM.Controller
 
         protected override void Dispose(bool disposing)
         {
-            UnSubSignals();
+            // UnSubSignals(); // EDIT: Signals not disconnecting properly, but being dispoed. BUG?
             base.Dispose(disposing);
         }
 
@@ -72,11 +72,8 @@ namespace ZAM.Controller
         {
             foreach (Node child in targetList.GetChildren())
             {
-                // child.GetNode<ButtonUI>(ConstTerm.BUTTON).MouseEntered -= () => OnMouseEntered(targetList, child);
                 child.GetNode<ButtonUI>(ConstTerm.BUTTON).Pressed -= OnMouseClick;
                 child.GetNode<ButtonUI>(ConstTerm.BUTTON).Disconnect(ButtonUI.SignalName.MouseEntered, activeSignals[child]);
-                // child.GetNode<ButtonUI>(ConstTerm.BUTTON).Disconnect(ButtonUI.SignalName.Pressed, Callable.From(OnMouseClick));
-                // child.GetNode<ButtonUI>(ConstTerm.BUTTON).Disconnect(ButtonUI.SignalName.MouseEntered, new Callable(child.GetNode<ButtonUI>(ConstTerm.BUTTON), MethodName.OnMouseEntered));
 
                 activeSignals.Remove(child);
             }

@@ -148,7 +148,7 @@ namespace ZAM.Interactions
         {
             // GD.Print("Target Interaction");
             // LoadChoiceText();
-            if (IsAutoBattle) { moveableBody.TriggerBattler(); return; }
+            // if (IsAutoBattle) { moveableBody.TriggerBattler(); return; }
             MapID tempID = (MapID)(int)SaveLoader.Instance.gameFile.GetValue(ConstTerm.SYSTEM + ConstTerm.DATA, ConstTerm.LOADING + ConstTerm.MAP + ConstTerm.ID);
             textID = tempID.ToString();
             textID += "." + Name + ".";
