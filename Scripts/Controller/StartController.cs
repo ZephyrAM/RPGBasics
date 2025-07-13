@@ -5,7 +5,7 @@ using ZAM.MenuUI;
 
 namespace ZAM.Controller
 {
-    public partial class StartController : BaseController, IUIFunctions
+    public partial class StartController : BaseController
     {
         [Export] private PackedScene newGame = null;
         [Export] private AudioStream bgm = null;
@@ -155,7 +155,7 @@ namespace ZAM.Controller
         private void CommandAccept()
         {
             if (!AcceptInput()) { return; }
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
             SelectOption();
         }
 
@@ -253,18 +253,18 @@ namespace ZAM.Controller
         private void OnCloseConfigOptions()
         {
             Startup();
-            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            activeControl = UIFunctions.FocusOn(activeList, currentCommand);
+            UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
         }
 
         protected override void OnMouseEntered(Container currList, Node currLabel)
         {
             if (currList != activeList) { return; }
 
-            activeControl = IUIFunctions.FocusOff(currList, currentCommand);
+            activeControl = UIFunctions.FocusOff(currList, currentCommand);
             currentCommand = currLabel.GetIndex();
 
-            activeControl = IUIFunctions.FocusOn(currList, currentCommand);
+            activeControl = UIFunctions.FocusOn(currList, currentCommand);
             mouseFocus = currLabel.GetNode<ButtonUI>(ConstTerm.BUTTON);
         }
 

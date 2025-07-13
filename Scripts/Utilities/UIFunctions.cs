@@ -4,7 +4,7 @@ using Godot.Collections;
 
 using ZAM.MenuUI;
 
-public interface IUIFunctions // EDIT: In Progess. Template UI Controls
+public partial class UIFunctions // EDIT: In Progess. Template UI Controls
 {
     //=============================================================================
     // SECTION: Selection Handling

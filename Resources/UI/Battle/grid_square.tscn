@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://cs8n1hdk6jkqs"]
+
+[ext_resource type="PackedScene" uid="uid://ceex1ny35kacf" path="res://Resources/UI/Menu/button_base.tscn" id="1_lbsoi"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ap2nr"]
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0, 0, 0, 1)
+
+[node name="ColorRect" type="ColorRect"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -800.0
+offset_top = -450.0
+offset_right = -710.0
+offset_bottom = -360.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button" parent="." instance=ExtResource("1_lbsoi")]
+show_behind_parent = false
+layout_mode = 1
+theme_override_styles/normal = SubResource("StyleBoxFlat_ap2nr")

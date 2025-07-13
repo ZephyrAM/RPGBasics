@@ -5,7 +5,7 @@ using ZAM.MenuUI;
 
 namespace ZAM.Controller
 {
-    public partial class MenuController : BaseController, IUIFunctions
+    public partial class MenuController : BaseController
     {
         [Export] private string[] commandOptions = [];
         [Export] private float containerEdgeBuffer = 0;
@@ -223,10 +223,10 @@ namespace ZAM.Controller
 
         // private bool AcceptInput()
         // {
-        //     activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+        //     activeControl = UIFunctions.FocusOff(activeList, currentCommand);
 
         //     if (activeControl.OnButtonPressed()) { InvalidOption(); return false; }
-        //     // if (activeControl.OnButtonPressed()) { IUIFunctions.InvalidOption(activeList, currentCommand, ref activeControl, out mouseFocus); return false; }
+        //     // if (activeControl.OnButtonPressed()) { UIFunctions.InvalidOption(activeList, currentCommand, ref activeControl, out mouseFocus); return false; }
         //     // if (activeList.GetChild(currentCommand).GetNode<ButtonUI>(ConstTerm.BUTTON).Disabled == true) { InvalidOption(); return false; }
         //     // if (activeList.GetChild(currentCommand).Modulate.ToString() == ConstTerm.GREY) { InvalidOption(); return false; }
 
@@ -247,7 +247,7 @@ namespace ZAM.Controller
         private void CommandAccept()
         {
             if (!AcceptInput()) { return; }
-            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            // UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
             CommandOption(currentCommand);
         }
 
@@ -262,7 +262,7 @@ namespace ZAM.Controller
         private void MemberAccept()
         {
             if (!AcceptInput()) { return; }
-            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            // UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
 
             if (memberOption == ConstTerm.EQUIP) { SetInputPhase(ConstTerm.EQUIP + ConstTerm.SELECT); }
             else if (memberOption == ConstTerm.SKILL) { SetInputPhase(ConstTerm.SKILL + ConstTerm.SELECT); }
@@ -285,7 +285,7 @@ namespace ZAM.Controller
             EmitSignal(SignalName.onItemSelect, currentCommand);
             SetNewCommand();
 
-            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            // UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
         }
 
         private void ItemUsePhase(InputEvent @event) // inputPhase == ConstTerm.ITEM_USE
@@ -349,7 +349,7 @@ namespace ZAM.Controller
         private void EquipSelectAccept()
         {
             if (!AcceptInput()) { return; }
-            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            // UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
             
             SetInputPhase(ConstTerm.EQUIP + ConstTerm.USE);
             EmitSignal(SignalName.onEquipSlot, currentCommand);
@@ -405,10 +405,10 @@ namespace ZAM.Controller
 
         // private void CommandSelect(int change, Container targetList, string direction)
         // {
-        //     change = IUIFunctions.CheckColumn(change, direction, numColumn);
-        //     IUIFunctions.ChangeTarget(change, ref currentCommand, IUIFunctions.GetCommandCount(targetList));
+        //     change = UIFunctions.CheckColumn(change, direction, numColumn);
+        //     UIFunctions.ChangeTarget(change, ref currentCommand, UIFunctions.GetCommandCount(targetList));
 
-        //     activeControl = IUIFunctions.FocusOn(targetList, currentCommand);
+        //     activeControl = UIFunctions.FocusOn(targetList, currentCommand);
         //     // EmitSignal(SignalName.onTargetChange);
         // }
 
@@ -438,15 +438,15 @@ namespace ZAM.Controller
             base.CancelCycle();
 
             if (clearEquip) { EmitSignal(SignalName.onEquipSlot, -1); } // -1 signals to clear the +/- stat adjustments from the screen
-            // activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
-            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            // activeControl = UIFunctions.FocusOff(activeList, currentCommand);
+            // UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
 
-            // string oldPhase = IUIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
+            // string oldPhase = UIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
             // SetInputPhase(oldPhase);
             // // SetNumColumn();
 
-            // activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
-            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            // activeControl = UIFunctions.FocusOn(activeList, currentCommand);
+            // UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
         }
 
         // private void CancelSelect()
@@ -525,15 +525,15 @@ namespace ZAM.Controller
                     break;
             }
             
-            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            // UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
             // SetNumColumn();
             SetNewCommand();
         }
 
         // private void InvalidOption()
         // {
-        //     activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
-        //     IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+        //     activeControl = UIFunctions.FocusOn(activeList, currentCommand);
+        //     UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
         //     // play 'cannot use' sound effect
         // }
 
@@ -552,7 +552,7 @@ namespace ZAM.Controller
 
         protected override void OnMouseClick()
         {
-            // activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+            // activeControl = UIFunctions.FocusOff(activeList, currentCommand);
 
             switch (GetInputPhase())
             {
@@ -624,13 +624,13 @@ namespace ZAM.Controller
             SetInputPhase(ConstTerm.COMMAND);
             SetControlActive(true);
 
-            IUIFunctions.ToggleMouseFilter(infoList, Control.MouseFilterEnum.Ignore, out mouseFocus); // EDIT: Blocking control to other visible list
+            UIFunctions.ToggleMouseFilter(infoList, Control.MouseFilterEnum.Ignore, out mouseFocus); // EDIT: Blocking control to other visible list
         }
 
         public void MenuClose()
         {
             UnSubSignals();
-            IUIFunctions.ResetMouseInput(commandList, out mouseFocus);
+            UIFunctions.ResetMouseInput(commandList, out mouseFocus);
             ResetCommandPhase();
             
             SetInputPhase(ConstTerm.WAIT);
@@ -641,7 +641,7 @@ namespace ZAM.Controller
         // private void ResetMouseInput()
         // {
         //     Input.MouseMode = Input.MouseModeEnum.Visible;
-        //     IUIFunctions.ToggleMouseFilter(commandList, Control.MouseFilterEnum.Stop, out mouseFocus);
+        //     UIFunctions.ToggleMouseFilter(commandList, Control.MouseFilterEnum.Stop, out mouseFocus);
         // }
 
         // public void UpdateInfo()
@@ -659,7 +659,7 @@ namespace ZAM.Controller
         //     previousCommand.Add(currentCommand);
         //     currentCommand = 0;
 
-        //     activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+        //     activeControl = UIFunctions.FocusOn(activeList, currentCommand);
         // }
 
         public string[] GetCommandOptions()

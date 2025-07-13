@@ -6,7 +6,7 @@ using ZAM.MenuUI;
 
 namespace ZAM.Controller
 {
-    public partial class BattleController : BaseController, IUIFunctions
+    public partial class BattleController : BaseController
     {
         [Export] private string[] commandOptions = [];
         [Export] private float containerEdgeBuffer = 0;
@@ -224,7 +224,7 @@ namespace ZAM.Controller
 
         // private bool AcceptInput()
         // {
-        //     activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+        //     activeControl = UIFunctions.FocusOff(activeList, currentCommand);
         //     if (activeControl.OnButtonPressed()) { InvalidOption(); return false; }
 
         //     previousPhase.Add(inputPhase);
@@ -243,7 +243,7 @@ namespace ZAM.Controller
         private void CommandAccept()
         {
             if (!AcceptInput()) { return; }
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
             CommandOption(currentCommand);
         }
 
@@ -394,10 +394,10 @@ namespace ZAM.Controller
 
         // private void CommandSelect(int change, Container targetList, string direction)
         // {
-        //     change = IUIFunctions.CheckColumn(change, direction, numColumn);
-        //     IUIFunctions.ChangeTarget(change, ref currentCommand, IUIFunctions.GetCommandCount(targetList));
+        //     change = UIFunctions.CheckColumn(change, direction, numColumn);
+        //     UIFunctions.ChangeTarget(change, ref currentCommand, UIFunctions.GetCommandCount(targetList));
 
-        //     activeControl = IUIFunctions.FocusOn(targetList, currentCommand);
+        //     activeControl = UIFunctions.FocusOn(targetList, currentCommand);
 
         //     // if (direction == ConstTerm.VERT) { change *= numColumn; }
         //     // currentCommand = ChangeTarget(change, currentCommand, GetCommandCount(targetList));
@@ -413,8 +413,8 @@ namespace ZAM.Controller
 
         private void TargetSelect(int change, string direction) // EDIT: Set directional targetting value, for horz/vert sort order.
         {
-            change = IUIFunctions.CheckColumn(change, direction, numColumn);
-            IUIFunctions.ChangeTarget(change, ref actionTarget, GetTargetTeamSize());
+            change = UIFunctions.CheckColumn(change, direction, numColumn);
+            UIFunctions.ChangeTarget(change, ref actionTarget, GetTargetTeamSize());
 
             // if (playerAnim.IsPlaying()) { return; }
             // actionTarget = ChangeTarget(change, actionTarget, GetTargetTeamSize());
@@ -426,7 +426,7 @@ namespace ZAM.Controller
         {
             SetTargetTeam(team);
             actionTarget = target;
-            IUIFunctions.ChangeTarget(0, ref actionTarget, GetTargetTeamSize());
+            UIFunctions.ChangeTarget(0, ref actionTarget, GetTargetTeamSize());
             EmitSignal(SignalName.onTargetChange);
         }
 
@@ -451,15 +451,15 @@ namespace ZAM.Controller
 
             // EmitSignal(SignalName.onTargetChange);
 
-            // activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
-            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            // activeControl = UIFunctions.FocusOff(activeList, currentCommand);
+            // UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
 
-            // string oldPhase = IUIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
+            // string oldPhase = UIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
             // SetTurnPhase(oldPhase);
             // // SetNumColumn();
 
-            // activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
-            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            // activeControl = UIFunctions.FocusOn(activeList, currentCommand);
+            // UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
 
             base.CancelCycle();
 
@@ -500,15 +500,15 @@ namespace ZAM.Controller
                     break;
             }
 
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
             // SetNumColumn();
             SetNewCommand();
         }
 
         // private void InvalidOption()
         // {
-        //     activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
-        //     IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+        //     activeControl = UIFunctions.FocusOn(activeList, currentCommand);
+        //     UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
         //     // play 'cannot use' sound effect
         // }
 
@@ -570,16 +570,16 @@ namespace ZAM.Controller
         // {
         //     if (currList != activeList) { return; }
 
-        //     activeControl = IUIFunctions.FocusOff(currList, currentCommand);
+        //     activeControl = UIFunctions.FocusOff(currList, currentCommand);
         //     currentCommand = currLabel.GetIndex();
 
-        //     activeControl = IUIFunctions.FocusOn(currList, currentCommand);
+        //     activeControl = UIFunctions.FocusOn(currList, currentCommand);
         //     mouseFocus = currLabel.GetNode<ButtonUI>(ConstTerm.BUTTON);
         // }
 
         protected override void OnMouseClick()
         {
-            // activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+            // activeControl = UIFunctions.FocusOff(activeList, currentCommand);
 
             switch (GetInputPhase())
             {
@@ -655,7 +655,7 @@ namespace ZAM.Controller
             ButtonUI initialFocus = commandList.GetChild(currentCommand).GetNode<ButtonUI>(ConstTerm.BUTTON);
             initialFocus?.GrabFocus();
 
-            IUIFunctions.ToggleMouseFilter(commandList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            UIFunctions.ToggleMouseFilter(commandList, Control.MouseFilterEnum.Stop, out mouseFocus);
             SetInputPhase(ConstTerm.COMMAND);
             SetPlayerTurn(true);
             SetNumColumn();
@@ -709,7 +709,7 @@ namespace ZAM.Controller
         //     previousCommand.Add(currentCommand);
         //     currentCommand = 0;
 
-        //     activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+        //     activeControl = UIFunctions.FocusOn(activeList, currentCommand);
         // }
 
         // public string GetTurnPhase()

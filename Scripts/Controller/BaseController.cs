@@ -136,11 +136,11 @@ namespace ZAM.Controller
 
         protected virtual bool AcceptInput()
         {
-            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
+            activeControl = UIFunctions.FocusOff(activeList, currentCommand);
             if (activeControl.OnButtonPressed()) { InvalidOption(); return false; }
 
             previousPhase.Add(GetInputPhase());
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
             return true;
         }
 
@@ -170,10 +170,10 @@ namespace ZAM.Controller
 
         protected virtual void CommandSelect(int change, string direction)
         {
-            change = IUIFunctions.CheckColumn(change, direction, numColumn);
-            IUIFunctions.ChangeTarget(change, ref currentCommand, IUIFunctions.GetCommandCount(activeList));
+            change = UIFunctions.CheckColumn(change, direction, numColumn);
+            UIFunctions.ChangeTarget(change, ref currentCommand, UIFunctions.GetCommandCount(activeList));
 
-            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+            activeControl = UIFunctions.FocusOn(activeList, currentCommand);
         }
 
         protected virtual void SetNewCommand()
@@ -181,7 +181,7 @@ namespace ZAM.Controller
             previousCommand.Add(currentCommand);
             currentCommand = 0;
 
-            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+            activeControl = UIFunctions.FocusOn(activeList, currentCommand);
         }
 
         protected virtual void ResetCommandPhase()
@@ -195,14 +195,14 @@ namespace ZAM.Controller
         {
             // if (inputPhase == ConstTerm.COMMAND) { return; } // EDIT: If base screen, return
 
-            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            activeControl = UIFunctions.FocusOff(activeList, currentCommand);
+            UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
 
-            string oldPhase = IUIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
+            string oldPhase = UIFunctions.CancelSelect(out currentCommand, previousCommand, previousPhase);
             SetInputPhase(oldPhase);
 
-            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            activeControl = UIFunctions.FocusOn(activeList, currentCommand);
+            UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
         }
 
         //=============================================================================
@@ -211,8 +211,8 @@ namespace ZAM.Controller
 
         protected virtual void InvalidOption()
         {
-            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            activeControl = UIFunctions.FocusOn(activeList, currentCommand);
+            UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
             // play 'cannot use' sound effect
         }
 
@@ -225,10 +225,10 @@ namespace ZAM.Controller
             // if (currList != activeList) { return; }
             activeList = currList;
 
-            activeControl = IUIFunctions.FocusOff(currList, currentCommand);
+            activeControl = UIFunctions.FocusOff(currList, currentCommand);
             currentCommand = currLabel.GetIndex();
 
-            activeControl = IUIFunctions.FocusOn(currList, currentCommand);
+            activeControl = UIFunctions.FocusOn(currList, currentCommand);
             mouseFocus = currLabel.GetNode<ButtonUI>(ConstTerm.BUTTON);
         }
 
@@ -271,7 +271,7 @@ namespace ZAM.Controller
             if (listDict.TryGetValue(phase, out Container value))
             {
                 activeList = value;
-                IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+                UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
             }
             else { return; }
             SetNumColumn();
@@ -279,12 +279,12 @@ namespace ZAM.Controller
 
         public virtual void ChangeActiveList(Container list) // For use with multiple, simultaneously active lists
         {
-            activeControl = IUIFunctions.FocusOff(activeList, currentCommand);
-            // IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            activeControl = UIFunctions.FocusOff(activeList, currentCommand);
+            // UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
 
             activeList = list;
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
-            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
+            UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            activeControl = UIFunctions.FocusOn(activeList, currentCommand);
         }
 
         public int GetCommand()

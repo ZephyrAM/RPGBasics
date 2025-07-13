@@ -7,7 +7,7 @@ using ZAM.MenuUI;
 
 namespace ZAM.Controller
 {
-	public partial class CharacterController : BaseController, IUIFunctions
+	public partial class CharacterController : BaseController
 	{
 		// Assigned Variables \\
 		[Export] private float baseSpeed = 350f;
@@ -356,7 +356,7 @@ namespace ZAM.Controller
 		{
 			mouseFocus = null;
 			EmitSignal(SignalName.onChoiceSelect);
-			activeControl = IUIFunctions.FocusOff(choiceList, choiceCommand);
+			activeControl = UIFunctions.FocusOff(choiceList, choiceCommand);
 			choiceCommand = 0;
 		}
 
@@ -508,10 +508,10 @@ namespace ZAM.Controller
 
 		private void CommandSelect(int change, Container targetList, string scrollDirection)
 		{			
-			change = IUIFunctions.CheckColumn(change, scrollDirection, numColumn);
-            IUIFunctions.ChangeTarget(change, ref choiceCommand, IUIFunctions.GetCommandCount(targetList));
+			change = UIFunctions.CheckColumn(change, scrollDirection, numColumn);
+            UIFunctions.ChangeTarget(change, ref choiceCommand, UIFunctions.GetCommandCount(targetList));
 
-            activeControl = IUIFunctions.FocusOn(targetList, choiceCommand);
+            activeControl = UIFunctions.FocusOn(targetList, choiceCommand);
 			EmitSignal(SignalName.onSelectChange);
 		}
 
@@ -635,7 +635,7 @@ namespace ZAM.Controller
 		// 	inputPhase = phase;
 		// 	if (phase == ConstTerm.CHOICE) {
 		// 		SubLists(choiceList);
-		// 		activeControl = IUIFunctions.FocusOn(choiceList, choiceCommand);
+		// 		activeControl = UIFunctions.FocusOn(choiceList, choiceCommand);
 		// 	}
 		// }
 

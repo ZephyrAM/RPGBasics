@@ -4,7 +4,7 @@ using ZAM.MenuUI;
 
 namespace ZAM.Controller
 {
-    public partial class PauseController : BaseController, IUIFunctions
+    public partial class PauseController : BaseController
     {
         [Export] private VBoxContainer commandList = null;
         [Export] private ConfigController configInput = null;
@@ -115,7 +115,7 @@ namespace ZAM.Controller
         private void CommandAccept()
         {
             if (!AcceptInput()) { return; }
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
+            UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Ignore, out mouseFocus);
             SelectOption();
         }
 
@@ -176,8 +176,8 @@ namespace ZAM.Controller
             await ToSignal(GetTree(), ConstTerm.PROCESS_FRAME);
             Startup();
 
-            activeControl = IUIFunctions.FocusOn(activeList, currentCommand);
-            IUIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
+            activeControl = UIFunctions.FocusOn(activeList, currentCommand);
+            UIFunctions.ToggleMouseFilter(activeList, Control.MouseFilterEnum.Stop, out mouseFocus);
         }
 
         protected override void OnMouseClick()
